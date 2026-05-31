@@ -8,16 +8,48 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [emailSent, setEmailSent] = useState(false);
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
     if (isSignUp) {
-      await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        alert(error.message);
+      } else {
+        setEmailSent(true);
+      }
     } else {
-      await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        alert('Invalid email or password. Please try again.');
+      }
+      // Success auto-redirects via App.tsx user state
     }
     setLoading(false);
   };
+
+  if (emailSent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-transparent">
+        <div className="glass p-10 rounded-[3rem] shadow-2xl max-w-md w-full text-center animate-slide-in-up border-none">
+          <Mail className="w-16 h-16 text-blue-500 mx-auto mb-6" />
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tighter">Check your email</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
+            We've sent a confirmation link to <strong className="text-blue-600">{email}</strong>. Please click the link to activate your account.
+          </p>
+          <button
+            onClick={() => setEmailSent(false)}
+            className="w-full mt-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-black font-black uppercase tracking-widest text-sm rounded-2xl transition-all hover:scale-105 active:scale-95"
+          >
+            Back to Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleGitHubLogin = async () => {
     await supabase.auth.signInWithOAuth({ provider: 'github' });
