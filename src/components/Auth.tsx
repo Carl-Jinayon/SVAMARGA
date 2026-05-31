@@ -10,6 +10,14 @@ export default function Auth() {
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Reset form when toggling modes
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setEmail('');
+    setPassword('');
+    setError(null);
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -25,7 +33,7 @@ export default function Auth() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        setError('Invalid email or password. Please try again.');
+        setError('Invalid email or password. Please check your credentials.');
       }
     }
     setLoading(false);
@@ -59,9 +67,14 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-transparent">
       <div className="glass p-10 rounded-[3rem] shadow-2xl max-w-md w-full animate-slide-in-up border-none">
-        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-8 uppercase tracking-tighter italic text-center">
-          {isSignUp ? 'Join Tracker' : 'Welcome Back'}
-        </h2>
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic mb-2">
+            {isSignUp ? 'Create Account' : 'Welcome Back'}
+          </h2>
+          <p className="text-gray-500 text-sm font-medium">
+            {isSignUp ? 'Start your engineering journey today.' : 'Log in to continue your mission.'}
+          </p>
+        </div>
 
         <form onSubmit={handleAuth} className="space-y-6">
           {error && (
@@ -74,7 +87,7 @@ export default function Auth() {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setError(null); }}
               placeholder="Email address"
               className="w-full pl-12 pr-4 py-4 bg-white/40 dark:bg-black/20 border border-white/20 dark:border-white/5 rounded-2xl text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               required
@@ -85,7 +98,7 @@ export default function Auth() {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setError(null); }}
               placeholder="Password"
               className="w-full pl-12 pr-4 py-4 bg-white/40 dark:bg-black/20 border border-white/20 dark:border-white/5 rounded-2xl text-gray-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               required
@@ -95,9 +108,11 @@ export default function Auth() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-sm rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95"
+            className={`w-full py-4 text-white font-black uppercase tracking-widest text-sm rounded-2xl transition-all shadow-xl active:scale-95 ${
+              isSignUp ? 'bg-green-600 hover:bg-green-700 shadow-green-600/20' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'
+            }`}
           >
-            {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
+            {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
           </button>
         </form>
 
@@ -119,7 +134,7 @@ export default function Auth() {
         </button>
 
         <button
-          onClick={() => setIsSignUp(!isSignUp)}
+          onClick={toggleMode}
           className="w-full mt-8 text-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
         >
           {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
