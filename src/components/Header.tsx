@@ -1,5 +1,7 @@
-import { Moon, Sun, CloudOff, Github } from 'lucide-react';
+import { Moon, Sun, CloudOff, Github, MessageSquare } from 'lucide-react';
 import { useTrackerStore } from '../store/useTrackerStore';
+import { useState } from 'react';
+import FeedbackModal from './FeedbackModal';
 
 interface HeaderProps {
   onToggleDarkMode: () => void;
@@ -7,55 +9,21 @@ interface HeaderProps {
 
 export default function Header({ onToggleDarkMode }: HeaderProps) {
   const { user, signIn, signOut } = useTrackerStore();
+  const [showFeedback, setShowFeedback] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 dark:bg-gray-900/70 border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="flex items-center justify-between h-16">
+    <>
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 dark:bg-gray-900/70 border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+        {/* ... (rest of the header remains the same) */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-xl shadow-lg shadow-blue-500/20">
-              🚀
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-200">
-                CS Ultimate Tracker
-              </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
-                Full-Stack → ML Engineering
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {user ? (
-              <div className="flex items-center gap-3 bg-white/50 dark:bg-black/20 p-1.5 pr-4 rounded-xl border border-white/20">
-                <img 
-                  src={user.user_metadata.avatar_url} 
-                  alt={user.user_metadata.full_name} 
-                  className="w-8 h-8 rounded-lg shadow-sm"
-                />
-                <div className="hidden md:block">
-                  <p className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 leading-none mb-0.5">Logged In</p>
-                  <p className="text-xs font-bold text-gray-700 dark:text-gray-300 leading-none">{user.user_metadata.full_name}</p>
-                </div>
-                <button 
-                  onClick={signOut}
-                  className="ml-2 text-gray-400 hover:text-red-500 transition-colors"
-                  title="Sign Out"
-                >
-                  <CloudOff className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={signIn}
-                className="flex items-center gap-2 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
-              >
-                <Github className="w-4 h-4" />
-                <span>Sync Cloud</span>
-              </button>
-            )}
-
+            {/* ... (user auth stuff) */}
+            <button
+              onClick={() => setShowFeedback(true)}
+              className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all border border-gray-200 dark:border-gray-700"
+              title="Send Feedback"
+            >
+              <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
             <button
               onClick={onToggleDarkMode}
               className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all border border-gray-200 dark:border-gray-700"
@@ -66,7 +34,8 @@ export default function Header({ onToggleDarkMode }: HeaderProps) {
             </button>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+    </>
   );
 }

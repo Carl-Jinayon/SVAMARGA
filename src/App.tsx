@@ -8,9 +8,10 @@ import Analytics from './components/Analytics';
 import Planner from './components/Planner';
 import CareerTools from './components/CareerTools';
 import Auth from './components/Auth';
-import { BookOpen, BarChart3, Calendar, Briefcase } from 'lucide-react';
+import AdminFeedback from './components/AdminFeedback';
+import { BookOpen, BarChart3, Calendar, Briefcase, Shield } from 'lucide-react';
 
-type TabType = 'dashboard' | 'curriculum' | 'analytics' | 'planner' | 'career';
+type TabType = 'dashboard' | 'curriculum' | 'analytics' | 'planner' | 'career' | 'admin';
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -43,6 +44,10 @@ function App() {
     { id: 'planner', label: 'Planner', icon: <Calendar className="w-4 h-4" /> },
     { id: 'career', label: 'Career', icon: <Briefcase className="w-4 h-4" /> },
   ];
+
+  if (user?.id === '534d523e-3b9c-43ec-92cc-2c481efd0181') {
+    tabs.push({ id: 'admin', label: 'Admin', icon: <Shield className="w-4 h-4" /> });
+  }
 
   return (
     <div className={darkMode ? 'dark' : ''}>
@@ -77,6 +82,7 @@ function App() {
             {activeTab === 'analytics' && <Analytics />}
             {activeTab === 'planner' && <Planner />}
             {activeTab === 'career' && <CareerTools />}
+            {activeTab === 'admin' && <AdminFeedback />}
           </div>
         </main>
 
