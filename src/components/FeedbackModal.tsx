@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { MessageSquare, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useTrackerStore } from '../store/useTrackerStore';
 
 export default function FeedbackModal({ onClose }: { onClose: () => void }) {
