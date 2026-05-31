@@ -45,7 +45,7 @@ function App() {
     { id: 'career', label: 'Career', icon: <Briefcase className="w-4 h-4" /> },
   ];
 
-  if (user?.id === '534d523e-3b9c-43ec-92cc-2c481efd0181') {
+  if (user?.id === '06391879-d280-472e-b253-7e0685bf1014') {
     tabs.push({ id: 'admin', label: 'Admin', icon: <Shield className="w-4 h-4" /> });
   }
 

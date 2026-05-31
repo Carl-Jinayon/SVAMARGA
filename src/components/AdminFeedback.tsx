@@ -15,7 +15,7 @@ export default function AdminFeedback() {
   const { user } = useTrackerStore();
 
   // Replace this with your actual User ID from Supabase Auth
-  const ADMIN_ID = '534d523e-3b9c-43ec-92cc-2c481efd0181';
+  const ADMIN_ID = '06391879-d280-472e-b253-7e0685bf1014';
 
   useEffect(() => {
     if (user?.id === ADMIN_ID) {
