@@ -1,0 +1,83 @@
+      {
+        id: 'CS501',
+        name: 'Technical Interview Mastery',
+        hours: 120,
+        duration: 'Intensify 3 months before applying',
+        difficulty: 'Hard',
+        description: 'Technical interviews are a skill of their own. The best engineers fail them because they\'ve never practiced the format. The goal is not to be the smartest — it is to be the most practiced. Deliberate repetition beats raw intelligence every time.',
+        topics: [
+          {
+            name: 'Coding Interview Framework',
+            subTopics: [
+              { name: 'UCTPV: Understand the problem fully, Clarify edge cases, Think aloud, Plan the approach, Verify with test cases' },
+              { name: 'Clarify before coding: input constraints, edge cases, expected output format' },
+              { name: 'Think aloud always: narrate your thought process — silence is interpreted as being stuck' },
+              { name: 'Brute force first: state the naive O(n^2) or O(2^n) solution before optimizing' },
+              { name: 'Optimize with questions: "can I use extra space?", "is the input sorted?", "what are the constraints?"' },
+              { name: 'Test manually: trace through 2-3 examples including edge cases' },
+              { name: 'Analyze complexity: always state time and space complexity' },
+            ],
+          },
+          {
+            name: 'The 10 Coding Patterns (Master These)',
+            subTopics: [
+              { name: 'Sliding Window: substring/subarray with size constraint' },
+              { name: 'Two Pointers: sorted array, palindrome check, 3-sum' },
+              { name: 'Binary Search: sorted array, rotated array, answer-range search' },
+              { name: 'BFS/DFS: graphs, trees, grids' },
+              { name: 'Dynamic Programming: overlapping subproblems + optimal substructure' },
+              { name: 'Backtracking: subsets, permutations, N-queens, word search' },
+              { name: 'Heap/Priority Queue: top K elements, K closest points, median of stream' },
+              { name: 'Intervals: merge overlapping, insert interval, meeting rooms' },
+              { name: 'Linked List: fast/slow pointer, reverse in k-groups, merge k sorted lists' },
+              { name: 'Monotonic Stack: next greater element, daily temperatures, largest rectangle' },
+            ],
+          },
+          {
+            name: 'System Design Interview Framework',
+            subTopics: [
+              { name: 'Total time: 45 minutes — budget it explicitly at the start' },
+              { name: 'Clarify (5 min): functional/non-functional requirements' },
+              { name: 'Estimate (5 min): DAU, QPS, storage, bandwidth' },
+              { name: 'High-level design (10 min): 3-5 boxes with arrows, name each component' },
+              { name: 'Deep dive (20 min): interviewer picks 1-2 areas' },
+              { name: 'Wrap-up (5 min): identify bottlenecks, discuss improvements' },
+              { name: 'Always state tradeoffs: "I chose X over Y because... the downside of X is..."' },
+            ],
+          },
+          {
+            name: 'Behavioral Interviews (STAR Method)',
+            subTopics: [
+              { name: 'Situation: 1-2 sentences context' },
+              { name: 'Task: what was YOUR specific responsibility' },
+              { name: 'Action: what YOU specifically did' },
+              { name: 'Result: quantify if possible (business impact)' },
+              { name: 'Prepare 10 stories: leadership, technical decision, conflict, failure, mentoring, etc.' },
+              { name: 'Common questions: tell me about yourself, greatest technical challenge, why this company' },
+              { name: 'Research: engineering blog, recent news, tech stack' },
+            ],
+          },
+        ],
+        projects: ['NeetCode 150', '20 Mock Interviews', '7 System Design Walkthroughs', 'Behavioral Stories Bank'],
+        resources: [
+          { name: 'neetcode.io', type: 'Platform', cost: 'Free', stars: 5, url: 'https://neetcode.io' },
+          { name: 'Pramp.com', type: 'Platform', cost: 'Free', stars: 5, url: 'https://pramp.com' },
+          { name: 'Tech Interview Handbook', type: 'Website', cost: 'Free', stars: 5, url: 'https://techinterviewhandbook.org' },
+          { name: 'Cracking the Coding Interview', type: 'Book', cost: 'Paid', stars: 4, url: '#' },
+        ],
+        commonMistakes: [
+          'Grinding 300 LeetCode problems of the same type instead of learning all 10 patterns',
+          'Practicing coding in silence — the interviewer needs to hear your thinking',
+          'Not practicing system design until Phase 5 — you should have done monthly mocks from Phase 3',
+          'Being too proud to ask for hints — asking clarifying questions is professional, not weak',
+          'Not researching the company — interviewers notice when you don\'t know the product'
+        ],
+        selfCheck: [
+          'Can you solve any Medium DP problem you\'ve never seen before in under 35 minutes?',
+          'Can you design a URL shortener from scratch in 45 minutes with explicit tradeoffs?',
+          'Can you deliver your "tell me about yourself" answer in exactly 90 seconds?',
+          'Can you name all 10 coding patterns and immediately give 2 example problems for each?',
+          'Can you identify which pattern applies to a new LeetCode problem in under 2 minutes?'
+        ],
+        whenStuck: 'If you freeze during an interview: say "Let me think through this step by step." Then restate the problem in your own words. This buys time, shows composure, and often reveals the solution. Never go silent for more than 30 seconds without narrating your thinking.',
+      },

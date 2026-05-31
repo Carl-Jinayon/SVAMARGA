@@ -24,7 +24,6 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
     if (error) {
       alert('Failed to send feedback. Please try again.');
     } else {
-      setMessage('');
       alert('Thank you for your feedback!');
       onClose();
     }
@@ -35,14 +34,14 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
       <div className="glass p-8 rounded-[2rem] shadow-2xl max-w-md w-full border-none">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Report a Bug</h3>
-          <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-white/20 rounded-full text-gray-900 dark:text-white"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full"><X className="w-5 h-5" /></button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="What went wrong? Tell us the details..."
-            className="w-full h-32 p-4 bg-gray-100 dark:bg-black/20 border border-gray-300 dark:border-white/10 rounded-2xl text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="w-full h-32 p-4 bg-white/40 dark:bg-black/20 border border-white/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             required
           />
           <button

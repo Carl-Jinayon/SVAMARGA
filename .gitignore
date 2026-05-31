@@ -28,4 +28,4 @@ coverage
 *.swo
 
 # Vercel
-.vercel*.pdf
+.vercel

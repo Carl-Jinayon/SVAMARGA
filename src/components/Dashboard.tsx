@@ -16,28 +16,17 @@ export default function Dashboard() {
 
   const currentMission = activeWeekPlan ? getWeeklyPlan(activeWeekPlan) : null;
 
-  const handleShare = async () => {
-    // Basic implementation: Create a small summary text image
-    const canvas = document.createElement('canvas');
-    canvas.width = 400;
-    canvas.height = 200;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '20px sans-serif';
-      ctx.fillText('CS Ultimate Tracker Progress', 20, 40);
-      ctx.font = '16px sans-serif';
-      ctx.fillText(`Overall Mastery: ${getOverallProgress()}%`, 20, 80);
-      ctx.fillText(`Subjects: ${getCompletedSubjectsCount()}/${getTotalSubjectsCount()}`, 20, 110);
-      
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = 'my-progress.png';
-      link.href = dataUrl;
-      link.click();
-    }
+  const handleShare = () => {
+    const summary = `🚀 CS Ultimate Tracker Progress:
+📈 Overall: ${getOverallProgress()}%
+📚 Subjects: ${getCompletedSubjectsCount()}/${getTotalSubjectsCount()}
+🔥 Streak: ${currentStreak} Days
+⏱️ Hours: ${Math.round(getTotalMinutes() / 60)}h
+
+Track your own progress at: ${window.location.origin}`;
+    
+    navigator.clipboard.writeText(summary);
+    alert('Progress summary copied to clipboard! 🚀');
   };
 
   const totalMinutes = getTotalMinutes();

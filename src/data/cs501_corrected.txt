@@ -1,0 +1,139 @@
+      {
+        id: 'CS501',
+        name: 'Technical Interview Mastery',
+        hours: 120,
+        duration: 'Intensify 3 months before applying',
+        difficulty: 'Hard',
+        description: 'Technical interviews are a skill of their own. The best engineers fail them because they have never practiced the format. The goal is not to be the smartest — it is to be the most practiced. Deliberate repetition beats raw intelligence every time.',
+        topics: [
+          {
+            name: 'Coding Interview Framework',
+            subTopics: [
+              { name: 'UCTPV: Understand the problem fully, Clarify edge cases, Think aloud, Plan the approach, Verify with test cases' },
+              { name: 'Clarify before coding: input constraints, edge cases, expected output format' },
+              { name: 'Think aloud always: narrate your thought process — silence is interpreted as being stuck' },
+              { name: 'Brute force first: state the naive solution before optimizing' },
+              { name: 'Optimize with questions: can I use extra space, is the input sorted, what are the constraints?' },
+              { name: 'Test manually: trace through 2-3 examples including edge cases' },
+              { name: 'Analyze complexity: always state time and space complexity' },
+            ],
+          },
+          {
+            name: 'The 10 Coding Patterns',
+            subTopics: [
+              { name: 'Sliding Window: substring/subarray with size constraint' },
+              { name: 'Two Pointers: sorted array, palindrome check, 3-sum' },
+              { name: 'Binary Search: sorted array, rotated array, answer-range search' },
+              { name: 'BFS/DFS: graphs, trees, grids' },
+              { name: 'Dynamic Programming: overlapping subproblems + optimal substructure' },
+              { name: 'Backtracking: subsets, permutations, N-queens, word search' },
+              { name: 'Heap/Priority Queue: top K elements, K closest points, median of stream' },
+              { name: 'Intervals: merge overlapping, insert interval, meeting rooms' },
+              { name: 'Linked List: fast/slow pointer, reverse in k-groups, merge k sorted lists' },
+              { name: 'Monotonic Stack: next greater element, daily temperatures, largest rectangle' },
+            ],
+          },
+          {
+            name: 'System Design Interview Framework',
+            subTopics: [
+              { name: 'Total time: 45 minutes — budget it explicitly at the start' },
+              { name: 'Clarify (5 min): functional/non-functional requirements' },
+              { name: 'Estimate (5 min): DAU, QPS, storage, bandwidth' },
+              { name: 'High-level design (10 min): 3-5 boxes with arrows, name each component' },
+              { name: 'Deep dive (20 min): interviewer picks 1-2 areas' },
+              { name: 'Wrap-up (5 min): identify bottlenecks, discuss improvements' },
+              { name: 'Always state tradeoffs: I chose X over Y because... the downside of X is...' },
+            ],
+          },
+          {
+            name: 'Behavioral Interviews (STAR Method)',
+            subTopics: [
+              { name: 'Situation: 1-2 sentences context' },
+              { name: 'Task: what was YOUR specific responsibility' },
+              { name: 'Action: what YOU specifically did' },
+              { name: 'Result: quantify if possible (business impact)' },
+              { name: 'Prepare 10 stories: leadership, technical decision, conflict, failure, mentoring, etc.' },
+              { name: 'Common questions: tell me about yourself, greatest technical challenge, why this company' },
+              { name: 'Research: engineering blog, recent news, tech stack' },
+            ],
+          },
+        ],
+        projects: ['NeetCode 150', '20 Mock Interviews', '7 System Design Walkthroughs', 'Behavioral Stories Bank'],
+        resources: [
+          { name: 'neetcode.io', type: 'Platform', cost: 'Free', stars: 5, url: 'https://neetcode.io' },
+          { name: 'Pramp.com', type: 'Platform', cost: 'Free', stars: 5, url: 'https://pramp.com' },
+          { name: 'Tech Interview Handbook', type: 'Website', cost: 'Free', stars: 5, url: 'https://techinterviewhandbook.org' },
+          { name: 'Cracking the Coding Interview', type: 'Book', cost: 'Paid', stars: 4, url: '#' },
+        ],
+        commonMistakes: [
+          'Grinding 300 LeetCode problems of the same type instead of learning all 10 patterns',
+          'Practicing coding in silence — the interviewer needs to hear your thinking',
+          'Not practicing system design until Phase 5 — you should have done monthly mocks from Phase 3',
+          'Being too proud to ask for hints — asking clarifying questions is professional, not weak',
+          'Not researching the company — interviewers notice when you don\'t know the product'
+        ],
+        selfCheck: [
+          'Can you solve any Medium DP problem you have never seen before in under 35 minutes?',
+          'Can you design a URL shortener from scratch in 45 minutes with explicit tradeoffs?',
+          'Can you deliver your "tell me about yourself" answer in exactly 90 seconds?',
+          'Can you name all 10 coding patterns and immediately give 2 example problems for each?',
+          'Can you identify which pattern applies to a new LeetCode problem in under 2 minutes?'
+        ],
+        whenStuck: 'If you freeze during an interview: say "Let me think through this step by step." Then restate the problem in your own words. This buys time, shows composure, and often reveals the solution. Never go silent for more than 30 seconds without narrating your thinking.',
+      },
+      {
+        id: 'CS502',
+        name: 'Portfolio & Strategy',
+        hours: 80,
+        duration: 'Ongoing',
+        difficulty: 'Intermediate',
+        description: 'Get hired.',
+        topics: [
+          {
+            name: 'Portfolio',
+            subTopics: [
+              { name: 'Quality over quantity: 3 exceptional projects beat 10 mediocre ones' },
+              { name: 'README structure: what it does, why you built it, tech stack, screenshots' },
+              { name: 'Case study per project: problem -> approach -> technical decisions' },
+            ],
+          },
+          {
+            name: 'GitHub Profile Mastery',
+            subTopics: [
+              { name: 'Profile README: pinned, focus, contact' },
+              { name: 'Pinned repositories: only your 6 best' },
+              { name: 'Consistent commit activity' },
+              { name: 'Write meaningful commit messages' },
+              { name: 'Contribute to real open source' },
+            ],
+          },
+          {
+            name: 'LinkedIn & Online Presence',
+            subTopics: [
+              { name: 'Headline formula: Role | Top Skills | What you build' },
+              { name: 'About section: your story, technical strengths' },
+              { name: 'Featured section: pin portfolio, best live demo' },
+              { name: 'Skills: add real skills, get endorsements' },
+            ],
+          },
+        ],
+        projects: ['Portfolio Website', 'Job Campaign'],
+        resources: [
+          { name: 'levels.fyi', type: 'Website', cost: 'Free', stars: 5, url: 'https://levels.fyi' },
+        ],
+        commonMistakes: [
+          'Waiting to apply until everything feels ready — start applying at Phase 3, not Phase 5',
+          'Putting your expected salary too low because you\'re afraid — research the market first',
+          'Not following up after applications — one polite follow-up email after 5 business days is professional',
+          'Treating the job search as passive — you need to warm up connections, not just click apply',
+          'Accepting the first offer immediately — always take 24-48 hours and always counter'
+        ],
+        selfCheck: [
+          'Do you have 3 projects deployed live with live demo URLs right now?',
+          'Can you explain any of your portfolio projects in 3 minutes with clear technical depth?',
+          'Is your GitHub showing consistent daily commits for the past 3+ months?',
+          'Have you researched and written down your target salary range with sources to back it up?',
+          'Can you deliver your salary counter-offer without hesitating or apologizing?'
+        ],
+        whenStuck: 'Getting no callbacks? 90% of the time the problem is your resume or portfolio — not the market. Send your resume to 3 senior engineers you trust and ask for brutally honest feedback. The feedback will be uncomfortable and invaluable.',
+      },
