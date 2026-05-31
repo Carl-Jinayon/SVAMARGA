@@ -7,28 +7,33 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [emailSent, setEmailSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) {
-        alert(error.message);
+        setError(error.message);
       } else {
         setEmailSent(true);
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        alert('Invalid email or password. Please try again.');
+        setError('Invalid email or password. Please try again.');
       }
-      // Success auto-redirects via App.tsx user state
     }
     setLoading(false);
+  };
+
+  const handleGitHubLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'github' });
+    if (error) setError(error.message);
   };
 
   if (emailSent) {
@@ -51,10 +56,6 @@ export default function Auth() {
     );
   }
 
-  const handleGitHubLogin = async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'github' });
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-transparent">
       <div className="glass p-10 rounded-[3rem] shadow-2xl max-w-md w-full animate-slide-in-up border-none">
@@ -63,6 +64,11 @@ export default function Auth() {
         </h2>
 
         <form onSubmit={handleAuth} className="space-y-6">
+          {error && (
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-xs font-bold text-center">
+              {error}
+            </div>
+          )}
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
