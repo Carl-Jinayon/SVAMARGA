@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Planner() {
   const [currentWeek, setCurrentWeek] = useState(1);
-  const { getWeeklyPlan, addWeeklyPlan } = useTrackerStore();
+  const { getWeeklyPlan, addWeeklyPlan, setActiveWeekPlan } = useTrackerStore();
 
   const plan = getWeeklyPlan(currentWeek);
   const [plannedSubjects, setPlannedSubjects] = useState(plan?.plannedSubjects || []);
@@ -29,7 +29,8 @@ export default function Planner() {
       goals: goals.filter((g) => g.trim()),
     });
 
-    alert('Week plan saved!');
+    setActiveWeekPlan(currentWeek);
+    alert(`Week ${currentWeek} Strategy Finalized! Mission Control is now active on your Dashboard.`);
   };
 
   const startDate = new Date();

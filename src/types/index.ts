@@ -77,6 +77,7 @@ export interface TrackerState {
   
   // Goals & Plans
   weeklyPlans: Record<number, WeekPlan>;
+  activeWeekPlan: number | null;
   achievements: Achievement[];
   
   // Stats

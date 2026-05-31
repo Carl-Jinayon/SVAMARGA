@@ -79,27 +79,23 @@ export default function CurriculumViewer() {
                   }`}
                 >
                   {/* Subject Header */}
-                  <button
-                    onClick={() => toggleExpand(subject.id)}
-                    className="w-full p-5 flex items-center justify-between transition-all"
-                  >
-                    <div className="flex items-center gap-5">
-                      <div className="relative">
+                  <div className="flex items-center w-full p-5 transition-all">
+                    <div className="flex items-center gap-5 flex-1">
+                      <div className="relative" onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           checked={completed}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            toggleSubjectCompletion(subject.id);
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-6 h-6 rounded-lg cursor-pointer accent-green-500 transition-transform group-hover:scale-110 relative z-20"
+                          onChange={() => toggleSubjectCompletion(subject.id)}
+                          className="w-6 h-6 rounded-lg cursor-pointer accent-green-500 transition-transform hover:scale-110 relative z-20"
                         />
                         {completed && (
                           <div className="absolute inset-0 bg-green-500 rounded-lg blur-md opacity-20 animate-pulse" />
                         )}
                       </div>
-                      <div className="text-left">
+                      <button 
+                        onClick={() => toggleExpand(subject.id)}
+                        className="flex-1 text-left"
+                      >
                         <h3 className={`font-bold text-lg transition-all ${completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-white'}`}>
                           <span className="text-sm opacity-50 mr-2 font-mono">{subject.id}</span>
                           {subject.name}
@@ -109,17 +105,20 @@ export default function CurriculumViewer() {
                           <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">•</span>
                           <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">{subject.hours}h</span>
                         </div>
-                      </div>
+                      </button>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => toggleExpand(subject.id)}
+                      className="flex items-center gap-4 ml-4"
+                    >
                       <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${getDifficultyColor(subject.difficulty)}`}>
                         {subject.difficulty}
                       </span>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${expanded ? 'bg-gray-100 dark:bg-gray-700 rotate-180' : 'bg-transparent'}`}>
                         <ChevronDown className="w-4 h-4" />
                       </div>
-                    </div>
-                  </button>
+                    </button>
+                  </div>
 
                   {/* Expanded Content */}
                   {expanded && (
@@ -148,7 +147,11 @@ export default function CurriculumViewer() {
                                     <input
                                       type="checkbox"
                                       checked={topicCompleted}
-                                      onChange={() => markTopicCompleted(subject.id, topic)}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        markTopicCompleted(subject.id, topic);
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
                                       className="w-4 h-4 rounded cursor-pointer accent-blue-500"
                                     />
                                     <span className={`text-sm font-medium ${topicCompleted ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-700 dark:text-gray-300'}`}>
@@ -183,7 +186,11 @@ export default function CurriculumViewer() {
                                       <input
                                         type="checkbox"
                                         checked={projectCompleted}
-                                        onChange={() => markProjectCompleted(subject.id, project)}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          markProjectCompleted(subject.id, project);
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
                                         className="w-4 h-4 rounded cursor-pointer accent-purple-500"
                                       />
                                       <span className={`text-sm font-medium ${projectCompleted ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-700 dark:text-gray-300'}`}>

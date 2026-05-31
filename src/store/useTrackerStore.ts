@@ -1,9 +1,18 @@
 import { create } from 'zustand';
 import { TrackerState, Session, Achievement, WeekPlan } from '../types/index';
 import { curriculum } from '../data/curriculum';
+import { supabase } from '../lib/supabase';
+import { User } from '@supabase/supabase-js';
 
 interface Store extends TrackerState {
-  // ... (rest of the interface remains same)
+  user: User | null;
+  activeWeekPlan: number | null;
+  setActiveWeekPlan: (week: number | null) => void;
+  setUser: (user: User | null) => void;
+  signIn: () => Promise<void>;
+  signOut: () => Promise<void>;
+  syncWithCloud: () => Promise<void>;
+  // ... (rest of the interface)
   // Progress actions
   toggleSubjectCompletion: (subjectId: string) => void;
   markTopicCompleted: (subjectId: string, topic: string) => void;
@@ -44,13 +53,14 @@ const initialState: TrackerState = {
   currentPhase: 1,
   darkMode: localStorage.getItem('theme') === 'dark' || false,
   weeklyPlans: {},
+  activeWeekPlan: null,
   achievements: [],
   totalStudyTime: 0,
   currentStreak: 0,
 };
 
 export const useTrackerStore = create<Store>((set, get) => {
-  const loadFromStorage = () => {
+  const loadFromStorage = async () => {
     const saved = localStorage.getItem('tracker-state');
     if (saved) {
       try {
@@ -60,28 +70,94 @@ export const useTrackerStore = create<Store>((set, get) => {
         console.error('Failed to load from storage', e);
       }
     }
+
+    // Check for session safely
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        set({ user: session.user });
+        await get().syncWithCloud();
+      }
+    } catch (e) {
+      console.warn('Supabase session check skipped: No connection.');
+    }
   };
 
   const saveToStorage = () => {
     const state = get();
-    localStorage.setItem(
-      'tracker-state',
-      JSON.stringify({
-        progress: state.progress,
-        sessions: state.sessions,
-        currentPhase: state.currentPhase,
-        darkMode: state.darkMode,
-        weeklyPlans: state.weeklyPlans,
-        achievements: state.achievements,
-        totalStudyTime: state.totalStudyTime,
-        currentStreak: state.currentStreak,
-        lastStudyDate: state.lastStudyDate,
-      })
-    );
+    const data = {
+      progress: state.progress,
+      sessions: state.sessions,
+      currentPhase: state.currentPhase,
+      darkMode: state.darkMode,
+      weeklyPlans: state.weeklyPlans,
+      activeWeekPlan: state.activeWeekPlan,
+      achievements: state.achievements,
+      totalStudyTime: state.totalStudyTime,
+      currentStreak: state.currentStreak,
+      lastStudyDate: state.lastStudyDate,
+    };
+    localStorage.setItem('tracker-state', JSON.stringify(data));
+    
+    if (state.user) {
+      get().syncWithCloud();
+    }
   };
 
   return {
     ...initialState,
+    user: null,
+
+    setActiveWeekPlan: (week) => {
+      set({ activeWeekPlan: week });
+      get().saveToStorage();
+    },
+
+    setUser: (user) => set({ user }),
+
+    signIn: async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) console.error('Sign in error:', error.message);
+    },
+
+    signOut: async () => {
+      await supabase.auth.signOut();
+      set({ user: null });
+    },
+
+    syncWithCloud: async () => {
+      const { user, progress, sessions, weeklyPlans, activeWeekPlan, achievements, totalStudyTime, currentStreak, lastStudyDate } = get();
+      if (!user) return;
+
+      const data = {
+        progress,
+        sessions,
+        weekly_plans: weeklyPlans,
+        active_week_plan: activeWeekPlan,
+        achievements,
+        total_study_time: totalStudyTime,
+        current_streak: currentStreak,
+        last_study_date: lastStudyDate,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({ id: user.id, ...data });
+
+      if (error) {
+        if (error.code === 'PGRST116') { // Row not found, might need to fetch instead of upsert if RLS is strict
+           // This is handled by upsert usually, but let's log other errors
+        } else {
+          console.error('Sync error:', error.message);
+        }
+      }
+    },
 
     // Progress actions
     toggleSubjectCompletion: (subjectId: string) => {
@@ -316,4 +392,14 @@ if (typeof window !== 'undefined') {
   if (isDark) {
     document.documentElement.classList.add('dark');
   }
+
+  // Set up auth listener
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      useTrackerStore.getState().setUser(session.user);
+      useTrackerStore.getState().syncWithCloud();
+    } else if (event === 'SIGNED_OUT') {
+      useTrackerStore.getState().setUser(null);
+    }
+  });
 }

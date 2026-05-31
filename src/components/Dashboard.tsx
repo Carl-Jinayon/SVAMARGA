@@ -1,6 +1,6 @@
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
-import { TrendingUp, Target, Flame, Clock } from 'lucide-react';
+import { TrendingUp, Target, Flame, Clock, Share2 } from 'lucide-react';
 
 export default function Dashboard() {
   const {
@@ -10,7 +10,24 @@ export default function Dashboard() {
     getCompletedSubjectsCount,
     getTotalSubjectsCount,
     progress,
+    activeWeekPlan,
+    getWeeklyPlan,
   } = useTrackerStore();
+
+  const currentMission = activeWeekPlan ? getWeeklyPlan(activeWeekPlan) : null;
+
+  const handleShare = () => {
+    const summary = `🚀 CS Ultimate Tracker Progress:
+📈 Overall: ${getOverallProgress()}%
+📚 Subjects: ${getCompletedSubjectsCount()}/${getTotalSubjectsCount()}
+🔥 Streak: ${currentStreak} Days
+⏱️ Hours: ${Math.round(getTotalMinutes() / 60)}h
+
+Track your own progress at: ${window.location.origin}`;
+    
+    navigator.clipboard.writeText(summary);
+    alert('Progress summary copied to clipboard! 🚀');
+  };
 
   const totalMinutes = getTotalMinutes();
   const totalHours = Math.round(totalMinutes / 60);
@@ -40,6 +57,56 @@ export default function Dashboard() {
 
   return (
     <div className="animate-slide-in-up">
+      {/* Current Mission Control */}
+      {currentMission && (
+        <div className="glass p-10 rounded-[3rem] shadow-2xl mb-10 relative overflow-hidden border-l-8 border-indigo-600">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="flex-1">
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 flex items-center gap-4 uppercase tracking-tighter">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-xl shadow-lg shadow-indigo-600/20">🚀</div>
+                Mission Control: Week {activeWeekPlan}
+              </h2>
+              <p className="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest ml-14 mb-8">
+                Target: {new Date(currentMission.startDate).toLocaleDateString()} — {new Date(currentMission.endDate).toLocaleDateString()}
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 ml-0 md:ml-14">
+                <div>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4">Strategic Goals</h4>
+                  <ul className="space-y-3">
+                    {currentMission.goals.map((goal, idx) => (
+                      <li key={idx} className="flex items-center gap-3 text-sm font-bold text-gray-700 dark:text-gray-300">
+                        <div className="w-5 h-5 rounded-lg bg-green-500/10 flex items-center justify-center text-green-500 text-[10px]">✓</div>
+                        {goal}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4">Focus Subjects</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {currentMission.plannedSubjects.map((subId) => (
+                      <span key={subId} className="px-4 py-2 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-wider border border-indigo-500/20">
+                        {subId}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex-shrink-0 bg-white/40 dark:bg-black/20 p-8 rounded-[2rem] border border-white/20 text-center">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Weekly Intensity</p>
+              <p className="text-4xl font-black text-gray-900 dark:text-white">35h</p>
+              <div className="mt-4 w-32 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mx-auto">
+                <div className="h-full bg-indigo-600 w-2/3 shadow-[0_0_10px_rgba(79,70,229,0.5)]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <div className="glass p-8 rounded-[2.5rem] border-l-8 border-blue-500 shadow-2xl transition-transform hover:scale-105 duration-300">
@@ -111,9 +178,18 @@ export default function Dashboard() {
       {/* Phase Progress */}
       <div className="glass p-10 rounded-[3rem] shadow-2xl mb-10 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-12 flex items-center gap-4 uppercase tracking-tighter">
-          <div className="w-2.5 h-10 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)]"></div>
-          Phase Progress
+        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-12 flex items-center justify-between uppercase tracking-tighter">
+          <div className="flex items-center gap-4">
+            <div className="w-2.5 h-10 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)]"></div>
+            Phase Progress
+          </div>
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+          >
+            <Share2 className="w-4 h-4" />
+            <span>Share My Progress</span>
+          </button>
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-10">
           {phaseStats.map((stat) => (

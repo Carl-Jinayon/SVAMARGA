@@ -1,113 +1,194 @@
-import { Briefcase, FileText, Globe, Linkedin, Github, Award } from 'lucide-react';
+import { useState } from 'react';
+import { Briefcase, FileText, Globe, Award, Copy, Check, Star, RefreshCcw } from 'lucide-react';
+import { useTrackerStore } from '../store/useTrackerStore';
+import { curriculum } from '../data/curriculum';
 
 export default function CareerTools() {
-  const tools = [
-    {
-      title: 'Portfolio Builder',
-      description: 'Generate a professional portfolio site using your curriculum progress.',
-      icon: <Globe className="w-6 h-6 text-blue-500" />,
-      action: 'Launch Builder',
-    },
-    {
-      title: 'Resume Optimizer',
-      description: 'Tailor your resume for PH tech companies with AI-driven suggestions.',
-      icon: <FileText className="w-6 h-6 text-green-500" />,
-      action: 'Optimize Resume',
-    },
-    {
-      title: 'Mock Interview',
-      description: 'Practice coding and behavioral questions with an AI interviewer.',
-      icon: <Award className="w-6 h-6 text-purple-500" />,
-      action: 'Start Practice',
-    },
-  ];
+  const { progress, getOverallProgress, getCompletedSubjectsCount, getTotalSubjectsCount } = useTrackerStore();
+  const [copied, setCopied] = useState<string | null>(null);
+  const [activeTool, setActiveTool] = useState<'none' | 'readme' | 'resume' | 'interview'>('none');
 
-  const resources = [
-    { name: 'Levels.fyi (PH Salaries)', url: 'https://www.levels.fyi/t/software-engineer/locations/philippines' },
-    { name: 'Developers Connect (DevCon) PH', url: 'https://devcon.ph/' },
-    { name: 'Tech Interview Handbook', url: 'https://www.techinterviewhandbook.org/' },
+  // Tool 1: GitHub README Generator
+  const generateReadme = () => {
+    const overall = getOverallProgress();
+    const completed = Object.values(progress).filter(p => p.completed);
+    
+    let md = `## 🚀 CS Learning Journey (${overall}% Complete)\n\n`;
+    md += `I am currently following the **CS Ultimate Curriculum** (Full-Stack to ML Engineering).\n\n`;
+    md += `### 📊 Progress Stats\n`;
+    md += `- **Mastery:** ${overall}%\n`;
+    md += `- **Subjects Mastered:** ${getCompletedSubjectsCount()}/${getTotalSubjectsCount()}\n\n`;
+    
+    if (completed.length > 0) {
+      md += `### 🛠️ Key Skills Mastered\n`;
+      completed.slice(0, 8).forEach(p => {
+        const sub = curriculum.flatMap(ph => ph.subjects).find(s => s.id === p.subjectId);
+        if (sub) md += `- **${sub.name}**: Completed projects and technical topics.\n`;
+      });
+    }
+    
+    md += `\n*Generated via [CS Ultimate Tracker](${window.location.origin})*`;
+    return md;
+  };
+
+  // Tool 2: Resume Optimizer
+  const [resumeSkills, setResumeSkills] = useState('');
+  const getMissingKeywords = () => {
+    const completedIds = Object.keys(progress).filter(id => progress[id].completed);
+    const keywords = completedIds.map(id => {
+      const sub = curriculum.flatMap(ph => ph.subjects).find(s => s.id === id);
+      return sub?.name || '';
+    });
+    
+    return keywords.filter(k => !resumeSkills.toLowerCase().includes(k.toLowerCase())).slice(0, 5);
+  };
+
+  // Tool 3: Mock Interview
+  const questions = [
+    { q: "What is the difference between an Array and a Linked List?", phase: 2 },
+    { q: "Explain the Big O complexity of QuickSort vs MergeSort.", phase: 2 },
+    { q: "What is a Closure in JavaScript?", phase: 3 },
+    { q: "How does the Box Model work in CSS?", phase: 3 },
+    { q: "Explain the difference between Supervised and Unsupervised Learning.", phase: 4 },
+    { q: "What is Gradient Descent?", phase: 4 },
+    { q: "Tell me about a challenging project you built.", phase: 1 },
+    { q: "How do you handle conflict in a development team?", phase: 1 },
   ];
+  const [currentQ, setCurrentQ] = useState(0);
+
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   return (
     <div className="animate-slide-in-up space-y-8">
+      {/* Tool Selection */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {tools.map((tool) => (
-          <div
-            key={tool.title}
-            className="backdrop-blur-md bg-white/60 dark:bg-gray-800/60 p-6 rounded-2xl border border-white/20 dark:border-gray-700/30 shadow-xl"
-          >
-            <div className="bg-white dark:bg-gray-700 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm mb-4">
-              {tool.icon}
-            </div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{tool.title}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">{tool.description}</p>
-            <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
-              {tool.action}
-            </button>
+        <button 
+          onClick={() => setActiveTool('readme')}
+          className={`glass p-6 rounded-3xl text-left transition-all border-b-4 ${activeTool === 'readme' ? 'border-blue-500 scale-105' : 'border-transparent hover:bg-white/50'}`}
+        >
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-4">
+            <Globe className="w-6 h-6 text-blue-500" />
           </div>
-        ))}
+          <h3 className="font-black text-gray-900 dark:text-white uppercase tracking-tighter">Portfolio Builder</h3>
+          <p className="text-xs text-gray-500 mt-2">Generate a GitHub README snippet from your progress.</p>
+        </button>
+
+        <button 
+          onClick={() => setActiveTool('resume')}
+          className={`glass p-6 rounded-3xl text-left transition-all border-b-4 ${activeTool === 'resume' ? 'border-green-500 scale-105' : 'border-transparent hover:bg-white/50'}`}
+        >
+          <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center mb-4">
+            <FileText className="w-6 h-6 text-green-500" />
+          </div>
+          <h3 className="font-black text-gray-900 dark:text-white uppercase tracking-tighter">Resume Optimizer</h3>
+          <p className="text-xs text-gray-500 mt-2">Find missing power keywords for your CV.</p>
+        </button>
+
+        <button 
+          onClick={() => setActiveTool('interview')}
+          className={`glass p-6 rounded-3xl text-left transition-all border-b-4 ${activeTool === 'interview' ? 'border-purple-500 scale-105' : 'border-transparent hover:bg-white/50'}`}
+        >
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-4">
+            <Award className="w-6 h-6 text-purple-500" />
+          </div>
+          <h3 className="font-black text-gray-900 dark:text-white uppercase tracking-tighter">Mock Interview</h3>
+          <p className="text-xs text-gray-500 mt-2">Practice technical questions from your current phase.</p>
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="backdrop-blur-md bg-white/40 dark:bg-gray-800/40 p-8 rounded-3xl border border-white/20 dark:border-gray-700/30 shadow-lg">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-            <Briefcase className="w-5 h-5" />
-            Job Search Strategy
-          </h2>
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-bold">1</div>
-              <div>
-                <h4 className="font-bold text-gray-900 dark:text-white">Build in Public</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Share your daily progress on LinkedIn and Twitter. Filipino tech recruiters love seeing active learners.</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 font-bold">2</div>
-              <div>
-                <h4 className="font-bold text-gray-900 dark:text-white">Optimize LinkedIn</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Use keywords like "TypeScript", "FastAPI", and "Machine Learning" to appear in recruiter searches.</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 font-bold">3</div>
-              <div>
-                <h4 className="font-bold text-gray-900 dark:text-white">Network Locally</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Join DevCon PH and other local communities. Referrals are the #1 way to get hired in the PH.</p>
-              </div>
-            </div>
+      {/* Active Tool Workspace */}
+      <div className="glass p-10 rounded-[3rem] shadow-2xl relative overflow-hidden min-h-[400px]">
+        {activeTool === 'none' && (
+          <div className="h-full flex flex-col items-center justify-center text-center py-20">
+            <Briefcase className="w-16 h-16 text-gray-300 mb-6" />
+            <h2 className="text-2xl font-black text-gray-400 uppercase tracking-tighter italic">Select a Career Tool Above</h2>
           </div>
-        </div>
+        )}
 
-        <div className="backdrop-blur-md bg-white/40 dark:bg-gray-800/40 p-8 rounded-3xl border border-white/20 dark:border-gray-700/30 shadow-lg">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-            <Globe className="w-5 h-5" />
-            Quick Links
-          </h2>
-          <div className="grid gap-3">
-            {resources.map((res) => (
-              <a
-                key={res.name}
-                href={res.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between p-4 rounded-2xl bg-white/50 dark:bg-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-700/80 transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-800"
+        {activeTool === 'readme' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">GitHub README Snippet</h2>
+              <button 
+                onClick={() => copyToClipboard(generateReadme(), 'readme')}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest"
               >
-                <span className="font-medium text-gray-900 dark:text-white">{res.name}</span>
-                <Globe className="w-4 h-4 text-gray-400" />
-              </a>
-            ))}
+                {copied === 'readme' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied === 'readme' ? 'Copied!' : 'Copy Markdown'}
+              </button>
+            </div>
+            <pre className="p-6 bg-black/5 dark:bg-black/40 rounded-2xl text-xs font-mono text-gray-700 dark:text-gray-300 overflow-x-auto border border-white/10 whitespace-pre-wrap">
+              {generateReadme()}
+            </pre>
           </div>
-          
-          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 flex justify-center gap-6">
-            <a href="https://linkedin.com" target="_blank" className="text-gray-400 hover:text-blue-600 transition-colors">
-              <Linkedin className="w-6 h-6" />
-            </a>
-            <a href="https://github.com" target="_blank" className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-              <Github className="w-6 h-6" />
-            </a>
+        )}
+
+        {activeTool === 'resume' && (
+          <div className="space-y-8">
+            <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Keyword Optimizer</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              <div className="space-y-4">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Paste your current "Skills" section:</label>
+                <textarea 
+                  value={resumeSkills}
+                  onChange={(e) => setResumeSkills(e.target.value)}
+                  placeholder="e.g. JavaScript, React, SQL..."
+                  className="w-full h-40 bg-white/40 dark:bg-black/20 border border-white/20 rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                />
+              </div>
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Missing Power Keywords:</h4>
+                <div className="flex flex-wrap gap-3">
+                  {getMissingKeywords().map(kw => (
+                    <span key={kw} className="px-4 py-2 bg-green-500/10 text-green-600 dark:text-green-400 rounded-xl text-xs font-bold border border-green-500/20 animate-pulse">
+                      + {kw}
+                    </span>
+                  ))}
+                  {getMissingKeywords().length === 0 && <p className="text-sm text-gray-400 italic">No missing keywords found based on your progress!</p>}
+                </div>
+                <p className="text-xs text-gray-500 leading-relaxed bg-black/5 p-4 rounded-xl">
+                  💡 <b>Recruiter Tip:</b> These keywords are detected from the subjects you've completed. Adding them helps you pass through ATS (Applicant Tracking Systems).
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeTool === 'interview' && (
+          <div className="h-full flex flex-col items-center justify-center py-10 space-y-10">
+            <div className="text-center space-y-2">
+              <span className="text-[10px] font-black bg-purple-500/10 text-purple-600 px-4 py-1.5 rounded-full uppercase tracking-widest">
+                Question {currentQ + 1} of {questions.length}
+              </span>
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white max-w-2xl leading-tight italic">
+                "{questions[currentQ].q}"
+              </h2>
+            </div>
+            
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setCurrentQ((currentQ + 1) % questions.length)}
+                className="flex items-center gap-3 px-8 py-4 bg-purple-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-purple-600/20 hover:scale-105 active:scale-95 transition-all"
+              >
+                <RefreshCcw className="w-4 h-4" />
+                Next Question
+              </button>
+            </div>
+            
+            <div className="pt-10 border-t border-black/5 dark:border-white/5 w-full max-w-md text-center">
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Confidence Score</p>
+              <div className="flex justify-center gap-2 mt-4">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <Star key={i} className="w-5 h-5 text-gray-300 hover:text-yellow-400 cursor-pointer transition-colors" />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
