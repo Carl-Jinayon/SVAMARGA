@@ -1,8 +1,13 @@
+import { useState, useRef } from 'react';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
 import { TrendingUp, Target, Flame, Clock, Share2 } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import ShareModal from './ShareModal';
 
 export default function Dashboard() {
+  const dashboardRef = useRef<HTMLDivElement>(null);
+  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const {
     getTotalMinutes,
     currentStreak,
@@ -14,20 +19,23 @@ export default function Dashboard() {
     getWeeklyPlan,
   } = useTrackerStore();
 
-  const currentMission = activeWeekPlan ? getWeeklyPlan(activeWeekPlan) : null;
-
-  const handleShare = () => {
-    const summary = `🚀 CS Ultimate Tracker Progress:
-📈 Overall: ${getOverallProgress()}%
-📚 Subjects: ${getCompletedSubjectsCount()}/${getTotalSubjectsCount()}
-🔥 Streak: ${currentStreak} Days
-⏱️ Hours: ${Math.round(getTotalMinutes() / 60)}h
-
-Track your own progress at: ${window.location.origin}`;
-    
-    navigator.clipboard.writeText(summary);
-    alert('Progress summary copied to clipboard! 🚀');
+  const handleShare = async () => {
+    if (dashboardRef.current) {
+      const canvas = await html2canvas(dashboardRef.current, {
+        backgroundColor: null,
+      });
+      setScreenshotUrl(canvas.toDataURL('image/png'));
+    }
   };
+
+  const currentMission = activeWeekPlan ? getWeeklyPlan(activeWeekPlan) : null;
+// ... (rest of the component logic)
+
+  return (
+    <div className="animate-slide-in-up" ref={dashboardRef}>
+      {screenshotUrl && <ShareModal onClose={() => setScreenshotUrl(null)} screenshotUrl={screenshotUrl} />}
+      {/* Current Mission Control */}
+// ... rest of the JSX
 
   const totalMinutes = getTotalMinutes();
   const totalHours = Math.round(totalMinutes / 60);
