@@ -79,7 +79,7 @@ function App() {
           </div>
         </div>
 
-        <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-12 py-10 pt-32 relative z-10">
+        <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-12 py-10 pt-48 relative z-10">
           <div className="animate-slide-in-up">
             {activeTab === 'dashboard' && <Dashboard />}
             {activeTab === 'curriculum' && <CurriculumViewer />}

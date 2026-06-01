@@ -348,12 +348,17 @@ export const useTrackerStore = create<Store>((set, get) => {
     fetchMessages: async () => {
       const { user } = get();
       if (!user) return;
-      
-      const { data, error } = await supabase
-        .from('inbox')
-        .select('*')
-        .or(`user_id.eq.${user.id},sender_role.eq.admin`)
-        .order('created_at', { ascending: false });
+
+      const ADMIN_ID = '06391879-d280-472e-b253-7e0685bf1014';
+      const isAdmin = user.id === ADMIN_ID;
+
+      let query = supabase.from('inbox').select('*');
+
+      if (!isAdmin) {
+        query = query.or(`user_id.eq.${user.id},sender_role.eq.admin`);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching messages:', error);
@@ -361,7 +366,6 @@ export const useTrackerStore = create<Store>((set, get) => {
         set({ messages: data || [] });
       }
     },
-
     markProjectCompleted: (subjectId: string, project: string) => {
       set((state) => {
         const progress = { ...state.progress };

@@ -827,72 +827,99 @@ export const curriculum: Phase[] = [
         hours: 150,
         duration: '10 weeks',
         difficulty: 'Hard',
-        description: 'FastAPI, REST APIs, security, databases. Every endpoint you build applies security mandatory.',
+        prerequisites: ['CS101', 'CS203', 'CS204', 'CS205'],
+        description: 'The backend is the engine of every application. It processes logic, manages data, enforces security, and powers every feature users see. Python is your language. FastAPI is your framework. Security from CS205 is mandatory here — every endpoint you build applies those lessons.',
         topics: ['Advanced Python for Backend', 'FastAPI Deep Dive', 'RESTful API Design Excellence', 'Database Integration & Performance', 'Testing, Quality & Observability', 'Docker & Deployment'],
         subtopics: {
           'Advanced Python for Backend': [
-            'Decorators: @cache, @retry, @require_auth',
-            'async/await and event loop internals',
-            'Pydantic v2: validation and serialization',
-            'Concurrency: threading vs multiprocessing vs asyncio'
+            'Decorators: write your own — @cache, @retry, @require_auth',
+            'Generators and iterators: lazy evaluation, memory-efficient data processing',
+            'async/await: event loop, coroutines, asyncio.gather, asyncio.TaskGroup',
+            'Type hints: complete typing with mypy, no implicit Any',
+            'Pydantic v2: validators, field aliases, model serialization, computed fields',
+            'Context managers: __enter__ / __exit__, asynccontextmanager',
+            'Concurrency: threading vs multiprocessing vs asyncio — when each applies',
+            'functools: lru_cache, partial, reduce — functional patterns'
           ],
           'FastAPI Deep Dive': [
-            'Dependency Injection for shared DB/Auth',
-            'OAuth2 password flow and JWT implementation',
-            'Middleware for CORS and Rate Limiting',
-            'Background tasks and Celery integration',
-            'WebSockets and connection managers'
+            'Routes: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS',
+            'Path params, query params, request body, form data, file uploads',
+            'Pydantic schemas: request validation, response models, nested models',
+            'Dependency injection: shared DB sessions, current user, feature flags',
+            'Authentication: JWT with python-jose, refresh token rotation, token blacklisting',
+            'OAuth2 password flow and Bearer token — complete implementation',
+            'Middleware: CORS (configured correctly), rate limiting (slowapi), request logging',
+            'Background tasks: fire-and-forget, Celery for heavy async work',
+            'WebSockets in FastAPI: real-time connections, connection manager',
+            'Auto docs: Swagger UI customization, ReDoc, OpenAPI schema export'
           ],
           'RESTful API Design Excellence': [
-            'Resource naming and semantic HTTP methods',
-            'Pagination: cursor-based vs offset',
-            'Versioning strategies and RFC 7807 error format',
-            'OpenAPI customization and auto-docs'
+            'REST constraints: stateless, uniform interface, HATEOAS overview',
+            'Resource naming: plural nouns, nested resources, no verbs in URIs',
+            'HTTP methods used semantically: PUT (replace) vs PATCH (partial update)',
+            'Status codes: use the right one — 201 not 200 for creation, 204 for delete',
+            'Pagination: cursor-based (preferred) vs offset, include total count, next/prev links',
+            'Filtering: query params, complex filters with operators (gt, lt, contains)',
+            'Sorting: multiple fields, direction, default sort documented',
+            'Versioning: URI versioning (/v1/) vs header versioning — tradeoffs',
+            'Error responses: RFC 7807 Problem Details format — consistent error structure',
+            'API documentation: write it as if you\'ll never be available to explain it'
           ],
           'Database Integration & Performance': [
-            'SQLAlchemy 2.0 Async with asyncpg',
-            'N+1 query detection and joinedload/selectinload',
-            'Repository pattern and optimistic locking',
-            'Database seeding and test fixtures'
+            'SQLAlchemy 2.0: declarative models, relationships, lazy vs eager loading',
+            'Alembic: autogenerate migrations, upgrade/downgrade, data migrations',
+            'Async SQLAlchemy with asyncpg: connection pool configuration',
+            'N+1 query detection: SQLAlchemy query logging, detect and fix with joinedload/selectinload',
+            'Database seeding and fixtures for testing',
+            'Repository pattern: abstract database access from business logic',
+            'Optimistic locking: version columns to prevent lost updates'
           ],
           'Testing, Quality & Observability': [
-            'pytest and async test clients',
-            'Mocking and TDD: red-green-refactor',
-            'Structured logging and Sentry integration',
-            'Health checks and ready endpoints'
+            'pytest: test functions, fixtures, conftest.py, parametrize',
+            'FastAPI TestClient for integration tests, async test client',
+            'Mocking: unittest.mock, pytest-mock, monkeypatching',
+            'Test-driven development: red-green-refactor — write the test first',
+            'Code coverage: pytest-cov, 80% minimum, 100% for critical paths',
+            'Structured logging: JSON logs, correlation IDs, log levels',
+            'Error monitoring: Sentry integration — every exception tracked in production',
+            'Health check endpoints: /health, /ready — required for cloud deployment'
           ],
           'Docker & Deployment': [
-            'Multi-stage Dockerfiles for slim images',
-            'docker-compose for full-stack local dev',
-            'GitHub Actions: test, lint, build, deploy'
+            'Docker: multi-stage Dockerfile (build stage + slim runtime stage)',
+            'docker-compose: app + PostgreSQL + Redis + pgAdmin',
+            '.env files, python-dotenv, secret rotation strategy',
+            'NGINX: reverse proxy config, SSL termination, gzip, rate limiting at proxy level',
+            'Gunicorn + Uvicorn workers: how many workers, tuning for your machine',
+            'Deploying to Railway/Render (free tier) and understanding the config',
+            'GitHub Actions: test on PR, lint on PR, deploy on merge to main'
           ]
         },
         projects: [
-          { name: 'Blog API', description: 'Full REST API', level: 'Adv', outcome: 'JWT + refresh tokens, cursor pagination, Redis cache, full test suite, deployed with CI/CD' },
-          { name: 'Task Manager API', description: 'Team task system', level: 'Adv', outcome: 'RBAC, file attachments to S3, WebSocket notifications, Celery background jobs, Sentry' },
-          { name: 'Production Deployment', description: 'Full production config', level: 'Adv', outcome: 'HTTPS, env vars, health checks, structured logging, CI/CD pipeline' },
+          { name: 'Blog API', description: 'Full REST API: users, posts, comments, likes, tags, auth', level: 'Adv', outcome: 'JWT + refresh tokens, cursor pagination, Redis cache, full test suite, deployed with CI/CD' },
+          { name: 'Task Manager API', description: 'Team tasks: workspaces, members, roles, assignments, notifications', level: 'Adv', outcome: 'RBAC, file attachments to S3, WebSocket notifications, Celery background jobs, Sentry' },
+          { name: 'Live Production Deployment', description: 'Deploy Blog API with full production config', level: 'Adv', outcome: 'HTTPS, env vars in cloud, GitHub Actions CI/CD, health checks, Sentry, structured logging' },
         ],
         resources: [
-          { name: 'FastAPI Docs', type: 'Docs', cost: 'Free', stars: 5, url: 'https://fastapi.tiangolo.com', notes: 'Best framework documentation ever written, read everything' },
-          { name: 'ArjanCodes YouTube', type: 'Video', cost: 'Free', stars: 5, url: 'https://youtube.com/@arjancodes', notes: 'Python architecture and clean backend code — excellent' },
+          { name: 'FastAPI Docs', type: 'Docs', cost: 'Free', stars: 5, url: 'https://fastapi.tiangolo.com', notes: 'best framework documentation ever written, read everything' },
+          { name: 'ArjanCodes YouTube', type: 'Video', cost: 'Free', stars: 5, url: 'https://youtube.com/@arjancodes', notes: 'Python architecture and clean backend code — excellent channel' },
           { name: 'TestDriven.io FastAPI', type: 'Course', cost: 'Paid', stars: 5, url: 'https://testdriven.io', notes: 'FastAPI TDD — best paid course for backend testing in Python' },
-          { name: 'Real Python', type: 'Website', cost: 'Free', stars: 4, url: 'https://realpython.com', notes: 'Deep-dive Python backend articles' },
+          { name: 'Real Python', type: 'Website', cost: 'Free', stars: 4, url: 'https://realpython.com', notes: 'deep-dive Python backend articles, well written' },
         ],
         commonMistakes: [
-          'Not using async properly — causes performance bugs',
-          'Returning 200 for everything — use correct status codes',
-          'Not testing error paths — most bugs live there',
-          'Storing secrets in code — use environment variables',
-          'Not writing the OpenAPI spec'
+          'Not using async properly — mixing sync and async code causes subtle performance bugs',
+          'Returning 200 for everything including errors — use the right status codes',
+          'Not testing error paths — most bugs live in error handling, not the happy path',
+          'Storing secrets in code — even in \'private\' repos. Use environment variables always',
+          'Not writing the OpenAPI spec — document your API as you build it, not after'
         ],
         selfCheck: [
           'Can you build a JWT + refresh token auth system from scratch in under 2 hours?',
           'Can you explain the difference between PUT and PATCH semantically?',
-          'Can you write a complete pytest suite including error cases?',
-          'Can you write a multi-stage Dockerfile for a slim image?',
-          'Can you set up GitHub Actions for full CI/CD?'
+          'Can you write a complete pytest suite for a FastAPI route including error cases?',
+          'Can you write a multi-stage Dockerfile that produces a slim production image?',
+          'Can you set up GitHub Actions that lints, tests, builds Docker, and deploys on merge?'
         ],
-        whenStuck: 'If your API is slow: profile with py-spy. 80% of slowness is an N+1 query. Use SQLAlchemy echo=True to spot it.'
+        whenStuck: 'If your API is slow: profile with py-spy or cProfile before guessing. 80% of slowness is an N+1 query to the database. Use SQLAlchemy\'s echo=True to log all SQL and spot the issue.'
       },
       {
         id: 'CS302',

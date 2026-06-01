@@ -36,15 +36,6 @@ export default function DailyFocus() {
 
   return (
     <div className="glass p-10 rounded-[3.5rem] shadow-2xl mb-12 border-none relative overflow-hidden bg-gradient-to-br from-indigo-600/5 to-purple-600/5">
-      {/* Visual Day Progress Bar */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gray-100 dark:bg-white/5 overflow-hidden">
-        <motion.div 
-          initial={{ width: 0 }}
-          animate={{ width: `${dayProgress}%` }}
-          className="h-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)]"
-        />
-      </div>
-
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12">
         
         {/* Today's Goals */}
@@ -89,14 +80,24 @@ export default function DailyFocus() {
 
         {/* Real-time Clock */}
         <div className="lg:col-span-4 flex flex-col items-center justify-center text-center space-y-8 border-x border-black/5 dark:border-white/5 px-12">
-          <div className="space-y-2">
+          <div className="space-y-4 w-full">
             <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.3em] flex items-center justify-center gap-2">
               <Clock className="w-3 h-3" /> System Time
             </p>
-            <h2 className="text-7xl font-black font-mono tracking-tighter text-gray-900 dark:text-white">
-              {formatTime(currentTime)}
-            </h2>
-            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-500/10 inline-block px-4 py-1.5 rounded-full">
+            <div className="relative inline-block">
+              <h2 className="text-7xl font-black font-mono tracking-tighter text-gray-900 dark:text-white">
+                {formatTime(currentTime)}
+              </h2>
+              {/* Visual Day Progress Bar (Bottom of Clock) */}
+              <div className="absolute -bottom-4 left-0 w-full h-1.5 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${dayProgress}%` }}
+                  className="h-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)]"
+                />
+              </div>
+            </div>
+            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-500/10 inline-block px-4 py-1.5 rounded-full mt-6">
               {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </p>
           </div>
