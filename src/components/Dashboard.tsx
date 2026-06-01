@@ -1,6 +1,7 @@
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
 import { TrendingUp, Target, Flame, Clock } from 'lucide-react';
+import DailyFocus from './DailyFocus';
 
 export default function Dashboard() {
   const {
@@ -44,6 +45,8 @@ export default function Dashboard() {
 
   return (
     <div className="animate-slide-in-up">
+      <DailyFocus />
+      
       {/* Current Mission Control */}
       {currentMission && (
         <div className="glass p-10 rounded-[3rem] shadow-2xl mb-10 relative overflow-hidden border-l-8 border-indigo-600">

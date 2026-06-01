@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TrackerState, Session, Achievement, WeekPlan, Portfolio, Message } from '../types/index';
+import { TrackerState, Session, Achievement, WeekPlan, Portfolio, Message, DailyPlan } from '../types/index';
 import { curriculum } from '../data/curriculum';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
@@ -22,6 +22,9 @@ interface Store extends TrackerState {
   // Mission & Planner
   missionEndDate: string | null;
   setMissionEndDate: (date: string | null) => void;
+  dailyPlans: Record<string, DailyPlan>;
+  updateDailyPlan: (date: string, items: DailyPlan['items']) => void;
+  toggleDailyItem: (date: string, itemId: string) => void;
 
   // Inbox
   messages: Message[];
@@ -76,6 +79,7 @@ const initialState: TrackerState = {
   totalStudyTime: 0,
   currentStreak: 0,
   missionEndDate: null,
+  dailyPlans: {},
   messages: [],
   portfolio: {
     bio: '',
@@ -133,6 +137,7 @@ export const useTrackerStore = create<Store>((set, get) => {
         currentStreak: state.currentStreak,
         lastStudyDate: state.lastStudyDate,
         missionEndDate: state.missionEndDate,
+        dailyPlans: state.dailyPlans,
         messages: state.messages,
         portfolio: state.portfolio,
       };
@@ -274,6 +279,65 @@ export const useTrackerStore = create<Store>((set, get) => {
 
     setMissionEndDate: (date: string | null) => {
       set({ missionEndDate: date });
+      get().saveToStorage();
+    },
+
+    updateDailyPlan: (date: string, items: DailyPlan['items']) => {
+      set((state) => ({
+        dailyPlans: {
+          ...state.dailyPlans,
+          [date]: { date, items }
+        }
+      }));
+      get().saveToStorage();
+    },
+
+    toggleDailyItem: (date: string, itemId: string) => {
+      set((state) => {
+        const plans = { ...state.dailyPlans };
+        const progress = { ...state.progress };
+        
+        if (plans[date]) {
+          plans[date].items = plans[date].items.map((item: any) => {
+            if (item.id === itemId) {
+              const newCompleted = !item.completed;
+              
+              // Sync with curriculum progress
+              if (item.type === 'subject') {
+                if (!progress[item.id]) {
+                  progress[item.id] = { subjectId: item.id, completed: newCompleted, topicsCompleted: [], subtopicsCompleted: [], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
+                } else {
+                  progress[item.id].completed = newCompleted;
+                }
+              } else if (item.type === 'topic') {
+                const [subjectId, topicName] = item.id.split('-');
+                if (!progress[subjectId]) {
+                  progress[subjectId] = { subjectId, completed: false, topicsCompleted: [topicName], subtopicsCompleted: [], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
+                } else {
+                  const idx = progress[subjectId].topicsCompleted.indexOf(topicName);
+                  if (newCompleted && idx === -1) progress[subjectId].topicsCompleted.push(topicName);
+                  else if (!newCompleted && idx > -1) progress[subjectId].topicsCompleted.splice(idx, 1);
+                }
+              } else if (item.type === 'subtopic') {
+                const parts = item.id.split('-');
+                const subjectId = parts[0];
+                const subtopicName = parts.slice(2).join('-');
+                if (!progress[subjectId]) {
+                  progress[subjectId] = { subjectId, completed: false, topicsCompleted: [], subtopicsCompleted: [subtopicName], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
+                } else {
+                  const idx = progress[subjectId].subtopicsCompleted.indexOf(subtopicName);
+                  if (newCompleted && idx === -1) progress[subjectId].subtopicsCompleted.push(subtopicName);
+                  else if (!newCompleted && idx > -1) progress[subjectId].subtopicsCompleted.splice(idx, 1);
+                }
+              }
+
+              return { ...item, completed: newCompleted };
+            }
+            return item;
+          });
+        }
+        return { dailyPlans: plans, progress };
+      });
       get().saveToStorage();
     },
 

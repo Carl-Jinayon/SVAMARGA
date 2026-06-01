@@ -18,8 +18,8 @@ export default function CurriculumViewer() {
 
   const isExpanded = (subjectId: string) => expandedSubjects.includes(subjectId);
   const isSubjectCompleted = (subjectId: string) => progress[subjectId]?.completed || false;
-  const isTopicCompleted = (subjectId: string, topic: string) => progress[subjectId]?.topicsCompleted.includes(topic) || false;
-  const isSubtopicCompleted = (subjectId: string, subtopic: string) => progress[subjectId]?.subtopicsCompleted.includes(subtopic) || false;
+  const isTopicCompleted = (subjectId: string, topic: string) => isSubjectCompleted(subjectId) || progress[subjectId]?.topicsCompleted.includes(topic) || false;
+  const isSubtopicCompleted = (subjectId: string, subtopic: string, topic: string) => isTopicCompleted(subjectId, topic) || progress[subjectId]?.subtopicsCompleted.includes(subtopic) || false;
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -165,8 +165,9 @@ export default function CurriculumViewer() {
                                           <input 
                                             type="checkbox" 
                                             checked={topicDone}
+                                            disabled={completed}
                                             onChange={() => markTopicCompleted(subject.id, topic)}
-                                            className="w-5 h-5 rounded-lg cursor-pointer accent-blue-500" 
+                                            className={`w-5 h-5 rounded-lg accent-blue-500 ${completed ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`} 
                                           />
                                           <p className={`text-sm font-black ${topicDone ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
                                             {topic}
@@ -176,14 +177,15 @@ export default function CurriculumViewer() {
                                         {subject.subtopics[topic] && (
                                           <ul className="ml-8 space-y-2">
                                             {subject.subtopics[topic].map((sub) => {
-                                              const subDone = isSubtopicCompleted(subject.id, sub);
+                                              const subDone = isSubtopicCompleted(subject.id, sub, topic);
                                               return (
                                                 <li key={sub} className="flex items-start gap-3">
                                                   <input 
                                                     type="checkbox" 
                                                     checked={subDone}
+                                                    disabled={topicDone}
                                                     onChange={() => markSubtopicCompleted(subject.id, sub)}
-                                                    className="w-4 h-4 mt-0.5 rounded-md cursor-pointer accent-indigo-500" 
+                                                    className={`w-4 h-4 mt-0.5 rounded-md accent-indigo-500 ${topicDone ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`} 
                                                   />
                                                   <p className={`text-xs leading-relaxed ${subDone ? 'text-gray-400 line-through' : 'text-gray-600 dark:text-gray-400 font-medium'}`}>
                                                     {sub}

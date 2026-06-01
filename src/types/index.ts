@@ -114,6 +114,16 @@ export interface Message {
   reply_to?: string;
 }
 
+export interface DailyPlan {
+  date: string;
+  items: {
+    id: string;
+    type: 'subject' | 'topic' | 'subtopic';
+    name: string;
+    completed: boolean;
+  }[];
+}
+
 export interface TrackerState {
   // Progress
   progress: Record<string, Progress>;
@@ -138,5 +148,6 @@ export interface TrackerState {
 
   // Mission
   missionEndDate: string | null;
+  dailyPlans: Record<string, DailyPlan>;
   messages: Message[];
 }

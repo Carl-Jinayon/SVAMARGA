@@ -735,56 +735,68 @@ export const curriculum: Phase[] = [
         hours: 45,
         duration: '3 weeks',
         difficulty: 'Intermediate',
-        description: 'Security is a mindset you build into every line of code. Fintech companies explicitly test this.',
-        topics: ['OWASP Top 10', 'Secure Coding Practices', 'Security in Practice'],
+        prerequisites: ['CS203', 'CS204'],
+        description: 'Security is not a feature you add at the end — it is a mindset you build into every line of code. Filipino fintech companies (GCash, Paymaya, UnionDigital) explicitly test security knowledge. This subject makes you dangerous in the best way.',
+        topics: ['OWASP Top 10 (The Must-Knows)', 'Secure Coding Practices', 'Security in Practice'],
         subtopics: {
-          'OWASP Top 10': [
-            'A01 Broken Access Control',
-            'A03 Injection (SQLi, XSS)',
-            'A04 Insecure Design',
-            'A05 Security Misconfiguration',
-            'A08 Software Supply Chain',
-            'A10 SSRF'
+          'OWASP Top 10 (The Must-Knows)': [
+            'A01 Broken Access Control: insecure direct object reference, missing authorization checks',
+            'A02 Cryptographic Failures: weak algorithms, unencrypted sensitive data, hardcoded keys',
+            'A03 Injection: SQL injection — understand and prevent with parameterized queries',
+            'A03 XSS (Cross-Site Scripting): reflected, stored, DOM-based — escape output always',
+            'A04 Insecure Design: threat modeling, fail securely by default, principle of least privilege',
+            'A05 Security Misconfiguration: default credentials, verbose errors, open S3 buckets',
+            'A07 Authentication Failures: brute force, credential stuffing, session fixation',
+            'A08 Software Supply Chain: vulnerable dependencies, lock files, dependency scanning',
+            'A09 Logging Failures: no audit trail, logging sensitive data, insufficient monitoring',
+            'A10 SSRF: making the server request internal resources — cloud metadata endpoint attacks'
           ],
           'Secure Coding Practices': [
-            'Never trust user input — validate/sanitize',
-            'Parameterized queries (no string formatting)',
-            'Bcrypt with cost 12+, no MD5/SHA1',
-            'Secrets management: no git commits',
-            'Rate limiting and CSRF protection'
+            'Never trust user input — validate and sanitize everything on the server side',
+            'Parameterized queries: NEVER use string formatting for SQL — ever',
+            'Password storage: bcrypt with cost factor 12+, never MD5 or SHA1 for passwords',
+            'Secrets management: environment variables, .env files, never commit to git',
+            'Rate limiting: per-IP, per-user, per-endpoint — prevent brute force',
+            'CSRF protection: SameSite cookies, CSRF tokens for state-changing requests',
+            'Secure headers: HSTS, CSP, X-Frame-Options, X-Content-Type-Options',
+            'Input validation: allowlist not denylist, validate type/length/format/range'
           ],
           'Security in Practice': [
-            'Dependency scanning: pip-audit, Snyk',
-            'JWT security: Refresh token rotation',
-            'OAuth 2.0 security: PKCE, state parameter',
-            'Penetration testing: OWASP ZAP, Burp Suite'
+            'Dependency scanning: pip-audit, Safety, Snyk — run in CI pipeline',
+            'HTTPS everywhere: redirect HTTP to HTTPS, HSTS preloading',
+            'JWT security: short expiry, httpOnly cookies, refresh token rotation, token revocation',
+            'OAuth 2.0 security: state parameter (CSRF prevention), PKCE for public clients',
+            'Error handling: never expose stack traces in production responses',
+            'Logging: log security events (failed logins, permission denials) without logging PII',
+            'Penetration testing basics: OWASP ZAP, Burp Suite Community — scan your own apps',
+            'Bug bounty mindset: think like an attacker to defend like a defender'
           ]
         },
         projects: [
-          { name: 'Vulnerable App Audit', description: 'Find/fix OWASP Top 10', level: 'Int', outcome: 'Use DVWA or WebGoat, document each vulnerability found and the fix applied' },
-          { name: 'Secure API', description: 'FastAPI security implementation', level: 'Int', outcome: 'Rate limiting, CSRF, parameterized queries, secure headers, dependency scan, secrets in env' },
+          { name: 'Vulnerable App Audit', description: 'Find and fix all OWASP Top 10 issues in a deliberately vulnerable app', level: 'Int', outcome: 'Use DVWA or WebGoat, document each vulnerability found and the fix applied' },
+          { name: 'Secure API', description: 'Build a FastAPI endpoint following all security best practices', level: 'Int', outcome: 'Rate limiting, CSRF, parameterized queries, secure headers, dependency scan, secrets in env' },
         ],
         resources: [
-          { name: 'OWASP Top 10', type: 'Docs', cost: 'Free', stars: 5, url: 'https://owasp.org/www-project-top-ten', notes: 'Read the official descriptions and prevention guides' },
+          { name: 'OWASP Top 10', type: 'Docs', cost: 'Free', stars: 5, url: 'https://owasp.org', notes: 'Read the official descriptions and prevention guides' },
           { name: 'PortSwigger Web Academy', type: 'Interactive', cost: 'Free', stars: 5, url: 'https://portswigger.net/web-security', notes: 'Hands-on labs, best free security training' },
-          { name: 'DVWA', type: 'Tool', cost: 'Free', stars: 4, url: 'https://dvwa.co.uk', notes: 'Damn Vulnerable Web App — practice in a safe environment' },
-          { name: 'Hacking: The Art of Exploitation', type: 'Book', cost: 'Paid', stars: 4, notes: 'Low-level security — read after OWASP basics are solid' },
+          { name: 'DVWA', type: 'Tool', cost: 'Free', stars: 4, url: 'https://dvwa.co.uk', notes: 'Damn Vulnerable Web App — practice finding vulnerabilities' },
+          { name: 'Hacking: The Art of Exploitation', type: 'Book', cost: 'Paid', stars: 5, notes: 'Low-level security — read after OWASP basics are solid' },
         ],
         commonMistakes: [
-          'Thinking security is someone else\'s job',
-          'Storing secrets in code or git-tracked env files',
-          'Using string formatting for SQL queries',
-          'Logging too much (PII) or too little (no audit trail)',
-          'Not scanning dependencies'
+          'Thinking security is someone else\'s job — every engineer writes security-relevant code',
+          'Storing secrets in code or environment variables tracked by git',
+          'Using string formatting to build SQL queries — this is still the #1 SQL injection cause',
+          'Logging too much (PII, passwords) or too little (no audit trail)',
+          'Not scanning dependencies — the next Log4Shell could be in your requirements.txt'
         ],
         selfCheck: [
-          'Can you explain SQL injection and write a parameterized query?',
+          'Can you explain SQL injection and write a parameterized query that prevents it?',
           'Can you explain the difference between XSS and CSRF?',
           'Can you explain why MD5 is unsafe for password storage?',
           'Can you describe 5 secure HTTP headers and what each one does?',
-          'Can you explain what SSRF is and give an attack example?'
+          'Can you explain what SSRF is and give a real attack example?'
         ],
-        whenStuck: 'If you\'re confused about whether something is a vulnerability: ask \'what happens if a malicious user controls this input?\' Always assume the attacker knows your code.'
+        whenStuck: "If you're confused about whether something is a vulnerability: ask 'what happens if a malicious user controls this input?' If the answer is anything bad, it's a vulnerability. Always assume the attacker knows your code."
       },
     ],
   },
