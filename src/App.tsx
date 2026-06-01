@@ -56,7 +56,7 @@ function App() {
 
         <div className="sticky top-16 z-40 backdrop-blur-xl bg-white/30 dark:bg-gray-900/30 border-b border-white/20 dark:border-gray-800/20 shadow-xl">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-12">
-            <div className="flex gap-2 overflow-x-auto py-3 no-scrollbar">
+            <div className="flex gap-2 justify-center overflow-x-auto py-3 no-scrollbar">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
