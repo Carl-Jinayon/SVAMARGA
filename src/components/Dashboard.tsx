@@ -29,13 +29,6 @@ export default function Dashboard() {
   };
 
   const currentMission = activeWeekPlan ? getWeeklyPlan(activeWeekPlan) : null;
-// ... (rest of the component logic)
-
-  return (
-    <div className="animate-slide-in-up" ref={dashboardRef}>
-      {screenshotUrl && <ShareModal onClose={() => setScreenshotUrl(null)} screenshotUrl={screenshotUrl} />}
-      {/* Current Mission Control */}
-// ... rest of the JSX
 
   const totalMinutes = getTotalMinutes();
   const totalHours = Math.round(totalMinutes / 60);
@@ -64,7 +57,9 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="animate-slide-in-up">
+    <div className="animate-slide-in-up" ref={dashboardRef}>
+      {screenshotUrl && <ShareModal onClose={() => setScreenshotUrl(null)} screenshotUrl={screenshotUrl} />}
+      
       {/* Current Mission Control */}
       {currentMission && (
         <div className="glass p-10 rounded-[3rem] shadow-2xl mb-10 relative overflow-hidden border-l-8 border-indigo-600">
