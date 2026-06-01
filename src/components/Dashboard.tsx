@@ -21,11 +21,20 @@ export default function Dashboard() {
 
   const handleShare = async () => {
     if (dashboardRef.current) {
+      // Temporarily override styles for the capture
+      const originalStyle = dashboardRef.current.style.cssText;
+      dashboardRef.current.style.backgroundColor = '#ffffff';
+      dashboardRef.current.style.backdropFilter = 'none';
+
       const canvas = await html2canvas(dashboardRef.current, {
         backgroundColor: '#ffffff', // Set an opaque background
         scale: 2,
         useCORS: true,
       });
+      
+      // Restore original styles
+      dashboardRef.current.style.cssText = originalStyle;
+      
       setScreenshotUrl(canvas.toDataURL('image/png'));
     }
   };
