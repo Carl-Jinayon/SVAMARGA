@@ -22,8 +22,8 @@ export default function Dashboard() {
   const handleShare = async () => {
     if (dashboardRef.current) {
       const canvas = await html2canvas(dashboardRef.current, {
-        backgroundColor: null,
-        scale: 2, // Increase scale to improve resolution
+        backgroundColor: '#ffffff', // Set an opaque background
+        scale: 2,
         useCORS: true,
       });
       setScreenshotUrl(canvas.toDataURL('image/png'));
