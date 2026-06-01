@@ -47,11 +47,19 @@ interface Store extends TrackerState {
   reset: () => void;
 }
 
+const getInitialTheme = () => {
+  if (typeof window !== 'undefined') {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme === 'dark';
+  }
+  return false;
+};
+
 const initialState: TrackerState = {
   progress: {},
   sessions: [],
   currentPhase: 1,
-  darkMode: localStorage.getItem('theme') === 'dark' || false,
+  darkMode: getInitialTheme(),
   weeklyPlans: {},
   activeWeekPlan: null,
   achievements: [],
@@ -387,19 +395,12 @@ export const useTrackerStore = create<Store>((set, get) => {
 });
 
 // Initialize on app load
-if (typeof window !== 'undefined') {
-  const isDark = localStorage.getItem('theme') === 'dark';
-  if (isDark) {
-    document.documentElement.classList.add('dark');
+// Set up auth listener
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    useTrackerStore.getState().setUser(session.user);
+    useTrackerStore.getState().syncWithCloud();
+  } else if (event === 'SIGNED_OUT') {
+    useTrackerStore.getState().setUser(null);
   }
-
-  // Set up auth listener
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      useTrackerStore.getState().setUser(session.user);
-      useTrackerStore.getState().syncWithCloud();
-    } else if (event === 'SIGNED_OUT') {
-      useTrackerStore.getState().setUser(null);
-    }
-  });
-}
+});
