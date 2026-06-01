@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2 } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { motion } from 'framer-motion';
+import { X, Download } from 'lucide-react';
 
 export default function ShareModal({ onClose, screenshotUrl }: { onClose: () => void, screenshotUrl: string }) {
   const downloadImage = () => {
