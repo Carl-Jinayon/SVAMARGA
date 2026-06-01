@@ -23,6 +23,8 @@ export default function Dashboard() {
     if (dashboardRef.current) {
       const canvas = await html2canvas(dashboardRef.current, {
         backgroundColor: null,
+        scale: 2, // Increase scale to improve resolution
+        useCORS: true,
       });
       setScreenshotUrl(canvas.toDataURL('image/png'));
     }
