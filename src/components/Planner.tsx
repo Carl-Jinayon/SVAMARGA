@@ -305,21 +305,21 @@ export default function Planner() {
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-gray-900 rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col border-none"
+              className="relative w-full max-w-2xl max-h-[85vh] bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col border-none"
             >
-              <div className="p-8 sm:p-10 border-b border-black/5 dark:border-white/5 flex justify-between items-center bg-gray-50 dark:bg-black/20">
+              <div className="p-6 sm:p-8 border-b border-black/5 dark:border-white/5 flex justify-between items-center bg-gray-50 dark:bg-black/20">
                 <div>
-                  <h4 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
-                    <BookOpen className="text-blue-600" /> Curriculum Selection
+                  <h4 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
+                    <BookOpen className="text-blue-600 w-6 h-6" /> Curriculum Selection
                   </h4>
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Current selection: {tempSelection.length} items</p>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Current selection: {tempSelection.length} items</p>
                 </div>
-                <button onClick={() => setShowSelector(false)} className="p-4 bg-black/5 dark:bg-white/10 rounded-2xl hover:bg-black/10 dark:hover:bg-white/20 transition-all">
-                  <X className="w-6 h-6" />
+                <button onClick={() => setShowSelector(false)} className="p-3 bg-black/5 dark:bg-white/10 rounded-2xl hover:bg-black/10 dark:hover:bg-white/20 transition-all">
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 sm:p-10 space-y-6 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-4 custom-scrollbar">
                 {curriculum.map((phase) => (
                   <div key={phase.id} className="border-b border-black/5 dark:border-white/5 pb-6 last:border-0">
                     <div 
@@ -420,18 +420,18 @@ export default function Planner() {
                 ))}
               </div>
 
-              <div className="p-8 sm:p-10 border-t border-black/5 dark:border-white/5 bg-gray-50 dark:bg-black/20 flex flex-col sm:flex-row justify-between items-center gap-6">
-                <p className="text-xs font-bold text-gray-500 italic">Selections are temporary until you confirm.</p>
-                <div className="flex gap-4 w-full sm:w-auto">
+              <div className="p-6 sm:p-8 border-t border-black/5 dark:border-white/5 bg-gray-50 dark:bg-black/20 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p className="text-[10px] font-bold text-gray-500 italic uppercase">Changes are temporary until confirmed.</p>
+                <div className="flex gap-3 w-full sm:w-auto">
                   <button 
                     onClick={() => setShowSelector(false)}
-                    className="flex-1 sm:flex-none px-8 py-4 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                    className="flex-1 sm:flex-none px-6 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-2xl text-[9px] font-black uppercase tracking-widest"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={confirmSelection}
-                    className="flex-1 sm:flex-none px-12 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
+                    className="flex-1 sm:flex-none px-8 py-3 bg-blue-600 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
                   >
                     Confirm Selection
                   </button>

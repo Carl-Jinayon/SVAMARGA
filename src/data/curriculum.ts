@@ -927,66 +927,98 @@ export const curriculum: Phase[] = [
         hours: 140,
         duration: '10 weeks',
         difficulty: 'Intermediate',
-        description: 'Frontend engineering is building interfaces that are correct, fast, and accessible. React + TypeScript + Tailwind.',
+        prerequisites: ['CS101', 'CS105'],
+        description: 'Frontend engineering is not graphic design — it is building interfaces that are correct, fast, and accessible. You already know TypeScript from CS105. Now you apply it to React. Use Tailwind CSS for styling so you focus on functionality, not design decisions.',
         topics: ['HTML5 & CSS Mastery', 'JavaScript Deep Dive', 'TypeScript in React', 'React Architecture', 'Frontend Tooling & Architecture'],
         subtopics: {
           'HTML5 & CSS Mastery': [
-            'Semantic HTML5 and accessibility (ARIA)',
-            'Flexbox and CSS Grid for layouts',
-            'Responsive design: mobile-first and container queries',
-            'CSS Custom Properties and animations'
+            'HTML5 semantics: header, main, section, article, nav, footer, aside, figure',
+            'Forms: inputs, labels, fieldsets, validation attributes, accessibility (ARIA)',
+            'CSS box model: content, padding, border, margin — draw it, know it cold',
+            'Flexbox: container properties, item properties, alignment, gap — use it for 1D layouts',
+            'CSS Grid: template columns/rows, areas, auto-placement, subgrid — use it for 2D layouts',
+            'Responsive design: mobile-first, breakpoints, fluid typography, container queries',
+            'CSS custom properties: --color-primary, cascading, theming',
+            'CSS animations and transitions: transform, opacity, keyframes, will-change',
+            'CSS specificity and the cascade: understand before using !important'
           ],
           'JavaScript Deep Dive': [
-            'Event Loop, Closures, and Prototypal Inheritance',
-            'Promises and async/await internals',
-            'DOM API and Event Delegation',
-            'ES2020+ features'
+            'var/let/const: differences, hoisting, temporal dead zone, block scope',
+            'Arrow functions vs regular functions: this binding — the source of 1000 bugs',
+            'Closures: functions that remember their outer scope — iterators, private state, memoization',
+            'Prototypal inheritance: prototype chain, Object.create, class as syntax sugar',
+            'Event loop: call stack, microtask queue, macrotask queue — why setTimeout(fn, 0) is not instant',
+            'Promises: .then(), .catch(), .finally(), Promise.all(), Promise.allSettled(), Promise.race()',
+            'async/await: syntactic sugar over promises, error handling with try/catch',
+            'Fetch API: GET, POST, headers, body, error handling, AbortController',
+            'DOM API: querySelector, addEventListener, event delegation, MutationObserver',
+            'ES2020+: optional chaining ?., nullish coalescing ??, logical assignment, structuredClone',
+            'Modules: import/export, digital import(), tree-shaking implications'
           ],
           'TypeScript in React': [
-            'Typing FCs, Props, State, and Refs',
-            'Generic components and Discrimination Unions',
-            'Typing Context and Custom Hooks',
-            'Zod for runtime schema validation'
+            'Typing React components: FC, explicit return types',
+            'Typing props: required, optional, union types, callback props',
+            'Typing useState: useState(null)',
+            'Typing useRef: useRef(null)',
+            'Typing events: React.ChangeEvent, React.MouseEvent, React.FormEvent',
+            'Generic components: List, Select',
+            'Typing context with createContext and proper defaults',
+            'Discriminated unions for component variants'
           ],
           'React Architecture': [
-            'JSX transforms and unidirectional data flow',
-            'Hooks: useEffect dependencies and custom hooks',
-            'useReducer + Context for state management',
-            'React Router v6 and Code Splitting'
+            'JSX: how Babel transforms it, JSX is just function calls',
+            'Functional components: why class components are legacy',
+            'Props: data flows down — unidirectional data flow',
+            'useState: immutability, state batching in React 18, functional updates',
+            'useEffect: effects, dependency array, cleanup — the three variants and when to use each',
+            'useContext: avoid prop drilling — when context is and isn\'t appropriate',
+            'useReducer: complex state, dispatch pattern, integrating with context',
+            'Custom hooks: extract and reuse stateful logic — the superpower of hooks',
+            'React Router v6: BrowserRouter, Routes, Route, Link, NavLink, useParams, useNavigate, useLocation',
+            'Performance: React.memo, useMemo, useCallback — understand when NOT to use them (premature optimization)',
+            'Error boundaries: class component, react-error-boundary library, fallback UI',
+            'Suspense and lazy: code splitting, dynamic imports for route-level chunks'
           ],
           'Frontend Tooling & Architecture': [
-            'Vite, Zustand, and TanStack Query',
-            'Axios interceptors and cancellation',
-            'Vitest and React Testing Library',
-            'Storybook for component documentation'
+            'Vite: fast dev server with HMR, build with Rollup, environment variables',
+            'npm/yarn/pnpm: package.json, package-lock.json, peer dependencies',
+            'Tailwind CSS: utility-first, responsive variants, dark mode, arbitrary values',
+            'Zustand: simple global state — when context isn\'t enough but Redux is overkill',
+            'TanStack Query (React Query): server state, caching, background refetch, optimistic updates',
+            'Axios vs Fetch: interceptors, request/response transformation, cancellation',
+            'Zod: runtime schema validation — pair with TypeScript for end-to-end type safety',
+            'Testing: Vitest (fast, Vite-native), React Testing Library (user-centric tests)',
+            'Storybook: component documentation and visual testing — used in real teams',
+            'Accessibility: WCAG AA, keyboard navigation, screen reader testing, axe DevTools'
           ]
         },
         projects: [
-          { name: 'Portfolio Site', description: 'Zero templates, custom responsive site', level: 'Int', outcome: 'Mobile-first, dark mode, animations, WCAG AA, Vercel, Lighthouse 90+' },
-          { name: 'Weather Dashboard', description: 'React Query + OpenWeather API', level: 'Int', outcome: 'Charts with Recharts, geolocation, skeleton loading, error states' },
-          { name: 'Full-Stack Task App', description: 'React + TS consuming CS301 API', level: 'Adv', outcome: 'Auth flow, optimistic updates, real-time via WebSocket, PWA support' },
+          { name: 'Portfolio Site', description: 'Custom responsive site, zero templates', level: 'Int', outcome: 'Mobile-first, dark mode, animations, WCAG AA accessible, deployed on Vercel, Lighthouse 90+' },
+          { name: 'Weather Dashboard', description: 'OpenWeatherMap API, TypeScript, React Query', level: 'Int', outcome: '5-day forecast, charts with Recharts, geolocation, skeleton loading, error states' },
+          { name: 'Full-Stack Task App', description: 'React + TypeScript consuming CS301 Task API', level: 'Adv', outcome: 'Auth flow, optimistic updates, real-time via WebSocket, PWA, offline support' },
+          { name: 'Real-Time Chat UI', description: 'WebSocket chat with full TypeScript', level: 'Adv', outcome: 'Typing indicators, read receipts, message history, rooms, emoji reactions' },
         ],
         resources: [
           { name: 'javascript.info', type: 'Website', cost: 'Free', stars: 5, url: 'https://javascript.info', notes: 'Most thorough JS resource ever written — read every chapter' },
-          { name: 'react.dev', type: 'Docs', cost: 'Free', stars: 5, url: 'https://react.dev', notes: 'Official React docs, completely rewritten, excellent' },
-          { name: 'Total TypeScript (React)', type: 'Course', cost: 'Paid', stars: 5, url: 'https://totaltypescript.com', notes: 'Best typed React patterns' },
-          { name: 'The Odin Project', type: 'Course', cost: 'Free', stars: 4, url: 'https://theodinproject.com', notes: 'Project-based full curriculum for fundamentals' },
+          { name: 'react.dev', type: 'Docs', cost: 'Free', stars: 5, url: 'https://react.dev', notes: 'Official React docs, completely rewritten, excellent — primary reference' },
+          { name: 'Total TypeScript (React)', type: 'Course', cost: 'Paid', stars: 5, url: 'https://totaltypescript.com', notes: 'Best typed React patterns — worth the investment' },
+          { name: 'The Odin Project', type: 'Course', cost: 'Free', stars: 5, url: 'https://theodinproject.com', notes: 'Project-based full curriculum for HTML/CSS/JS fundamentals' },
         ],
         commonMistakes: [
-          'Not using TypeScript strictly',
-          'Putting all state in Context — keep it local',
-          'Not testing from the user\'s perspective',
-          'Ignoring accessibility keyboard navigation',
-          'Over-using useEffect'
+          'Not using TypeScript strictly — any and @ts-ignore defeat the purpose',
+          'Putting all state in Context — most state should be local, not global',
+          'Not testing from the user\'s perspective — test what the user sees, not implementation details',
+          'Ignoring accessibility — broken keyboard navigation fails interviews at companies that care',
+          'Over-using useEffect — most side effects belong elsewhere (event handlers, React Query)'
         ],
         selfCheck: [
-          'Can you explain the JS event loop with a surprising example?',
-          'Can you build a fully typed form with Zod and React Hook Form?',
-          'Can you explain all three forms of useEffect dependencies?',
-          'Can you implement optimistic updates in TanStack Query?',
-          'Can you score 90+ on Lighthouse?'
+          'Can you explain the JavaScript event loop with a code example that surprises most developers?',
+          'Can you build a fully typed React form with validation using Zod and React Hook Form?',
+          'Can you explain all three forms of useEffect dependency array and when each is appropriate?',
+          'Can you implement an optimistic update in TanStack Query from scratch?',
+          'Can you score 90+ on Lighthouse for your portfolio site?'
         ],
-        whenStuck: 'If React re-renders are confusing: install React DevTools, enable \'Highlight updates\'. Only add React.memo after you see a problem.'
+        whenStuck: 'If React re-renders are confusing: install React DevTools, enable \'Highlight updates when components render\'. You\'ll see exactly what re-renders and why. Add React.memo only after you see a problem.'
       },
       {
         id: 'CS303',

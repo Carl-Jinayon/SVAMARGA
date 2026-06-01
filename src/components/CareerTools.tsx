@@ -104,7 +104,7 @@ Best regards,
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <button 
           onClick={() => setActiveTool('negotiation')}
-          className={`glass p-8 rounded-[2.5rem] text-left transition-all border-2 ${activeTool === 'negotiation' ? 'border-blue-600 scale-105 shadow-2xl' : 'border-transparent hover:bg-white/50'}`}
+          className={`glass p-8 rounded-[2.5rem] text-left transition-all border-2 ${activeTool === 'negotiation' ? 'border-blue-600 scale-105 shadow-2xl' : 'border-transparent hover:bg-blue-600/5 dark:hover:bg-blue-600/10'}`}
         >
           <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6">
             <DollarSign className="w-7 h-7 text-blue-600" />
@@ -115,7 +115,7 @@ Best regards,
 
         <button 
           onClick={() => setActiveTool('proof')}
-          className={`glass p-8 rounded-[2.5rem] text-left transition-all border-2 ${activeTool === 'proof' ? 'border-green-600 scale-105 shadow-2xl' : 'border-transparent hover:bg-white/50'}`}
+          className={`glass p-8 rounded-[2.5rem] text-left transition-all border-2 ${activeTool === 'proof' ? 'border-green-600 scale-105 shadow-2xl' : 'border-transparent hover:bg-green-600/5 dark:hover:bg-green-600/10'}`}
         >
           <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mb-6">
             <Layout className="w-7 h-7 text-green-600" />
@@ -126,7 +126,7 @@ Best regards,
 
         <button 
           onClick={() => setActiveTool('blog')}
-          className={`glass p-8 rounded-[2.5rem] text-left transition-all border-2 ${activeTool === 'blog' ? 'border-purple-600 scale-105 shadow-2xl' : 'border-transparent hover:bg-white/50'}`}
+          className={`glass p-8 rounded-[2.5rem] text-left transition-all border-2 ${activeTool === 'blog' ? 'border-purple-600 scale-105 shadow-2xl' : 'border-transparent hover:bg-purple-600/5 dark:hover:bg-purple-600/10'}`}
         >
           <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6">
             <PenTool className="w-7 h-7 text-purple-600" />

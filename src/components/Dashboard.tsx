@@ -11,7 +11,11 @@ export default function Dashboard() {
     getCompletedSubjectsCount,
     getTotalSubjectsCount,
     progress,
+    dailyPlans,
   } = useTrackerStore();
+
+  const today = new Date().toISOString().split('T')[0];
+  const hasPlanToday = dailyPlans[today] && dailyPlans[today].items.length > 0;
 
   const totalMinutes = getTotalMinutes();
   const totalHours = Math.round(totalMinutes / 60);
@@ -41,7 +45,25 @@ export default function Dashboard() {
 
   return (
     <div className="animate-slide-in-up">
-      <DailyFocus />
+      {hasPlanToday ? (
+        <DailyFocus />
+      ) : (
+        <div className="glass p-10 rounded-[3rem] shadow-2xl mb-12 relative overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border-none group">
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 rounded-[2rem] bg-blue-600 flex items-center justify-center text-white text-2xl shadow-2xl group-hover:scale-110 transition-transform">
+                📅
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">No Mission for Today</h3>
+                <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">Consistency is key. Head over to the Planner to set your daily goals.</p>
+              </div>
+            </div>
+            <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] border-2 border-blue-600/20 px-6 py-3 rounded-2xl">Awaiting Deployment</p>
+          </div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+        </div>
+      )}
       
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
