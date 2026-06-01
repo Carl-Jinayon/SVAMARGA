@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Toast from './Toast';
 
 export default function Planner() {
   const [currentWeek, setCurrentWeek] = useState(1);
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const { getWeeklyPlan, addWeeklyPlan, setActiveWeekPlan } = useTrackerStore();
 
   const plan = getWeeklyPlan(currentWeek);
@@ -30,9 +32,9 @@ export default function Planner() {
     });
 
     setActiveWeekPlan(currentWeek);
-    alert(`Week ${currentWeek} Strategy Finalized! Mission Control is now active on your Dashboard.`);
+    setToast({ message: `Week ${currentWeek} Strategy Finalized!`, type: 'success' });
   };
-
+...
   const startDate = new Date();
   startDate.setDate(startDate.getDate() + (currentWeek - 1) * 7);
   const endDate = new Date(startDate);
@@ -45,11 +47,12 @@ export default function Planner() {
         : [...prev, subjectId]
     );
   };
-
-  return (
-    <div className="animate-slide-in-up max-w-4xl mx-auto space-y-8 pb-20">
-      {/* Week Navigation */}
-      <div className="glass p-8 rounded-[2rem] shadow-2xl">
+return (
+  <div className="animate-slide-in-up max-w-4xl mx-auto space-y-8 pb-20">
+    {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    {/* Week Navigation */}
+    <div className="glass p-8 rounded-[2rem] shadow-2xl">
+...
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))}
