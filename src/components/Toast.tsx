@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, AlertCircle } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 export default function Toast({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) {
   useEffect(() => {
@@ -8,7 +9,7 @@ export default function Toast({ message, type, onClose }: { message: string, typ
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  return (
+  const toastContent = (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -43,4 +44,6 @@ export default function Toast({ message, type, onClose }: { message: string, typ
       </motion.div>
     </AnimatePresence>
   );
+
+  return createPortal(toastContent, document.body);
 }
