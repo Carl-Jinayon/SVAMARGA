@@ -19,13 +19,16 @@ function App() {
 
   useEffect(() => {
     loadFromStorage();
+  }, []);
 
+  // Sync dark mode class with state changes
+  useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, []);
+  }, [darkMode]);
 
   if (!user) {
     return (

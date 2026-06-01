@@ -1,13 +1,8 @@
-import { useState, useRef } from 'react';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
-import { TrendingUp, Target, Flame, Clock, Share2 } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import ShareModal from './ShareModal';
+import { TrendingUp, Target, Flame, Clock } from 'lucide-react';
 
 export default function Dashboard() {
-  const dashboardRef = useRef<HTMLDivElement>(null);
-  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const {
     getTotalMinutes,
     currentStreak,
@@ -18,26 +13,6 @@ export default function Dashboard() {
     activeWeekPlan,
     getWeeklyPlan,
   } = useTrackerStore();
-
-  const handleShare = async () => {
-    if (dashboardRef.current) {
-      // Temporarily override styles for the capture
-      const originalStyle = dashboardRef.current.style.cssText;
-      dashboardRef.current.style.backgroundColor = '#ffffff';
-      dashboardRef.current.style.backdropFilter = 'none';
-
-      const canvas = await html2canvas(dashboardRef.current, {
-        backgroundColor: '#ffffff', // Set an opaque background
-        scale: 2,
-        useCORS: true,
-      });
-      
-      // Restore original styles
-      dashboardRef.current.style.cssText = originalStyle;
-      
-      setScreenshotUrl(canvas.toDataURL('image/png'));
-    }
-  };
 
   const currentMission = activeWeekPlan ? getWeeklyPlan(activeWeekPlan) : null;
 
@@ -68,9 +43,7 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="animate-slide-in-up" ref={dashboardRef}>
-      {screenshotUrl && <ShareModal onClose={() => setScreenshotUrl(null)} screenshotUrl={screenshotUrl} />}
-      
+    <div className="animate-slide-in-up">
       {/* Current Mission Control */}
       {currentMission && (
         <div className="glass p-10 rounded-[3rem] shadow-2xl mb-10 relative overflow-hidden border-l-8 border-indigo-600">
@@ -197,13 +170,6 @@ export default function Dashboard() {
             <div className="w-2.5 h-10 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)]"></div>
             Phase Progress
           </div>
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95"
-          >
-            <Share2 className="w-4 h-4" />
-            <span>Share My Progress</span>
-          </button>
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-10">
           {phaseStats.map((stat) => (
