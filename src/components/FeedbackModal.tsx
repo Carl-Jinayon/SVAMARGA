@@ -5,6 +5,7 @@ import { useTrackerStore } from '../store/useTrackerStore';
 import Toast from './Toast';
 
 export default function FeedbackModal({ onClose }: { onClose: () => void }) {
+  const [issueType, setIssueType] = useState('Bug');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -17,6 +18,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
     const { error } = await supabase.from('feedback').insert([
       { 
         user_id: user?.id, 
+        issue_type: issueType,
         message, 
         created_at: new Date().toISOString() 
       }
@@ -24,6 +26,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
 
     setSending(false);
     if (error) {
+      console.error(error);
       setToast({ message: 'Failed to send feedback. Please try again.', type: 'error' });
     } else {
       setToast({ message: 'Thank you for your feedback!', type: 'success' });
@@ -41,13 +44,28 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
             <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full"><X className="w-5 h-5" /></button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="What went wrong? Tell us the details..."
-              className="w-full h-32 p-4 bg-white/40 dark:bg-black/20 border border-white/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              required
-            />
+            <div>
+              <label className="block text-xs font-black uppercase text-gray-500 mb-1">Issue Type</label>
+              <select
+                value={issueType}
+                onChange={(e) => setIssueType(e.target.value)}
+                className="w-full p-3 bg-white/40 dark:bg-gray-800 border border-white/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-900 dark:text-white"
+              >
+                <option value="Bug" className="bg-white dark:bg-gray-800">Bug</option>
+                <option value="Feature" className="bg-white dark:bg-gray-800">Feature Request</option>
+                <option value="UI" className="bg-white dark:bg-gray-800">UI/UX Issue</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-black uppercase text-gray-500 mb-1">Description</label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="What went wrong? Tell us the details..."
+                className="w-full h-32 p-4 bg-white/40 dark:bg-black/20 border border-white/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                required
+              />
+            </div>
             <button
               type="submit"
               disabled={sending}

@@ -1,3 +1,10 @@
+export interface Project {
+  name: string;
+  description: string;
+  level: string;
+  outcome: string;
+}
+
 export interface Subject {
   id: string;
   name: string;
@@ -5,10 +12,14 @@ export interface Subject {
   duration: string;
   description?: string;
   topics: string[];
-  projects: string[];
+  subtopics: Record<string, string[]>;
+  projects: Project[];
   resources: Resource[];
   difficulty: 'Beginner' | 'Intermediate' | 'Hard' | 'Very Hard';
   prerequisites?: string[];
+  commonMistakes: string[];
+  selfCheck: string[];
+  whenStuck: string;
 }
 
 export interface Phase {
@@ -17,8 +28,8 @@ export interface Phase {
   duration: string;
   hours: number;
   color: string;
+  description: string;
   subjects: Subject[];
-  description?: string;
 }
 
 export interface Resource {
@@ -66,6 +77,22 @@ export interface WeekPlan {
   completedGoals?: string[];
 }
 
+export interface Portfolio {
+  bio: string;
+  tagline: string;
+  skills: string[];
+  links: {
+    github?: string;
+    linkedin?: string;
+    website?: string;
+  };
+  featuredProjects: {
+    name: string;
+    description: string;
+    url?: string;
+  }[];
+}
+
 export interface TrackerState {
   // Progress
   progress: Record<string, Progress>;
@@ -79,6 +106,9 @@ export interface TrackerState {
   weeklyPlans: Record<number, WeekPlan>;
   activeWeekPlan: number | null;
   achievements: Achievement[];
+  
+  // Portfolio
+  portfolio: Portfolio;
   
   // Stats
   totalStudyTime: number;

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TrackerState, Session, Achievement, WeekPlan } from '../types/index';
+import { TrackerState, Session, Achievement, WeekPlan, Portfolio } from '../types/index';
 import { curriculum } from '../data/curriculum';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
@@ -65,6 +65,13 @@ const initialState: TrackerState = {
   achievements: [],
   totalStudyTime: 0,
   currentStreak: 0,
+  portfolio: {
+    bio: '',
+    tagline: '',
+    skills: [],
+    links: {},
+    featuredProjects: [],
+  },
 };
 
 export const useTrackerStore = create<Store>((set, get) => {
@@ -91,30 +98,36 @@ export const useTrackerStore = create<Store>((set, get) => {
     }
   };
 
-  const saveToStorage = () => {
-    const state = get();
-    const data = {
-      progress: state.progress,
-      sessions: state.sessions,
-      currentPhase: state.currentPhase,
-      darkMode: state.darkMode,
-      weeklyPlans: state.weeklyPlans,
-      activeWeekPlan: state.activeWeekPlan,
-      achievements: state.achievements,
-      totalStudyTime: state.totalStudyTime,
-      currentStreak: state.currentStreak,
-      lastStudyDate: state.lastStudyDate,
-    };
-    localStorage.setItem('tracker-state', JSON.stringify(data));
-    
-    if (state.user) {
-      get().syncWithCloud();
-    }
-  };
-
   return {
     ...initialState,
     user: null,
+
+    updatePortfolio: (portfolio: Portfolio) => {
+      set({ portfolio });
+      get().saveToStorage();
+    },
+
+    saveToStorage: () => {
+      const state = get();
+      const data = {
+        progress: state.progress,
+        sessions: state.sessions,
+        currentPhase: state.currentPhase,
+        darkMode: state.darkMode,
+        weeklyPlans: state.weeklyPlans,
+        activeWeekPlan: state.activeWeekPlan,
+        achievements: state.achievements,
+        totalStudyTime: state.totalStudyTime,
+        currentStreak: state.currentStreak,
+        lastStudyDate: state.lastStudyDate,
+        portfolio: state.portfolio,
+      };
+      localStorage.setItem('tracker-state', JSON.stringify(data));
+
+      if (state.user) {
+        get().syncWithCloud();
+      }
+    },
 
     setActiveWeekPlan: (week) => {
       set({ activeWeekPlan: week });
@@ -384,7 +397,6 @@ export const useTrackerStore = create<Store>((set, get) => {
 
     // Storage
     loadFromStorage,
-    saveToStorage,
 
     reset: () => {
       localStorage.removeItem('tracker-state');

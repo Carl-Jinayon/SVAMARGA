@@ -9,14 +9,16 @@ import Planner from './components/Planner';
 import CareerTools from './components/CareerTools';
 import Auth from './components/Auth';
 import AdminFeedback from './components/AdminFeedback';
-import { BookOpen, BarChart3, Calendar, Briefcase, Shield } from 'lucide-react';
+import About from './components/About';
+import { BookOpen, BarChart3, Calendar, Briefcase, Shield, Info } from 'lucide-react';
 
-type TabType = 'dashboard' | 'curriculum' | 'analytics' | 'planner' | 'career' | 'admin';
+type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'admin';
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const { darkMode, toggleDarkMode, loadFromStorage, user } = useTrackerStore();
 
+  // Initialize theme synchronously before render
   useEffect(() => {
     loadFromStorage();
   }, []);
@@ -46,6 +48,7 @@ function App() {
     { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'planner', label: 'Planner', icon: <Calendar className="w-4 h-4" /> },
     { id: 'career', label: 'Career', icon: <Briefcase className="w-4 h-4" /> },
+    { id: 'about', label: 'About', icon: <Info className="w-4 h-4" /> },
   ];
 
   if (user?.id === '06391879-d280-472e-b253-7e0685bf1014') {
@@ -57,7 +60,7 @@ function App() {
       <div className="min-h-screen bg-transparent transition-colors relative">
         <Header onToggleDarkMode={toggleDarkMode} />
 
-        <div className="sticky top-16 z-40 backdrop-blur-xl bg-white/30 dark:bg-gray-900/30 border-b border-white/20 dark:border-gray-800/20 shadow-xl">
+        <div className="sticky top-20 z-40 backdrop-blur-xl bg-white/30 dark:bg-gray-900/30 border-b border-white/20 dark:border-gray-800/20 shadow-xl">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-12">
             <div className="flex gap-2 justify-center overflow-x-auto py-3 no-scrollbar">
               {tabs.map((tab) => (
@@ -82,6 +85,7 @@ function App() {
           <div className="animate-slide-in-up">
             {activeTab === 'dashboard' && <Dashboard />}
             {activeTab === 'curriculum' && <CurriculumViewer />}
+            {activeTab === 'about' && <About />}
             {activeTab === 'analytics' && <Analytics />}
             {activeTab === 'planner' && <Planner />}
             {activeTab === 'career' && <CareerTools />}
