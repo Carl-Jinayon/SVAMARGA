@@ -34,7 +34,7 @@ export default function Planner() {
     setActiveWeekPlan(currentWeek);
     setToast({ message: `Week ${currentWeek} Strategy Finalized!`, type: 'success' });
   };
-...
+
   const startDate = new Date();
   startDate.setDate(startDate.getDate() + (currentWeek - 1) * 7);
   const endDate = new Date(startDate);
@@ -47,12 +47,12 @@ export default function Planner() {
         : [...prev, subjectId]
     );
   };
-return (
-  <div className="animate-slide-in-up max-w-4xl mx-auto space-y-8 pb-20">
-    {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-    {/* Week Navigation */}
-    <div className="glass p-8 rounded-[2rem] shadow-2xl">
-...
+
+  return (
+    <div className="animate-slide-in-up max-w-4xl mx-auto space-y-8 pb-20">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {/* Week Navigation */}
+      <div className="glass p-8 rounded-[2rem] shadow-2xl">
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))}

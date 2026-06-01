@@ -44,15 +44,15 @@ export default function AdminFeedback() {
   };
 
   if (user?.id !== ADMIN_ID) return <div className="text-center p-10">Access Denied</div>;
-return (
-  <div className="glass p-10 rounded-[3rem] shadow-2xl">
-    <div className="flex justify-between items-center mb-8">
-      <h2 className="text-2xl font-black uppercase tracking-tighter">Feedback Reports</h2>
-      <button onClick={fetchReports} className="text-sm font-bold bg-blue-600 text-white px-4 py-2 rounded-xl">Refresh</button>
-    </div>
-    <div className="space-y-4">
-      {reports.map((report) => (
-...
+
+  return (
+    <div className="glass p-10 rounded-[3rem] shadow-2xl">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-black uppercase tracking-tighter">Feedback Reports</h2>
+        <button onClick={fetchReports} className="text-sm font-bold bg-blue-600 text-white px-4 py-2 rounded-xl">Refresh</button>
+      </div>
+      <div className="space-y-4">
+        {reports.map((report) => (
           <div key={report.id} className="p-6 bg-white/40 dark:bg-black/20 rounded-2xl flex justify-between items-center border border-white/10">
             <div>
               <p className="font-bold text-gray-900 dark:text-white">{report.message}</p>
