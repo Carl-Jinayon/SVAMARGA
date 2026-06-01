@@ -1,70 +1,47 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useTrackerStore } from '../store/useTrackerStore';
-import { Play, Pause, RotateCcw, CheckCircle2, Clock, Zap, Bell, AlertTriangle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, Clock, Zap, Bell } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function DailyFocus() {
   const { dailyPlans, toggleDailyItem } = useTrackerStore();
   const today = new Date().toISOString().split('T')[0];
   const plan = dailyPlans[today];
 
-  // Timer set to 1 hour (as an example for 'Time Left to Complete Plan')
-  // In a real app, this could be based on estimated hours from curriculum
-  const [timeLeft, setTimeLeft] = useState(60 * 60); 
-  const [isRunning, setIsRunning] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    let interval: any;
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
-    } else if (timeLeft === 0 && isRunning) {
-      setIsRunning(false);
-      playAlarm();
-    }
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft]);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-  const playAlarm = () => {
-    // Standard professional beep
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-
-    oscillator.type = 'square';
-    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.1);
-    
-    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 1);
-  };
-
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h > 0 ? h + ':' : ''}${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', { 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit' 
+    });
   };
 
   if (!plan || plan.items.length === 0) return null;
 
   const completedCount = plan.items.filter((i: any) => i.completed).length;
   const progressPercent = Math.round((completedCount / plan.items.length) * 100);
-  const timerPercent = (timeLeft / (60 * 60)) * 100;
+  
+  // Calculate percentage of day passed (for the visual bar)
+  const dayProgress = ((currentTime.getHours() * 3600) + (currentTime.getMinutes() * 60) + currentTime.getSeconds()) / 86400 * 100;
 
   return (
     <div className="glass p-10 rounded-[3.5rem] shadow-2xl mb-12 border-none relative overflow-hidden bg-gradient-to-br from-indigo-600/5 to-purple-600/5">
+      {/* Visual Day Progress Bar */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gray-100 dark:bg-white/5 overflow-hidden">
         <motion.div 
-          initial={{ width: '100%' }}
-          animate={{ width: `${timerPercent}%` }}
-          className={`h-full ${timeLeft < 300 ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-blue-600'}`}
+          initial={{ width: 0 }}
+          animate={{ width: `${dayProgress}%` }}
+          className="h-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)]"
         />
       </div>
 
@@ -110,43 +87,19 @@ export default function DailyFocus() {
           </div>
         </div>
 
-        {/* Mission Timer */}
+        {/* Real-time Clock */}
         <div className="lg:col-span-4 flex flex-col items-center justify-center text-center space-y-8 border-x border-black/5 dark:border-white/5 px-12">
           <div className="space-y-2">
             <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.3em] flex items-center justify-center gap-2">
-              <Clock className="w-3 h-3" /> Mission Time Remaining
+              <Clock className="w-3 h-3" /> System Time
             </p>
-            <h2 className={`text-7xl font-black font-mono tracking-tighter ${timeLeft < 300 ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}>
-              {formatTime(timeLeft)}
+            <h2 className="text-7xl font-black font-mono tracking-tighter text-gray-900 dark:text-white">
+              {formatTime(currentTime)}
             </h2>
+            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-500/10 inline-block px-4 py-1.5 rounded-full">
+              {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </p>
           </div>
-          
-          <div className="flex gap-4">
-            <button 
-              onClick={() => setIsRunning(!isRunning)}
-              className={`px-10 py-5 rounded-3xl font-black uppercase tracking-widest text-xs flex items-center gap-3 shadow-2xl transition-all hover:scale-105 active:scale-95 ${
-                isRunning ? 'bg-orange-500 text-white shadow-orange-500/20' : 'bg-indigo-600 text-white shadow-indigo-600/20'
-              }`}
-            >
-              {isRunning ? <><Pause className="w-5 h-5" /> Holding</> : <><Play className="w-5 h-5 ml-1" /> Execute</>}
-            </button>
-            <button 
-              onClick={() => { setIsRunning(false); setTimeLeft(60 * 60); }}
-              className="w-16 h-16 rounded-3xl bg-white dark:bg-white/5 border-2 border-black/5 dark:border-white/5 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-50 transition-all"
-            >
-              <RotateCcw className="w-6 h-6" />
-            </button>
-          </div>
-
-          {timeLeft < 300 && (
-            <motion.div 
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-              className="flex items-center gap-2 text-red-500 text-[10px] font-black uppercase"
-            >
-              <AlertTriangle className="w-4 h-4" /> Final Countdown Initiated
-            </motion.div>
-          )}
         </div>
 
         {/* Global Progress */}
