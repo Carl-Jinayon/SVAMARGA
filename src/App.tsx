@@ -8,11 +8,12 @@ import Analytics from './components/Analytics';
 import Planner from './components/Planner';
 import CareerTools from './components/CareerTools';
 import Auth from './components/Auth';
-import AdminFeedback from './components/AdminFeedback';
+import Inbox from './components/Inbox';
 import About from './components/About';
-import { BookOpen, BarChart3, Calendar, Briefcase, Shield, Info } from 'lucide-react';
+import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info } from 'lucide-react';
 
-type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'admin';
+type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'inbox';
+
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -48,12 +49,9 @@ function App() {
     { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'planner', label: 'Planner', icon: <Calendar className="w-4 h-4" /> },
     { id: 'career', label: 'Career', icon: <Briefcase className="w-4 h-4" /> },
+    { id: 'inbox', label: 'Inbox', icon: <MessageSquare className="w-4 h-4" /> },
     { id: 'about', label: 'About', icon: <Info className="w-4 h-4" /> },
   ];
-
-  if (user?.id === '06391879-d280-472e-b253-7e0685bf1014') {
-    tabs.push({ id: 'admin', label: 'Admin', icon: <Shield className="w-4 h-4" /> });
-  }
 
   return (
     <div className={darkMode ? 'dark' : ''}>
@@ -89,7 +87,7 @@ function App() {
             {activeTab === 'analytics' && <Analytics />}
             {activeTab === 'planner' && <Planner />}
             {activeTab === 'career' && <CareerTools />}
-            {activeTab === 'admin' && <AdminFeedback />}
+            {activeTab === 'inbox' && <Inbox />}
           </div>
         </main>
 

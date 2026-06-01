@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TrackerState, Session, Achievement, WeekPlan, Portfolio } from '../types/index';
+import { TrackerState, Session, Achievement, WeekPlan, Portfolio, Message } from '../types/index';
 import { curriculum } from '../data/curriculum';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
@@ -16,7 +16,17 @@ interface Store extends TrackerState {
   // Progress actions
   toggleSubjectCompletion: (subjectId: string) => void;
   markTopicCompleted: (subjectId: string, topic: string) => void;
+  markSubtopicCompleted: (subjectId: string, subtopic: string) => void;
   markProjectCompleted: (subjectId: string, project: string) => void;
+
+  // Mission & Planner
+  missionEndDate: string | null;
+  setMissionEndDate: (date: string | null) => void;
+
+  // Inbox
+  messages: Message[];
+  addMessage: (message: Message) => void;
+  fetchMessages: () => Promise<void>;
 
   // Session actions
   addSession: (session: Omit<Session, 'id'>) => void;
@@ -65,6 +75,8 @@ const initialState: TrackerState = {
   achievements: [],
   totalStudyTime: 0,
   currentStreak: 0,
+  missionEndDate: null,
+  messages: [],
   portfolio: {
     bio: '',
     tagline: '',
@@ -120,6 +132,8 @@ export const useTrackerStore = create<Store>((set, get) => {
         totalStudyTime: state.totalStudyTime,
         currentStreak: state.currentStreak,
         lastStudyDate: state.lastStudyDate,
+        missionEndDate: state.missionEndDate,
+        messages: state.messages,
         portfolio: state.portfolio,
       };
       localStorage.setItem('tracker-state', JSON.stringify(data));
@@ -190,6 +204,7 @@ export const useTrackerStore = create<Store>((set, get) => {
             completed: true,
             completedAt: new Date().toISOString(),
             topicsCompleted: [],
+            subtopicsCompleted: [],
             projectsCompleted: [],
             sessionsCount: 0,
             totalMinutes: 0,
@@ -213,6 +228,7 @@ export const useTrackerStore = create<Store>((set, get) => {
             subjectId,
             completed: false,
             topicsCompleted: [topic],
+            subtopicsCompleted: [],
             projectsCompleted: [],
             sessionsCount: 0,
             totalMinutes: 0,
@@ -220,9 +236,9 @@ export const useTrackerStore = create<Store>((set, get) => {
         } else {
           const idx = progress[subjectId].topicsCompleted.indexOf(topic);
           if (idx > -1) {
-            progress[subjectId].topicsCompleted.splice(idx, 1);
+            progress[subjectId].topicsCompleted = progress[subjectId].topicsCompleted.filter(t => t !== topic);
           } else {
-            progress[subjectId].topicsCompleted.push(topic);
+            progress[subjectId].topicsCompleted = [...progress[subjectId].topicsCompleted, topic];
           }
         }
         return { progress };
@@ -230,7 +246,7 @@ export const useTrackerStore = create<Store>((set, get) => {
       get().saveToStorage();
     },
 
-    markProjectCompleted: (subjectId: string, project: string) => {
+    markSubtopicCompleted: (subjectId: string, subtopic: string) => {
       set((state) => {
         const progress = { ...state.progress };
         if (!progress[subjectId]) {
@@ -238,6 +254,59 @@ export const useTrackerStore = create<Store>((set, get) => {
             subjectId,
             completed: false,
             topicsCompleted: [],
+            subtopicsCompleted: [subtopic],
+            projectsCompleted: [],
+            sessionsCount: 0,
+            totalMinutes: 0,
+          };
+        } else {
+          const idx = progress[subjectId].subtopicsCompleted.indexOf(subtopic);
+          if (idx > -1) {
+            progress[subjectId].subtopicsCompleted = progress[subjectId].subtopicsCompleted.filter(s => s !== subtopic);
+          } else {
+            progress[subjectId].subtopicsCompleted = [...progress[subjectId].subtopicsCompleted, subtopic];
+          }
+        }
+        return { progress };
+      });
+      get().saveToStorage();
+    },
+
+    setMissionEndDate: (date: string | null) => {
+      set({ missionEndDate: date });
+      get().saveToStorage();
+    },
+
+    addMessage: (message: Message) => {
+      set((state) => ({ messages: [message, ...state.messages] }));
+    },
+
+    fetchMessages: async () => {
+      const { user } = get();
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('inbox')
+        .select('*')
+        .or(`user_id.eq.${user.id},sender_role.eq.admin`)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching messages:', error);
+      } else {
+        set({ messages: data || [] });
+      }
+    },
+
+    markProjectCompleted: (subjectId: string, project: string) => {
+      set((state) => {
+        const progress = { ...state.progress };
+        if (!progress[subjectId]) {
+          progress[subjectId] = {
+            subjectId: subjectId,
+            completed: false,
+            topicsCompleted: [],
+            subtopicsCompleted: [],
             projectsCompleted: [project],
             sessionsCount: 0,
             totalMinutes: 0,
@@ -272,6 +341,7 @@ export const useTrackerStore = create<Store>((set, get) => {
             subjectId: session.subjectId,
             completed: false,
             topicsCompleted: [],
+            subtopicsCompleted: [],
             projectsCompleted: [],
             sessionsCount: 1,
             totalMinutes: session.duration,

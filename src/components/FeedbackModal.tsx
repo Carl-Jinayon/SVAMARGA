@@ -15,12 +15,14 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setSending(true);
 
-    const { error } = await supabase.from('feedback').insert([
+    const { error } = await supabase.from('inbox').insert([
       { 
         user_id: user?.id, 
+        sender_role: 'user',
         issue_type: issueType,
-        message, 
-        created_at: new Date().toISOString() 
+        content: message, 
+        created_at: new Date().toISOString(),
+        is_read: false
       }
     ]);
 

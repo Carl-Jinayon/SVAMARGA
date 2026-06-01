@@ -30,6 +30,14 @@ export interface Phase {
   color: string;
   description: string;
   subjects: Subject[];
+  mustComplete?: string[];
+  niceToHave?: string[];
+  interviewHabit?: string;
+  capstone?: {
+    name: string;
+    description: string;
+    requirements: string[];
+  };
 }
 
 export interface Resource {
@@ -38,6 +46,7 @@ export interface Resource {
   cost: 'Free' | 'Paid' | 'Mixed';
   stars: 1 | 2 | 3 | 4 | 5;
   url?: string;
+  notes?: string;
 }
 
 export interface Session {
@@ -63,6 +72,7 @@ export interface Progress {
   completed: boolean;
   completedAt?: string;
   topicsCompleted: string[];
+  subtopicsCompleted: string[];
   projectsCompleted: string[];
   sessionsCount: number;
   totalMinutes: number;
@@ -93,6 +103,17 @@ export interface Portfolio {
   }[];
 }
 
+export interface Message {
+  id: string;
+  user_id: string;
+  sender_role: 'user' | 'admin';
+  content: string;
+  issue_type?: string;
+  created_at: string;
+  is_read: boolean;
+  reply_to?: string;
+}
+
 export interface TrackerState {
   // Progress
   progress: Record<string, Progress>;
@@ -114,4 +135,8 @@ export interface TrackerState {
   totalStudyTime: number;
   currentStreak: number;
   lastStudyDate?: string;
+
+  // Mission
+  missionEndDate: string | null;
+  messages: Message[];
 }
