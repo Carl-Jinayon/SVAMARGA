@@ -24,27 +24,56 @@ export default function Inbox() {
     if (!content.trim() || !user?.id) return;
     setSending(true);
 
-    const finalContent = recipientEmail ? `To: ${recipientEmail}\n\n${content}` : content;
+    // Check if an existing thread exists for this user (only for users, or if admin specifies an existing thread)
+    const existingParent = filteredMessages.find(m => m.user_id === user.id);
+    
+    if (existingParent && !isAdmin) {
+      // If user already has a thread, just reply to it
+      const { error } = await supabase.from('inbox').insert([
+        {
+          user_id: user.id,
+          sender_role: 'user',
+          content: content,
+          reply_to: existingParent.id,
+          created_at: new Date().toISOString(),
+          is_read: false
+        }
+      ]);
 
-    const { error } = await supabase.from('inbox').insert([
-      {
-        user_id: user.id,
-        sender_role: isAdmin ? 'admin' : 'user',
-        content: finalContent,
-        issue_type: type,
-        created_at: new Date().toISOString(),
-        is_read: false
+      if (!error) {
+        setReplyText('');
+        setNewMsgContent('');
+        setShowNewMessage(false);
+        fetchMessages();
+        setSelectedMessage(existingParent.id);
+      } else {
+        console.error('Error sending message:', error);
       }
-    ]);
-
-    if (!error) {
-      setReplyText('');
-      setNewMsgContent('');
-      setNewMsgEmail('');
-      setShowNewMessage(false);
-      fetchMessages();
     } else {
-      console.error('Error sending message:', error);
+      // Create new parent thread
+      const senderEmail = user.email || user.user_metadata?.email || 'Unknown';
+      const finalContent = `[Sender: ${senderEmail}]${recipientEmail ? `\n[To: ${recipientEmail}]` : ''}\n\n${content}`;
+
+      const { error } = await supabase.from('inbox').insert([
+        {
+          user_id: user.id,
+          sender_role: isAdmin ? 'admin' : 'user',
+          content: finalContent,
+          issue_type: type,
+          created_at: new Date().toISOString(),
+          is_read: false
+        }
+      ]);
+
+      if (!error) {
+        setReplyText('');
+        setNewMsgContent('');
+        setNewMsgEmail('');
+        setShowNewMessage(false);
+        fetchMessages();
+      } else {
+        console.error('Error sending message:', error);
+      }
     }
     setSending(false);
   };
@@ -82,6 +111,15 @@ export default function Inbox() {
     : messages.filter(m => m.user_id === user?.id && !m.reply_to); // User sees their own reports
 
   const getReplies = (messageId: string) => messages.filter(m => m.reply_to === messageId).reverse();
+
+  const extractEmail = (content: string) => {
+    const match = content.match(/\[Sender: (.*?)\]/);
+    return match ? match[1] : null;
+  };
+
+  const cleanContent = (content: string) => {
+    return content.replace(/\[Sender: .*?\]/, '').replace(/\[To: .*?\]/, '').trim();
+  };
 
   return (
     <div className="animate-slide-in-up max-w-7xl mx-auto space-y-8 pb-20 px-4">
@@ -129,6 +167,7 @@ export default function Inbox() {
             {filteredMessages.map((msg: any) => {
               const replies = getReplies(msg.id);
               const lastActivity = replies.length > 0 ? replies[replies.length - 1].created_at : msg.created_at;
+              const senderEmail = extractEmail(msg.content);
               
               return (
                 <button
@@ -150,7 +189,12 @@ export default function Inbox() {
                       {new Date(lastActivity).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-sm font-bold line-clamp-1">{msg.content}</p>
+                  {senderEmail && (
+                    <p className={`text-[9px] font-black uppercase mb-1 opacity-70 ${selectedMessage === msg.id ? 'text-white' : 'text-blue-600'}`}>
+                      {senderEmail}
+                    </p>
+                  )}
+                  <p className="text-sm font-bold line-clamp-1">{cleanContent(msg.content)}</p>
                   <div className="mt-3 flex items-center gap-2">
                     <div className="flex -space-x-2">
                       <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center">
@@ -192,7 +236,7 @@ export default function Inbox() {
                         {msg?.issue_type} Report
                       </h4>
                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                        Case ID: {msg?.id.slice(0, 8)} • User: {msg?.user_id.slice(0, 8)}
+                        {msg ? extractEmail(msg.content) || 'Case ID: ' + msg.id.slice(0, 8) : ''}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -223,12 +267,12 @@ export default function Inbox() {
                           {isAdmin && isMainMsgMine ? <Shield className="w-5 h-5" /> : <UserIcon className={`w-5 h-5 ${isMainMsgMine ? 'text-white' : 'text-gray-400'}`} />}
                         </div>
                         <div className={`space-y-2 max-w-[80%] ${isMainMsgMine ? 'text-right' : ''}`}>
-                          <div className={`p-4 rounded-3xl border shadow-sm ${
+                          <div className={`p-4 rounded-[1.5rem] border shadow-sm ${
                             isMainMsgMine 
                               ? 'bg-blue-600 text-white border-blue-500 rounded-tr-none' 
                               : 'bg-white/60 dark:bg-white/5 text-gray-800 dark:text-gray-200 border-white/40 dark:border-white/5 rounded-tl-none'
                           }`}>
-                            <p className="text-sm font-medium leading-relaxed">{mainMsg.content}</p>
+                            <p className="text-sm font-medium leading-relaxed">{cleanContent(mainMsg.content)}</p>
                           </div>
                           <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mx-1">
                             {new Date(mainMsg.created_at).toLocaleString()}
@@ -256,7 +300,7 @@ export default function Inbox() {
                                 {reply.sender_role === 'admin' ? <Shield className="w-5 h-5" /> : <UserIcon className={`w-5 h-5 ${isReplyMine ? 'text-white' : 'text-gray-400'}`} />}
                               </div>
                               <div className={`space-y-2 max-w-[80%] ${isReplyMine ? 'text-right' : ''}`}>
-                                <div className={`p-4 rounded-3xl border shadow-sm ${
+                                <div className={`p-4 rounded-[1.5rem] border shadow-sm ${
                                   isReplyMine 
                                     ? 'bg-blue-600 text-white border-blue-500 rounded-tr-none' 
                                     : 'bg-white/60 dark:bg-white/5 text-gray-800 dark:text-gray-200 border-white/40 dark:border-white/5 rounded-tl-none'
@@ -278,12 +322,12 @@ export default function Inbox() {
 
               {/* Reply Input */}
               <div className="p-6 border-t border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20">
-                <div className="relative group">
+                <div className="flex gap-4 items-end">
                   <textarea
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder={isAdmin ? "Acknowledge this report or ask for details..." : "Send a follow-up message..."}
-                    className="w-full bg-white/40 dark:bg-black/40 border-2 border-transparent focus:border-blue-500/50 rounded-[2rem] p-5 pr-20 text-sm font-medium focus:outline-none transition-all min-h-[100px] resize-none shadow-inner"
+                    className="flex-1 bg-white/40 dark:bg-black/40 border-2 border-transparent focus:border-blue-500/50 rounded-[1.5rem] p-4 text-sm font-medium focus:outline-none transition-all min-h-[80px] max-h-[200px] resize-none shadow-inner"
                   />
                   <button
                     onClick={() => {
@@ -291,9 +335,9 @@ export default function Inbox() {
                       if (msg) handleSendReply(msg.id, msg.user_id);
                     }}
                     disabled={sending || !replyText.trim()}
-                    className="absolute right-4 bottom-4 w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:scale-100"
+                    className="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:scale-100 shrink-0"
                   >
-                    <Send className="w-5 h-5" />
+                    <Send className="w-6 h-6" />
                   </button>
                 </div>
               </div>
