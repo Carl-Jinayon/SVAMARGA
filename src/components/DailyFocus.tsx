@@ -72,72 +72,66 @@ export default function DailyFocus() {
             </div>
           </div>
           
-          <div className="space-y-6 max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+          <div className="space-y-6 max-h-[500px] overflow-y-auto pr-4 custom-scrollbar">
             {Object.values(groupedItems).map((subject: any) => (
-              <div key={subject.id} className="space-y-3">
-                <motion.div 
-                  whileHover={{ x: 5 }}
-                  onClick={() => toggleDailyItem(today, subject.id)}
-                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3 ${
-                    subject.completed 
-                      ? 'bg-green-500/10 border-green-500/20 opacity-60' 
-                      : 'bg-white dark:bg-white/5 border-black/5 dark:border-white/5'
-                  }`}
-                >
-                  <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${subject.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
-                    {subject.completed && <CheckCircle2 className="w-3.5 h-3.5" />}
-                  </div>
-                  <div className="flex-1">
-                    <p className={`text-[7px] font-black uppercase mb-0.5 ${subject.completed ? 'text-green-600' : 'text-indigo-600'}`}>Course</p>
-                    <p className={`text-xs font-black leading-tight ${subject.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+              <div key={subject.id} className="glass bg-white/40 dark:bg-white/5 p-6 rounded-[2.5rem] border border-black/5 dark:border-white/5 space-y-4">
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => toggleDailyItem(today, subject.id)}
+                    className={`w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all ${
+                      subject.completed ? 'bg-green-500 border-green-500 text-white' : 'border-indigo-200 dark:border-white/10'
+                    }`}
+                  >
+                    {subject.completed && <CheckCircle2 className="w-4 h-4" />}
+                  </button>
+                  <div>
+                    <p className={`text-[8px] font-black uppercase mb-0.5 ${subject.completed ? 'text-green-600' : 'text-indigo-600'}`}>Course</p>
+                    <p className={`text-sm font-black leading-tight ${subject.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}`}>
                       {subject.name}
                     </p>
                   </div>
-                </motion.div>
+                </div>
 
-                {Object.values(subject.topics).map((topic: any) => (
-                  <div key={topic.id} className="ml-6 space-y-2">
-                    <motion.div 
-                      whileHover={{ x: 5 }}
-                      onClick={() => toggleDailyItem(today, topic.id)}
-                      className={`p-3 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-3 ${
-                        topic.completed 
-                          ? 'bg-green-500/10 border-green-500/20 opacity-60' 
-                          : 'bg-white/40 dark:bg-white/5 border-black/5 dark:border-white/5'
-                      }`}
-                    >
-                      <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all ${topic.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
-                        {topic.completed && <CheckCircle2 className="w-3 h-3" />}
-                      </div>
-                      <div className="flex-1">
-                        <p className={`text-[6px] font-black uppercase mb-0.5 ${topic.completed ? 'text-green-600' : 'text-blue-600'}`}>Topic</p>
-                        <p className={`text-[11px] font-bold leading-tight ${topic.completed ? 'line-through text-gray-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                <div className="ml-4 space-y-4 border-l-2 border-indigo-500/10 pl-6">
+                  {Object.values(subject.topics).map((topic: any) => (
+                    <div key={topic.id} className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => toggleDailyItem(today, topic.id)}
+                          className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${
+                            topic.completed ? 'bg-green-500 border-green-500 text-white' : 'border-indigo-200/50 dark:border-white/10'
+                          }`}
+                        >
+                          {topic.completed && <CheckCircle2 className="w-3 h-3" />}
+                        </button>
+                        <p className={`text-[11px] font-black uppercase tracking-tight ${topic.completed ? 'line-through text-gray-400' : 'text-gray-600 dark:text-gray-400'}`}>
                           {topic.name}
                         </p>
                       </div>
-                    </motion.div>
 
-                    {topic.subtopics.map((sub: any) => (
-                      <motion.div 
-                        key={sub.id}
-                        whileHover={{ x: 5 }}
-                        onClick={() => toggleDailyItem(today, sub.id)}
-                        className={`ml-6 p-2 rounded-lg border-2 transition-all cursor-pointer flex items-center gap-3 ${
-                          sub.completed 
-                            ? 'bg-green-500/10 border-green-500/20 opacity-60' 
-                            : 'bg-white/20 dark:bg-white/5 border-black/5 dark:border-white/5'
-                        }`}
-                      >
-                        <div className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-all ${sub.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
-                          {sub.completed && <CheckCircle2 className="w-2.5 h-2.5" />}
+                      {topic.subtopics.length > 0 && (
+                        <div className="ml-8 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {topic.subtopics.map((sub: any) => (
+                            <div 
+                              key={sub.id}
+                              onClick={() => toggleDailyItem(today, sub.id)}
+                              className="flex items-center gap-3 group cursor-pointer"
+                            >
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
+                                sub.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-white/10 group-hover:border-indigo-500'
+                              }`}>
+                                {sub.completed && <CheckCircle2 className="w-2.5 h-2.5" />}
+                              </div>
+                              <p className={`text-[10px] font-bold ${sub.completed ? 'line-through text-gray-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-indigo-600'}`}>
+                                {sub.name}
+                              </p>
+                            </div>
+                          ))}
                         </div>
-                        <p className={`text-[10px] font-medium leading-tight ${sub.completed ? 'line-through text-gray-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                          {sub.name}
-                        </p>
-                      </motion.div>
-                    ))}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

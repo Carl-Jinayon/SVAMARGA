@@ -10,12 +10,15 @@ export default function Planner() {
   const { 
     missionEndDate, 
     setMissionEndDate, 
+    dailyStudyHours,
+    setDailyStudyHours,
     dailyPlans, 
     updateDailyPlan, 
     toggleDailyItem, 
     suggestedPlans, 
     setSuggestedPlans,
     sessionTimer,
+    setSessionTimer,
     toggleSessionTimer,
     resetSessionTimer,
     tickSessionTimer,
@@ -23,7 +26,6 @@ export default function Planner() {
   } = useTrackerStore();
 
   const [showGenerator, setShowGenerator] = useState(false);
-  const [dailyHours, setDailyHours] = useState(4);
   const [goalTopics, setGoalTopics] = useState<DailyPlan['items']>([]);
 
   // Timer interval
@@ -36,6 +38,13 @@ export default function Planner() {
     }
     return () => clearInterval(interval);
   }, [sessionTimer.isRunning]);
+
+  // Sync Timer default with Daily Study Hours
+  useEffect(() => {
+    if (sessionTimer.totalSeconds === 0 && dailyStudyHours > 0) {
+      setSessionTimer(dailyStudyHours * 3600);
+    }
+  }, [dailyStudyHours]);
 
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -120,6 +129,60 @@ export default function Planner() {
     });
   };
 
+  const toggleGoalItem = (item: DailyPlan['items'][0]) => {
+    setGoalTopics(prev => {
+      const exists = prev.find(i => i.id === item.id);
+      let newSelection = [...prev];
+
+      if (exists) {
+        // Deselect item and all its children
+        newSelection = newSelection.filter(i => i.id !== item.id && !i.id.startsWith(item.id + '::'));
+      } else {
+        // Select item
+        newSelection.push(item);
+        
+        // If it's a phase, select all its subjects
+        if (item.type === 'phase') {
+          const phaseId = parseInt(item.id.split('::')[1]);
+          const phase = curriculum.find(p => p.id === phaseId);
+          phase?.subjects.forEach(s => {
+            if (!newSelection.find(i => i.id === s.id)) {
+              newSelection.push({ id: s.id, type: 'subject', name: s.name, completed: false });
+            }
+          });
+        }
+        // If it's a subject, select all its topics and subtopics
+        if (item.type === 'subject') {
+          const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === item.id);
+          subject?.topics.forEach(t => {
+            const topicId = `${subject.id}::${t}`;
+            if (!newSelection.find(i => i.id === topicId)) {
+               newSelection.push({ id: topicId, type: 'topic', name: t, completed: false });
+            }
+            subject.subtopics[t]?.forEach(sub => {
+              const subId = `${topicId}::${sub}`;
+              if (!newSelection.find(i => i.id === subId)) {
+                newSelection.push({ id: subId, type: 'subtopic', name: sub, completed: false });
+              }
+            });
+          });
+        }
+        // If it's a topic, select all its subtopics
+        if (item.type === 'topic') {
+          const [sid, tname] = item.id.split('::');
+          const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === sid);
+          subject?.subtopics[tname]?.forEach(sub => {
+            const subId = `${item.id}::${sub}`;
+            if (!newSelection.find(i => i.id === subId)) {
+              newSelection.push({ id: subId, type: 'subtopic', name: sub, completed: false });
+            }
+          });
+        }
+      }
+      return newSelection;
+    });
+  };
+
   const confirmSelection = () => {
     if (showGenerator) {
       setGoalTopics(tempSelection);
@@ -144,24 +207,50 @@ export default function Planner() {
     }
 
     const start = new Date();
+    start.setHours(0,0,0,0);
     const end = new Date(missionEndDate);
-    const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    end.setHours(0,0,0,0);
+    const totalDays = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
     
-    if (totalDays <= 0) {
-      setToast({ message: 'Mission date must be in the future!', type: 'error' });
-      return;
-    }
-
-    // Advanced Math: Distribute goal topics based on density and hours
+    // Algorithm:
+    // 1. Estimate weight of each item
+    // 2. Distribute items across days to maintain consistent daily effort
+    
     const newSuggestedPlans: Record<string, DailyPlan> = {};
-    const itemsPerDay = Math.ceil(goalTopics.length / totalDays);
+    
+    // Flatten goalTopics to include all sub-items if a parent was selected
+    let allItems: DailyPlan['items'] = [];
+    goalTopics.forEach(item => {
+      allItems.push(item);
+      if (item.type === 'subject') {
+        const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === item.id);
+        subject?.topics.forEach(t => {
+          const topicId = `${subject.id}::${t}`;
+          allItems.push({ id: topicId, type: 'topic', name: t, completed: false });
+          subject.subtopics[t]?.forEach(sub => {
+            allItems.push({ id: `${topicId}::${sub}`, type: 'subtopic', name: sub, completed: false });
+          });
+        });
+      } else if (item.type === 'topic') {
+        const [sid, tname] = item.id.split('::');
+        const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === sid);
+        subject?.subtopics[tname]?.forEach(sub => {
+          allItems.push({ id: `${item.id}::${sub}`, type: 'subtopic', name: sub, completed: false });
+        });
+      }
+    });
+
+    // Remove duplicates
+    allItems = allItems.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
+
+    const itemsPerDay = Math.ceil(allItems.length / totalDays);
     
     for (let i = 0; i < totalDays; i++) {
       const d = new Date(start);
       d.setDate(d.getDate() + i);
       const dateStr = d.toISOString().split('T')[0];
       
-      const dayItems = goalTopics.slice(i * itemsPerDay, (i + 1) * itemsPerDay).map(item => ({
+      const dayItems = allItems.slice(i * itemsPerDay, (i + 1) * itemsPerDay).map(item => ({
         ...item,
         isSuggested: true,
         completed: false
@@ -174,7 +263,12 @@ export default function Planner() {
 
     setSuggestedPlans(newSuggestedPlans);
     setShowGenerator(false);
-    setToast({ message: 'Strategic roadmap deployed!', type: 'success' });
+    setToast({ message: `Strategic roadmap deployed across ${totalDays} days!`, type: 'success' });
+    
+    // Set timer for the day if not already set
+    if (sessionTimer.totalSeconds === 0) {
+      setSessionTimer(dailyStudyHours * 3600);
+    }
   };
 
   return (
@@ -349,15 +443,31 @@ export default function Planner() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden mt-4 pt-4 border-t border-black/5 dark:border-white/5 space-y-2"
+                        className="overflow-hidden mt-4 pt-4 border-t border-black/5 dark:border-white/5 space-y-3"
                       >
-                        {children.map((child: any) => (
-                          <div key={child.id} className="flex items-center gap-2 ml-4">
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40" />
-                            <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400">{child.name}</p>
-                            <p className="text-[7px] font-black uppercase text-gray-400 opacity-50">{child.type}</p>
-                          </div>
-                        ))}
+                        {children.map((child: any) => {
+                          const childInPlan = dailyPlans[selectedDate].items.find((i: any) => i.id === child.id);
+                          const isChildCompleted = childInPlan?.completed || item.completed;
+
+                          return (
+                            <div key={child.id} className="flex items-center gap-3 ml-4 group/child">
+                              <button 
+                                onClick={() => toggleDailyItem(selectedDate, child.id)}
+                                className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
+                                  isChildCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-gray-600'
+                                }`}
+                              >
+                                {isChildCompleted && <Check className="w-2.5 h-2.5" />}
+                              </button>
+                              <div className="flex-1">
+                                <p className={`text-[10px] font-bold ${isChildCompleted ? 'line-through text-gray-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                                  {child.name}
+                                </p>
+                                <p className="text-[6px] font-black uppercase text-gray-400 opacity-50 tracking-widest">{child.type}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -597,20 +707,35 @@ export default function Planner() {
 
               <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
                 {/* Daily Study Time */}
-                <div className="space-y-4">
-                  <p className="text-xs font-black uppercase text-gray-400 tracking-widest">How many hours can you study per day?</p>
-                  <div className="flex items-center gap-6">
-                    <input 
-                      type="range" 
-                      min="1" 
-                      max="16" 
-                      value={dailyHours}
-                      onChange={(e) => setDailyHours(parseInt(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                    />
-                    <div className="w-20 h-20 rounded-[2rem] bg-blue-600 flex flex-col items-center justify-center text-white shadow-xl">
-                      <p className="text-2xl font-black">{dailyHours}</p>
-                      <p className="text-[8px] font-black uppercase">Hours</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <p className="text-xs font-black uppercase text-gray-400 tracking-widest">Daily Study Hours</p>
+                    <div className="flex items-center gap-6 bg-gray-50 dark:bg-white/5 p-6 rounded-[2rem] border border-black/5 dark:border-white/5">
+                      <input 
+                        type="range" 
+                        min="1" 
+                        max="16" 
+                        value={dailyStudyHours}
+                        onChange={(e) => setDailyStudyHours(parseInt(e.target.value))}
+                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                      />
+                      <div className="w-16 h-16 rounded-2xl bg-blue-600 flex flex-col items-center justify-center text-white shadow-xl shrink-0">
+                        <p className="text-xl font-black">{dailyStudyHours}</p>
+                        <p className="text-[7px] font-black uppercase">Hrs</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="text-xs font-black uppercase text-gray-400 tracking-widest">Target End Date</p>
+                    <div className="flex items-center gap-4 bg-gray-50 dark:bg-white/5 p-6 rounded-[2rem] border border-black/5 dark:border-white/5 h-[88px]">
+                      <CalendarIcon className="w-6 h-6 text-blue-600" />
+                      <input 
+                        type="date" 
+                        value={missionEndDate || ''} 
+                        onChange={(e) => setMissionEndDate(e.target.value)}
+                        className="flex-1 bg-transparent text-sm font-bold text-gray-900 dark:text-white focus:outline-none dark:[color-scheme:dark]"
+                      />
                     </div>
                   </div>
                 </div>
@@ -619,51 +744,109 @@ export default function Planner() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-black uppercase text-gray-400 tracking-widest">Select your Goal Topics</p>
-                    <p className="text-[10px] font-black text-blue-600 uppercase">{tempSelection.length} selected</p>
+                    <button 
+                      onClick={() => setGoalTopics([])}
+                      className="text-[10px] font-black text-red-500 uppercase hover:underline"
+                    >
+                      Clear Selection
+                    </button>
                   </div>
-                  
-                  <div className="space-y-4">
+
+                  <div className="space-y-4 bg-gray-50 dark:bg-white/5 p-6 rounded-[2.5rem] border border-black/5 dark:border-white/5">
                     {curriculum.map((phase) => (
-                      <div key={phase.id} className="rounded-3xl border border-black/5 dark:border-white/5 overflow-hidden">
+                      <div key={phase.id} className="rounded-3xl border border-black/5 dark:border-white/5 overflow-hidden bg-white dark:bg-black/20">
                         <div 
-                          className="p-4 bg-gray-50 dark:bg-white/5 flex items-center justify-between cursor-pointer"
+                          className="p-4 flex items-center justify-between cursor-pointer"
                           onClick={() => togglePhase(phase.id)}
                         >
                           <div className="flex items-center gap-4">
                             <input 
                               type="checkbox"
-                              checked={tempSelection.some(i => i.id === `phase::${phase.id}`)}
+                              checked={goalTopics.some(i => i.id === `phase::${phase.id}`)}
                               onChange={(e) => {
                                 e.stopPropagation();
-                                toggleTempItem({ id: `phase::${phase.id}`, type: 'phase', name: phase.name, completed: false });
+                                toggleGoalItem({ id: `phase::${phase.id}`, type: 'phase', name: phase.name, completed: false });
                               }}
-                              className="w-5 h-5 accent-blue-600"
+                              className="w-5 h-5 accent-blue-600 rounded-lg cursor-pointer"
                             />
-                            <p className="text-sm font-black uppercase">Phase {phase.id}: {phase.name}</p>
+                            <p className="text-sm font-black uppercase tracking-tight">Phase {phase.id}: {phase.name}</p>
                           </div>
                           <ChevronDown className={`w-4 h-4 transition-transform ${expandedPhases.includes(phase.id) ? '' : '-rotate-90'}`} />
                         </div>
-                        
+
                         <AnimatePresence>
                           {expandedPhases.includes(phase.id) && (
                             <motion.div 
                               initial={{ height: 0 }}
                               animate={{ height: 'auto' }}
-                              className="bg-white dark:bg-black/10 p-4 space-y-3"
+                              className="px-4 pb-4 space-y-3"
                             >
-                              {phase.subjects.map(subject => (
-                                <div key={subject.id} className="ml-4 space-y-2">
-                                  <div className="flex items-center gap-3">
-                                    <input 
-                                      type="checkbox"
-                                      checked={tempSelection.some(i => i.id === subject.id)}
-                                      onChange={() => toggleTempItem({ id: subject.id, type: 'subject', name: subject.name, completed: false })}
-                                      className="w-4 h-4 accent-blue-600"
-                                    />
-                                    <p className="text-xs font-bold text-gray-600 dark:text-gray-400">{subject.name}</p>
+                              {phase.subjects.map(subject => {
+                                const subjectInGoal = goalTopics.some(i => i.id === subject.id);
+                                return (
+                                  <div key={subject.id} className="ml-4 space-y-2 border-l-2 border-blue-500/10 pl-4">
+                                    <div className="flex items-center justify-between group/goal">
+                                      <div className="flex items-center gap-3">
+                                        <input 
+                                          type="checkbox"
+                                          checked={subjectInGoal}
+                                          onChange={() => toggleGoalItem({ id: subject.id, type: 'subject', name: subject.name, completed: false })}
+                                          className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
+                                        />
+                                        <p className="text-xs font-bold text-gray-700 dark:text-gray-300">{subject.name}</p>
+                                      </div>
+                                      <button onClick={() => toggleSubject(subject.id)} className="p-1 hover:bg-blue-600 hover:text-white rounded-md transition-all">
+                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedSubjects.includes(subject.id) ? '' : '-rotate-90'}`} />
+                                      </button>
+                                    </div>
+
+                                    <AnimatePresence>
+                                      {expandedSubjects.includes(subject.id) && (
+                                        <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="ml-6 space-y-3 pt-2">
+                                          {subject.topics.map(topic => {
+                                            const topicId = `${subject.id}::${topic}`;
+                                            const topicInGoal = subjectInGoal || goalTopics.some(i => i.id === topicId);
+                                            return (
+                                              <div key={topic} className="space-y-2">
+                                                <div className="flex items-center gap-3">
+                                                  <input 
+                                                    type="checkbox"
+                                                    checked={topicInGoal}
+                                                    disabled={subjectInGoal}
+                                                    onChange={() => toggleGoalItem({ id: topicId, type: 'topic', name: topic, completed: false })}
+                                                    className="w-3.5 h-3.5 accent-blue-600 rounded cursor-pointer"
+                                                  />
+                                                  <p className="text-[11px] font-black uppercase text-gray-500">{topic}</p>
+                                                </div>
+                                                {subject.subtopics[topic] && (
+                                                  <div className="ml-6 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                    {subject.subtopics[topic].map(sub => {
+                                                      const subId = `${topicId}::${sub}`;
+                                                      const subInGoal = topicInGoal || goalTopics.some(i => i.id === subId);
+                                                      return (
+                                                        <div key={sub} className="flex items-center gap-2">
+                                                          <input 
+                                                            type="checkbox"
+                                                            checked={subInGoal}
+                                                            disabled={topicInGoal}
+                                                            onChange={() => toggleGoalItem({ id: subId, type: 'subtopic', name: sub, completed: false })}
+                                                            className="w-3 h-3 accent-blue-600 rounded cursor-pointer"
+                                                          />
+                                                          <p className="text-[10px] font-medium text-gray-400">{sub}</p>
+                                                        </div>
+                                                      );
+                                                    })}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            );
+                                          })}
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
                                   </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -671,6 +854,7 @@ export default function Planner() {
                     ))}
                   </div>
                 </div>
+
               </div>
 
               <div className="p-8 bg-gray-50 dark:bg-black/20 border-t border-black/5 dark:border-white/5 flex gap-4">

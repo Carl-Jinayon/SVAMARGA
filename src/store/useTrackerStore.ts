@@ -22,7 +22,9 @@ interface Store extends TrackerState {
 
   // Mission & Planner
   missionEndDate: string | null;
+  dailyStudyHours: number;
   setMissionEndDate: (date: string | null) => void;
+  setDailyStudyHours: (hours: number) => void;
   dailyPlans: Record<string, DailyPlan>;
   suggestedPlans: Record<string, DailyPlan>;
   updateDailyPlan: (date: string, items: DailyPlan['items']) => void;
@@ -89,6 +91,7 @@ const initialState: TrackerState = {
   totalStudyTime: 0,
   currentStreak: 0,
   missionEndDate: null,
+  dailyStudyHours: 4,
   dailyPlans: {},
   suggestedPlans: {},
   messages: [],
@@ -153,6 +156,7 @@ export const useTrackerStore = create<Store>((set, get) => {
         currentStreak: state.currentStreak,
         lastStudyDate: state.lastStudyDate,
         missionEndDate: state.missionEndDate,
+        dailyStudyHours: state.dailyStudyHours,
         dailyPlans: state.dailyPlans,
         suggestedPlans: state.suggestedPlans,
         messages: state.messages,
@@ -164,6 +168,11 @@ export const useTrackerStore = create<Store>((set, get) => {
       if (state.user) {
         get().syncWithCloud();
       }
+    },
+
+    setDailyStudyHours: (hours: number) => {
+      set({ dailyStudyHours: hours });
+      get().saveToStorage();
     },
 
     setSessionTimer: (seconds: number) => {
@@ -442,41 +451,69 @@ export const useTrackerStore = create<Store>((set, get) => {
         const progress = { ...state.progress };
         
         if (plans[date]) {
-          plans[date].items = plans[date].items.map((item: any) => {
-            if (item.id === itemId) {
-              const newCompleted = !item.completed;
-              
-              // Sync with curriculum progress
-              if (item.type === 'subject') {
-                if (!progress[item.id]) {
-                  progress[item.id] = { subjectId: item.id, completed: newCompleted, topicsCompleted: [], subtopicsCompleted: [], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
-                } else {
-                  progress[item.id].completed = newCompleted;
-                }
-              } else if (item.type === 'topic') {
-                const [subjectId, topicName] = item.id.split('::');
-                if (!progress[subjectId]) {
-                  progress[subjectId] = { subjectId, completed: false, topicsCompleted: [topicName], subtopicsCompleted: [], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
-                } else {
-                  const idx = progress[subjectId].topicsCompleted.indexOf(topicName);
-                  if (newCompleted && idx === -1) progress[subjectId].topicsCompleted.push(topicName);
-                  else if (!newCompleted && idx > -1) progress[subjectId].topicsCompleted.splice(idx, 1);
-                }
-              } else if (item.type === 'subtopic') {
-                const [subjectId, _topicName, subtopicName] = item.id.split('::');
-                if (!progress[subjectId]) {
-                  progress[subjectId] = { subjectId, completed: false, topicsCompleted: [], subtopicsCompleted: [subtopicName], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
-                } else {
-                  const idx = progress[subjectId].subtopicsCompleted.indexOf(subtopicName);
-                  if (newCompleted && idx === -1) progress[subjectId].subtopicsCompleted.push(subtopicName);
-                  else if (!newCompleted && idx > -1) progress[subjectId].subtopicsCompleted.splice(idx, 1);
-                }
-              }
+          const itemToToggle = plans[date].items.find(i => i.id === itemId);
+          if (!itemToToggle) return state;
 
+          const newCompleted = !itemToToggle.completed;
+
+          // Helper to update progress state
+          const updateProgressState = (id: string, type: string, completed: boolean) => {
+            if (type === 'subject') {
+              if (!progress[id]) {
+                progress[id] = { subjectId: id, completed, topicsCompleted: [], subtopicsCompleted: [], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
+              } else {
+                progress[id].completed = completed;
+              }
+            } else if (type === 'topic') {
+              const [subjectId, topicName] = id.split('::');
+              if (!progress[subjectId]) {
+                progress[subjectId] = { subjectId, completed: false, topicsCompleted: completed ? [topicName] : [], subtopicsCompleted: [], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
+              } else {
+                const idx = progress[subjectId].topicsCompleted.indexOf(topicName);
+                if (completed && idx === -1) progress[subjectId].topicsCompleted.push(topicName);
+                else if (!completed && idx > -1) progress[subjectId].topicsCompleted.splice(idx, 1);
+              }
+            } else if (type === 'subtopic') {
+              const [subjectId, _topicName, subtopicName] = id.split('::');
+              if (!progress[subjectId]) {
+                progress[subjectId] = { subjectId, completed: false, topicsCompleted: [], subtopicsCompleted: completed ? [subtopicName] : [], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
+              } else {
+                const idx = progress[subjectId].subtopicsCompleted.indexOf(subtopicName);
+                if (completed && idx === -1) progress[subjectId].subtopicsCompleted.push(subtopicName);
+                else if (!completed && idx > -1) progress[subjectId].subtopicsCompleted.splice(idx, 1);
+              }
+            }
+          };
+
+          // Hierarchical logic: If a parent is toggled, all its children in the daily plan should follow
+          plans[date].items = plans[date].items.map((item) => {
+            if (item.id === itemId || item.id.startsWith(itemId + '::')) {
+              updateProgressState(item.id, item.type, newCompleted);
               return { ...item, completed: newCompleted };
             }
             return item;
           });
+
+          // Also handle parent completion if all children are now done
+          if (itemToToggle.type === 'subtopic') {
+             const [subjectId, topicName] = itemId.split('::');
+             const topicId = `${subjectId}::${topicName}`;
+             const topicItems = plans[date].items.filter(i => i.id.startsWith(topicId + '::'));
+             const allDone = topicItems.every(i => i.completed);
+             if (allDone) {
+               plans[date].items = plans[date].items.map(i => i.id === topicId ? { ...i, completed: true } : i);
+               updateProgressState(topicId, 'topic', true);
+             }
+          }
+          if (itemToToggle.type === 'topic' || itemToToggle.type === 'subtopic') {
+            const subjectId = itemId.split('::')[0];
+            const subjectItems = plans[date].items.filter(i => (i.id.startsWith(subjectId + '::') && i.id !== subjectId));
+            const allDone = subjectItems.every(i => i.completed);
+            if (allDone && subjectItems.length > 0) {
+              plans[date].items = plans[date].items.map(i => i.id === subjectId ? { ...i, completed: true } : i);
+              updateProgressState(subjectId, 'subject', true);
+            }
+          }
         }
         return { dailyPlans: plans, progress };
       });
