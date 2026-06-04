@@ -20,7 +20,7 @@ export default function Inbox() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleStartNewConversation = async (content: string, type: string = 'Message') => {
+  const handleStartNewConversation = async (content: string, type: string = 'Message', recipientEmail?: string) => {
     if (!content.trim()) return;
     setSending(true);
 
@@ -30,6 +30,7 @@ export default function Inbox() {
         sender_role: isAdmin ? 'admin' : 'user',
         content: content,
         issue_type: type,
+        recipient_email: recipientEmail,
         created_at: new Date().toISOString(),
         is_read: false
       }
@@ -38,6 +39,7 @@ export default function Inbox() {
     if (!error) {
       setReplyText('');
       setNewMsgContent('');
+      setNewMsgEmail('');
       setShowNewMessage(false);
       fetchMessages();
     }
@@ -46,6 +48,7 @@ export default function Inbox() {
 
   const [showNewMessage, setShowNewMessage] = useState(false);
   const [newMsgContent, setNewMsgContent] = useState('');
+  const [newMsgEmail, setNewMsgEmail] = useState('');
   const [newMsgType, setNewMsgType] = useState('Message');
   const [bugType, setBugType] = useState('General Bug');
 
@@ -327,19 +330,31 @@ export default function Inbox() {
                 {newMsgType === 'Bug' ? 'Report a Bug' : 'New Conversation'}
               </h3>
               <div className="space-y-4">
+                {newMsgType === 'Message' && (
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Recipient Email</label>
+                    <input 
+                      type="email"
+                      value={newMsgEmail}
+                      onChange={(e) => setNewMsgEmail(e.target.value)}
+                      placeholder="Enter recipient email..."
+                      className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                )}
                 {newMsgType === 'Bug' && (
                   <div>
                     <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Bug Type</label>
                     <select 
                       value={bugType}
                       onChange={(e) => setBugType(e.target.value)}
-                      className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 text-gray-900 dark:text-white"
+                      className="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 text-gray-900 dark:text-white appearance-none cursor-pointer"
                     >
-                      <option value="General Bug">General Bug</option>
-                      <option value="UI Glitch">UI Glitch</option>
-                      <option value="Performance">Performance Issue</option>
-                      <option value="Feature Missing">Feature Missing</option>
-                      <option value="Other">Other</option>
+                      <option value="General Bug" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">General Bug</option>
+                      <option value="UI Glitch" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">UI Glitch</option>
+                      <option value="Performance" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">Performance Issue</option>
+                      <option value="Feature Missing" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">Feature Missing</option>
+                      <option value="Other" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">Other</option>
                     </select>
                   </div>
                 )}
@@ -349,12 +364,16 @@ export default function Inbox() {
                     value={newMsgContent}
                     onChange={(e) => setNewMsgContent(e.target.value)}
                     placeholder={newMsgType === 'Bug' ? "Describe what happened and how to reproduce it..." : "Type your message here..."}
-                    className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 min-h-[150px] resize-none"
+                    className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 min-h-[150px] resize-none text-gray-900 dark:text-white"
                   />
                 </div>
                 <button 
-                  onClick={() => handleStartNewConversation(newMsgContent, newMsgType === 'Bug' ? `Bug: ${bugType}` : 'Message')}
-                  disabled={sending || !newMsgContent.trim()}
+                  onClick={() => handleStartNewConversation(
+                    newMsgContent, 
+                    newMsgType === 'Bug' ? `Bug: ${bugType}` : 'Message',
+                    newMsgType === 'Message' ? newMsgEmail : undefined
+                  )}
+                  disabled={sending || !newMsgContent.trim() || (newMsgType === 'Message' && !newMsgEmail.trim())}
                   className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                 >
                   {sending ? 'Sending...' : 'Send Message'}
