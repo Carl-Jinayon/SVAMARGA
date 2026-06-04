@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { Send, User as UserIcon, Shield, MessageSquare, Search, X } from 'lucide-react';
@@ -14,11 +14,12 @@ export default function Inbox() {
   const [newEmail, setNewEmail] = useState('');
   const [newContent, setNewContent] = useState('');
   const [bugType, setBugType] = useState('General Bug');
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const ADMIN_ID = '06391879-d280-472e-b253-7e0685bf1014';
   const isAdmin = user?.id === ADMIN_ID;
 
-  const getMyEmail = (u: any) => u?.email || u?.user_metadata?.email || 'Unknown';
+  const getMyEmail = (u: any) => u?.email || u?.user_metadata?.email || u?.user_metadata?.full_name || u?.user_metadata?.user_name || 'Unknown';
 
   useEffect(() => {
     if (user) {
@@ -28,26 +29,33 @@ export default function Inbox() {
     }
   }, [user]);
 
+  // Auto-scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [selectedThreadId, messages]);
+
   // Helper: Extract Recipient Email from content tags
   const extractRecipientEmail = (content: string) => {
     if (!content) return 'System';
-    const match = content.match(/\[Recipient: (.*?)\]/);
-    return match ? match[1] : 'System';
+    const match = content.match(/\[Recipient:\s*([^\]\n]+)\]/i);
+    return match ? match[1].trim() : 'System';
   };
 
   // Helper: Extract Sender Email from content tags
   const extractSenderEmail = (content: string) => {
     if (!content) return 'Unknown';
-    const match = content.match(/\[Sender: (.*?)\]/);
-    return match ? match[1] : 'Unknown';
+    const match = content.match(/\[Sender:\s*([^\]\n]+)\]/i);
+    return match ? match[1].trim() : 'Unknown';
   };
 
   const getCleanContent = (content: string) => {
     if (!content) return '';
     return content
-      .replace(/\[Recipient: .*?\]/, '')
-      .replace(/\[Sender: .*?\]/, '')
-      .replace(/\[To: .*?\]/, '')
+      .replace(/\[Recipient:\s*[^\]\n]+\]/gi, '')
+      .replace(/\[Sender:\s*[^\]\n]+\]/gi, '')
+      .replace(/\[To:\s*[^\]\n]+\]/gi, '')
       .trim();
   };
 
@@ -241,7 +249,7 @@ export default function Inbox() {
                 </div>
                 <span className="px-3 py-1 bg-green-500 text-white rounded-full text-[10px] font-black uppercase">Active</span>
               </div>
-              <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
+              <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
                 {[activeThread, ...currentReplies].map((msg) => {
                   const isMe = isAdmin ? msg.sender_role === 'admin' : msg.sender_role === 'user';
                   return (

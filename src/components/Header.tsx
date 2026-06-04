@@ -14,15 +14,15 @@ export default function Header({ onToggleDarkMode }: HeaderProps) {
         <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-20">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-xl shadow-lg shadow-blue-500/20">
-                🚀
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-700 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/20 text-white font-black italic">
+                SV
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-200">
-                  CS Ultimate Tracker
+                <h1 className="text-xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-400 dark:from-indigo-400 dark:to-blue-200 uppercase">
+                  SVAMARGA
                 </h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
-                  Full-Stack → ML Engineering
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-black uppercase tracking-[0.2em]">
+                  Full-Stack Architect × ML Engineer
                 </p>
               </div>
             </div>

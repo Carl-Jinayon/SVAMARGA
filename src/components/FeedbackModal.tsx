@@ -15,7 +15,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setSending(true);
 
-    const myEmail = user?.email || user?.user_metadata?.email || 'Unknown';
+    const myEmail = user?.email || user?.user_metadata?.email || user?.user_metadata?.full_name || user?.user_metadata?.user_name || 'Unknown';
     const finalContent = `[Recipient: System]\n[Sender: ${myEmail}]\n\n${message}`;
 
     const { error } = await supabase.from('inbox').insert([

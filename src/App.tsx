@@ -149,9 +149,15 @@ function MainApp() {
 
         <footer className="backdrop-blur-md bg-white/20 dark:bg-gray-900/20 border-t border-white/10 dark:border-gray-800/10 mt-20 py-12">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-12 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400 dark:text-gray-500">CS Ultimate Tracker v1.0</p>
-            <p className="mt-4 text-sm font-bold text-gray-600 dark:text-gray-400">
-              Forging the next generation of <span className="text-blue-600 dark:text-blue-400">AI Engineers</span>
+            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400 dark:text-gray-500">SVAMARGA OS v1.0</p>
+            <div className="mt-6 mb-8 max-w-md mx-auto p-6 bg-red-600/5 dark:bg-red-600/10 rounded-3xl border border-red-600/20">
+              <h4 className="text-lg font-black uppercase tracking-tighter text-red-600 dark:text-red-500 mb-2">Your University Sucks?</h4>
+              <p className="text-xs font-bold text-gray-600 dark:text-gray-400 leading-relaxed uppercase tracking-widest">
+                Don't wait for a degree to validate your <span className="text-blue-600 dark:text-blue-400">genius</span>. Build the future of <span className="text-indigo-600 dark:text-indigo-400">Intelligence</span> here.
+              </p>
+            </div>
+            <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">
+              Forging the next generation of <span className="text-blue-600 dark:text-blue-400">Master Engineers</span>
             </p>
           </div>
         </footer>
