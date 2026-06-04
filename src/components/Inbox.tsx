@@ -20,24 +20,26 @@ export default function Inbox() {
     return () => clearInterval(interval);
   }, []);
 
+  const [searchTerm, setSearchTerm] = useState('');
+
   const handleStartNewConversation = async (content: string, type: string = 'Message', recipientEmail?: string) => {
     if (!content.trim() || !user?.id) return;
     setSending(true);
 
-    const targetRecipient = recipientEmail || 'System';
+    const targetRecipient = (recipientEmail || 'System').trim();
     
-    // Check if an existing thread exists for this recipient
-    const existingThread = messages.find(m => {
-      const email = extractRecipientEmail(m.content);
-      return email === targetRecipient || (targetRecipient === 'System' && !email);
+    // Check if an existing thread exists for this recipient in MY filtered messages (thread parents)
+    const existingThread = filteredMessages.find(m => {
+      const email = (extractRecipientEmail(m.content) || 'System').trim();
+      return email.toLowerCase() === targetRecipient.toLowerCase();
     });
     
-    if (existingThread && !isAdmin) {
-      // If a thread for this recipient exists, reply to it
+    if (existingThread) {
+      // If a thread for this recipient exists, append this as a reply to it
       const { error } = await supabase.from('inbox').insert([
         {
           user_id: user.id,
-          sender_role: 'user',
+          sender_role: isAdmin ? 'admin' : 'user',
           content: content,
           reply_to: existingThread.id,
           created_at: new Date().toISOString(),
@@ -115,6 +117,11 @@ export default function Inbox() {
     ? messages.filter(m => !m.reply_to) // Admin sees original reports
     : messages.filter(m => m.user_id === user?.id && !m.reply_to); // User sees their own reports
 
+  const displayedMessages = filteredMessages.filter(msg => {
+    const email = extractRecipientEmail(msg.content) || 'System';
+    return email.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
   const getReplies = (messageId: string) => messages.filter(m => m.reply_to === messageId).reverse();
 
   const extractRecipientEmail = (content: string) => {
@@ -165,11 +172,20 @@ export default function Inbox() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 h-[600px]">
         {/* Sidebar: Message List */}
         <div className="glass rounded-[2.5rem] overflow-hidden flex flex-col border-none shadow-2xl">
-          <div className="p-6 border-b border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20">
+          <div className="p-6 border-b border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20 space-y-4">
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Recent Conversations</p>
+            <div className="relative">
+              <input 
+                type="text"
+                placeholder="Search recipients..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-white/40 dark:bg-black/40 border-none rounded-xl py-2 px-4 text-xs font-bold focus:ring-2 focus:ring-blue-500/20 text-gray-900 dark:text-white"
+              />
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
-            {filteredMessages.map((msg: any) => {
+            {displayedMessages.map((msg: any) => {
               const replies = getReplies(msg.id);
               const lastActivity = replies.length > 0 ? replies[replies.length - 1].created_at : msg.created_at;
               const recipientEmail = extractRecipientEmail(msg.content);
@@ -218,10 +234,10 @@ export default function Inbox() {
                 </button>
               );
             })}
-            {filteredMessages.length === 0 && (
+            {displayedMessages.length === 0 && (
               <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 opacity-30">
                 <MessageSquare className="w-12 h-12" />
-                <p className="text-xs font-black uppercase italic">No messages yet</p>
+                <p className="text-xs font-black uppercase italic">No conversations found</p>
               </div>
             )}
           </div>
