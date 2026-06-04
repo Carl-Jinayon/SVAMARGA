@@ -378,62 +378,61 @@ export default function Planner() {
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="fixed inset-0 z-[150] bg-black/80 backdrop-blur-xl flex items-center justify-center p-6"
+                        className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-6"
                       >
                         <motion.div 
-                          initial={{ scale: 0.9, y: 20 }}
-                          animate={{ scale: 1, y: 0 }}
-                          className="glass p-12 rounded-[4rem] border-blue-500/20 shadow-[0_0_100px_rgba(37,99,235,0.2)] max-w-xl w-full text-center space-y-12"
+                          initial={{ scale: 0.8, rotateX: 20 }}
+                          animate={{ scale: 1, rotateX: 0 }}
+                          className="w-full max-w-2xl bg-gradient-to-b from-blue-900/20 to-black/40 p-12 rounded-[5rem] border border-blue-500/30 shadow-[0_0_150px_rgba(37,99,235,0.15)] text-center space-y-12 relative overflow-hidden"
                         >
+                          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent animate-pulse" />
+                          
                           <div className="space-y-4">
-                            <h3 className="text-3xl font-black uppercase tracking-tighter text-white italic">Tune Study <span className="text-blue-500">Frequency</span></h3>
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Adjust your mission duration parameters</p>
+                            <div className="inline-block px-4 py-1.5 bg-blue-600/10 border border-blue-500/20 rounded-full mb-4">
+                              <p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400">Neural Sync Protocol</p>
+                            </div>
+                            <h3 className="text-4xl font-black uppercase tracking-tighter text-white">Focus <span className="text-blue-500">Amplitude</span></h3>
                           </div>
 
-                          <div className="flex justify-center items-center gap-8">
+                          <div className="space-y-12">
                             {[
-                              { label: 'Hours', key: 'h', max: 99 },
-                              { label: 'Minutes', key: 'm', max: 59 },
-                              { label: 'Seconds', key: 's', max: 59 }
-                            ].map(({ label, key, max }) => (
-                              <div key={key} className="space-y-4">
-                                <p className="text-[10px] font-black uppercase text-blue-500/60 tracking-widest">{label}</p>
-                                <div className="flex flex-col items-center gap-3">
-                                  <button 
-                                    onClick={() => setTimerInputs(prev => ({ ...prev, [key]: Math.min(max, (prev as any)[key] + 1) }))}
-                                    className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center border border-white/10"
-                                  >
-                                    <ChevronRight className="w-5 h-5 -rotate-90" />
-                                  </button>
+                              { label: 'Intensity (Hours)', key: 'h', max: 24, unit: 'H' },
+                              { label: 'Precision (Minutes)', key: 'm', max: 59, unit: 'M' }
+                            ].map(({ label, key, max, unit }) => (
+                              <div key={key} className="space-y-6">
+                                <div className="flex justify-between items-center px-4">
+                                  <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">{label}</p>
+                                  <p className="text-2xl font-black text-blue-500 font-mono">{(timerInputs as any)[key]}<span className="text-[10px] ml-1 opacity-50">{unit}</span></p>
+                                </div>
+                                <div className="relative h-20 flex items-center">
                                   <input 
-                                    type="number" 
+                                    type="range" 
+                                    min="0" 
+                                    max={max} 
                                     value={(timerInputs as any)[key]} 
-                                    onChange={e => setTimerInputs({ ...timerInputs, [key]: Math.min(max, Math.max(0, parseInt(e.target.value) || 0)) })}
-                                    className="w-24 h-24 bg-transparent border-2 border-blue-600/30 rounded-[2.5rem] text-4xl font-black text-white text-center focus:outline-none focus:border-blue-500 transition-all shadow-[0_0_30px_rgba(37,99,235,0.1)]" 
+                                    onChange={e => setTimerInputs({ ...timerInputs, [key]: parseInt(e.target.value) || 0 })}
+                                    className="w-full h-2 bg-blue-900/30 rounded-full appearance-none cursor-pointer accent-blue-600 hover:accent-blue-400 transition-all"
                                   />
-                                  <button 
-                                    onClick={() => setTimerInputs(prev => ({ ...prev, [key]: Math.max(0, (prev as any)[key] - 1) }))}
-                                    className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center border border-white/10"
-                                  >
-                                    <ChevronRight className="w-5 h-5 rotate-90" />
-                                  </button>
+                                  <div className="absolute -z-10 inset-0 flex justify-between px-1 opacity-10">
+                                    {[...Array(12)].map((_, i) => <div key={i} className="w-0.5 h-full bg-blue-500" />)}
+                                  </div>
                                 </div>
                               </div>
                             ))}
                           </div>
 
-                          <div className="flex gap-4 pt-8">
+                          <div className="flex gap-6 pt-12">
                             <button 
                               onClick={() => setIsEditingTimer(false)}
-                              className="flex-1 py-5 bg-white/5 text-gray-400 rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all"
+                              className="flex-1 py-6 bg-white/5 text-gray-500 rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[10px] hover:bg-white/10 hover:text-white transition-all border border-white/5"
                             >
-                              Abort
+                              Disconnect
                             </button>
                             <button 
                               onClick={saveTimer}
-                              className="flex-[2] py-5 bg-blue-600 text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-2xl shadow-blue-600/40 hover:scale-105 active:scale-95 transition-all"
+                              className="flex-[2] py-6 bg-blue-600 text-white rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-[0_20px_50px_rgba(37,99,235,0.3)] hover:scale-105 active:scale-95 transition-all"
                             >
-                              Initialize Timer
+                              Synchronize Mission
                             </button>
                           </div>
                         </motion.div>
@@ -554,7 +553,9 @@ export default function Planner() {
               .map((item: any) => renderHierarchicalItem(item))}
 
             {/* Suggested Plans */}
-            {suggestedPlans[selectedDate]?.items.map((item: any) => (
+            {suggestedPlans[selectedDate]?.items
+              .filter((sugg: any) => !dailyPlans[selectedDate]?.items.some((real: any) => real.id === sugg.id))
+              .map((item: any) => (
               <div 
                 key={`sugg-${item.id}`} 
                 className="p-6 rounded-3xl border-2 border-dashed border-blue-500/30 bg-blue-500/5 opacity-50 flex items-center justify-between group"

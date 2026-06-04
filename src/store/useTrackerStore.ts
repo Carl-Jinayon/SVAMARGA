@@ -455,7 +455,6 @@ export const useTrackerStore = create<Store>((set, get) => {
         if (plans[date]) {
           let itemToToggle = plans[date].items.find(i => i.id === itemId);
           
-          // If item doesn't exist in plan, create it (handles virtual children)
           if (!itemToToggle) {
              const parts = itemId.split('::');
              let name = 'Unknown';
@@ -479,7 +478,6 @@ export const useTrackerStore = create<Store>((set, get) => {
 
           const newCompleted = !itemToToggle.completed;
 
-          // Helper to update progress state
           const updateProgressState = (id: string, type: string, completed: boolean) => {
             if (type === 'subject') {
               if (!progress[id]) {
@@ -508,7 +506,7 @@ export const useTrackerStore = create<Store>((set, get) => {
             }
           };
 
-          // Hierarchical logic: If a parent is toggled, all its children in the daily plan should follow
+          // Hierarchical propagation
           plans[date].items = plans[date].items.map((item) => {
             if (item.id === itemId || item.id.startsWith(itemId + '::')) {
               updateProgressState(item.id, item.type, newCompleted);
@@ -517,25 +515,21 @@ export const useTrackerStore = create<Store>((set, get) => {
             return item;
           });
 
-          // Also handle parent completion if all children are now done
+          // Check for parent completion
           if (itemToToggle.type === 'subtopic') {
-             const [subjectId, topicName] = itemId.split('::');
-             const topicId = `${subjectId}::${topicName}`;
-             const topicItems = plans[date].items.filter(i => i.id.startsWith(topicId + '::'));
-             const allDone = topicItems.every(i => i.completed);
-             if (allDone) {
+             const parts = itemId.split('::');
+             const topicId = `${parts[0]}::${parts[1]}`;
+             const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === parts[0]);
+             const subtopicNames = subject?.subtopics[parts[1]] || [];
+             const allSubtopicsDone = subtopicNames.every(name => {
+               const sId = `${topicId}::${name}`;
+               return plans[date].items.find(i => i.id === sId)?.completed;
+             });
+             
+             if (allSubtopicsDone) {
                plans[date].items = plans[date].items.map(i => i.id === topicId ? { ...i, completed: true } : i);
                updateProgressState(topicId, 'topic', true);
              }
-          }
-          if (itemToToggle.type === 'topic' || itemToToggle.type === 'subtopic') {
-            const subjectId = itemId.split('::')[0];
-            const subjectItems = plans[date].items.filter(i => (i.id.startsWith(subjectId + '::') && i.id !== subjectId));
-            const allDone = subjectItems.every(i => i.completed);
-            if (allDone && subjectItems.length > 0) {
-              plans[date].items = plans[date].items.map(i => i.id === subjectId ? { ...i, completed: true } : i);
-              updateProgressState(subjectId, 'subject', true);
-            }
           }
         }
         return { dailyPlans: plans, progress };

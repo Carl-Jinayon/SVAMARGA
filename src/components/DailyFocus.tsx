@@ -68,21 +68,23 @@ export default function DailyFocus() {
   });
 
   const getChildren = (parentId: string) => {
-    // Look in the plan first
-    const planChildren = plan.items.filter((i: any) => i.id.startsWith(parentId + '::') && i.id.split('::').length === parentId.split('::').length + 1);
-    if (planChildren.length > 0) return planChildren;
-
-    // If not in plan, look in curriculum (virtual children)
+    // 1. Get all potential children from curriculum
     const parts = parentId.split('::');
+    let curriculumChildren: any[] = [];
+    
     if (parts.length === 1) { // Subject -> Topics
       const s = curriculum.flatMap((p: any) => p.subjects).find((s: any) => s.id === parts[0]);
-      return s?.topics.map((t: any) => ({ id: `${parts[0]}::${t}`, type: 'topic', name: t, completed: false })) || [];
-    }
-    if (parts.length === 2) { // Topic -> Subtopics
+      curriculumChildren = s?.topics.map((t: any) => ({ id: `${parts[0]}::${t}`, type: 'topic', name: t, completed: false })) || [];
+    } else if (parts.length === 2) { // Topic -> Subtopics
       const s = curriculum.flatMap((p: any) => p.subjects).find((s: any) => s.id === parts[0]);
-      return s?.subtopics[parts[1]]?.map((sub: any) => ({ id: `${parentId}::${sub}`, type: 'subtopic', name: sub, completed: false })) || [];
+      curriculumChildren = s?.subtopics[parts[1]]?.map((sub: any) => ({ id: `${parentId}::${sub}`, type: 'subtopic', name: sub, completed: false })) || [];
     }
-    return [];
+
+    // 2. Map curriculum children to their state in the plan (if any)
+    return curriculumChildren.map(cc => {
+      const inPlan = plan.items.find((i: any) => i.id === cc.id);
+      return inPlan || cc;
+    });
   };
 
   const renderTask = (item: any, depth = 0) => {
