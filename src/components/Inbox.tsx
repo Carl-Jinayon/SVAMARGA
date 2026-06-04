@@ -29,7 +29,7 @@ export default function Inbox() {
     const targetRecipient = (recipientEmail || 'System').trim();
     
     // Check if an existing thread exists for this recipient in MY filtered messages (thread parents)
-    const existingThread = filteredMessages.find(m => {
+    const existingThread = (filteredMessages || []).find(m => {
       const email = (extractRecipientEmail(m.content) || 'System').trim();
       return email.toLowerCase() === targetRecipient.toLowerCase();
     });
@@ -38,7 +38,7 @@ export default function Inbox() {
       // If a thread for this recipient exists, append this as a reply to it
       const { error } = await supabase.from('inbox').insert([
         {
-          user_id: user.id,
+          user_id: isAdmin ? existingThread.user_id : user.id,
           sender_role: isAdmin ? 'admin' : 'user',
           content: content,
           reply_to: existingThread.id,
@@ -113,23 +113,26 @@ export default function Inbox() {
     setSending(false);
   };
 
-  const filteredMessages = isAdmin 
-    ? messages.filter(m => !m.reply_to) // Admin sees original reports
-    : messages.filter(m => m.user_id === user?.id && !m.reply_to); // User sees their own reports
+  const filteredMessages = (messages || []).filter(m => {
+    if (isAdmin) return !m.reply_to;
+    return m.user_id === user?.id && !m.reply_to;
+  });
 
   const displayedMessages = filteredMessages.filter(msg => {
     const email = extractRecipientEmail(msg.content) || 'System';
     return email.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  const getReplies = (messageId: string) => messages.filter(m => m.reply_to === messageId).reverse();
+  const getReplies = (messageId: string) => (messages || []).filter(m => m.reply_to === messageId).reverse();
 
-  const extractRecipientEmail = (content: string) => {
+  const extractRecipientEmail = (content: any) => {
+    if (typeof content !== 'string') return null;
     const match = content.match(/\[Recipient: (.*?)\]/);
     return match ? match[1] : null;
   };
 
-  const cleanContent = (content: string) => {
+  const cleanContent = (content: any) => {
+    if (typeof content !== 'string') return '';
     return content.replace(/\[Recipient: .*?\]/, '').replace(/\[Sender: .*?\]/, '').replace(/\[To: .*?\]/, '').trim();
   };
 
@@ -249,7 +252,7 @@ export default function Inbox() {
             <>
               {/* Conversation Header */}
               {(() => {
-                const msg = messages.find(m => m.id === selectedMessage);
+                const msg = (messages || []).find(m => m.id === selectedMessage);
                 return (
                   <div className="p-8 border-b border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20 flex justify-between items-center">
                     <div>
@@ -270,7 +273,7 @@ export default function Inbox() {
               {/* Message Thread */}
               <div className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-6">
                 {(() => {
-                  const mainMsg = messages.find(m => m.id === selectedMessage);
+                  const mainMsg = (messages || []).find(m => m.id === selectedMessage);
                   const replies = getReplies(selectedMessage);
                   if (!mainMsg) return null;
 
@@ -352,7 +355,7 @@ export default function Inbox() {
                   />
                   <button
                     onClick={() => {
-                      const msg = messages.find(m => m.id === selectedMessage);
+                      const msg = (messages || []).find(m => m.id === selectedMessage);
                       if (msg) handleSendReply(msg.id, msg.user_id);
                     }}
                     disabled={sending || !replyText.trim()}
