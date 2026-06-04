@@ -48,6 +48,23 @@ export default function Planner() {
 
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [isEditingTimer, setIsEditingTimer] = useState(false);
+  const [timerInputs, setTimerInputs] = useState({ h: 0, m: 0, s: 0 });
+
+  const handleEditTimer = () => {
+    const h = Math.floor(sessionTimer.remainingSeconds / 3600);
+    const m = Math.floor((sessionTimer.remainingSeconds % 3600) / 60);
+    const s = sessionTimer.remainingSeconds % 60;
+    setTimerInputs({ h, m, s });
+    setIsEditingTimer(true);
+  };
+
+  const saveTimer = () => {
+    const total = (timerInputs.h * 3600) + (timerInputs.m * 60) + timerInputs.s;
+    setSessionTimer(total);
+    setIsEditingTimer(false);
+    setToast({ message: 'Timer updated!', type: 'success' });
+  };
 
   const toggleItemExpansion = (id: string) => {
     setExpandedItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -70,6 +87,68 @@ export default function Planner() {
       return subject?.subtopics[topicName]?.map(s => ({ id: `${subjectId}::${topicName}::${s}`, type: 'subtopic', name: s })) || [];
     }
     return [];
+  };
+
+  const renderHierarchicalItem = (item: any, depth = 0) => {
+    const children = getItemChildren(item);
+    const isExpanded = expandedItems.includes(item.id);
+    const inPlan = dailyPlans[selectedDate]?.items.find((i: any) => i.id === item.id);
+    const isCompleted = inPlan?.completed;
+
+    return (
+      <div key={item.id} className={`space-y-2 ${depth > 0 ? 'ml-6 border-l border-blue-500/10 pl-4 mt-2' : 'p-6 rounded-3xl border-2 transition-all bg-white dark:bg-white/5 border-black/5 dark:border-white/5'}`}>
+        <div className="flex items-center justify-between group">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => toggleDailyItem(selectedDate, item.id)}
+              className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                isCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-gray-600'
+              }`}
+            >
+              {isCompleted && <Check className="w-4 h-4" />}
+            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className={`text-[8px] font-black uppercase mb-0.5 ${isCompleted ? 'text-green-600' : 'text-blue-600'}`}>{item.type}</p>
+                {children.length > 0 && (
+                  <button 
+                    onClick={() => toggleItemExpansion(item.id)}
+                    className="text-[7px] font-black uppercase bg-gray-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md hover:bg-blue-600 hover:text-white transition-all"
+                  >
+                    {isExpanded ? 'Collapse' : 'Expand'}
+                  </button>
+                )}
+              </div>
+              <p className={`text-sm font-bold ${isCompleted ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'}`}>{item.name}</p>
+            </div>
+          </div>
+          {depth === 0 && (
+            <button 
+              onClick={() => {
+                const newItems = dailyPlans[selectedDate].items.filter((i: any) => i.id !== item.id);
+                updateDailyPlan(selectedDate, newItems);
+              }}
+              className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        <AnimatePresence>
+          {isExpanded && children.length > 0 && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              {children.map(child => renderHierarchicalItem(child, depth + 1))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
   };
 
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -294,13 +373,26 @@ export default function Planner() {
               <div>
                 <p className="text-[10px] font-black uppercase text-gray-400">Session Timer</p>
                 <div className="flex items-center gap-3">
-                  <p className="text-xl font-black font-mono text-gray-900 dark:text-white">{formatSeconds(sessionTimer.remainingSeconds)}</p>
-                  <button onClick={toggleSessionTimer} className="p-2 bg-blue-600 text-white rounded-lg hover:scale-105 transition-all">
-                    {sessionTimer.isRunning ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                  </button>
-                  <button onClick={resetSessionTimer} className="p-2 bg-gray-500 text-white rounded-lg hover:scale-105 transition-all">
-                    <Trash2 className="w-3 h-3" />
-                  </button>
+                  {isEditingTimer ? (
+                    <div className="flex items-center gap-1">
+                      <input type="number" min="0" max="99" value={timerInputs.h} onChange={e => setTimerInputs({...timerInputs, h: parseInt(e.target.value) || 0})} className="w-8 bg-black/20 rounded text-center text-xs font-bold" />
+                      <span className="text-[10px]">:</span>
+                      <input type="number" min="0" max="59" value={timerInputs.m} onChange={e => setTimerInputs({...timerInputs, m: parseInt(e.target.value) || 0})} className="w-8 bg-black/20 rounded text-center text-xs font-bold" />
+                      <span className="text-[10px]">:</span>
+                      <input type="number" min="0" max="59" value={timerInputs.s} onChange={e => setTimerInputs({...timerInputs, s: parseInt(e.target.value) || 0})} className="w-8 bg-black/20 rounded text-center text-xs font-bold" />
+                      <button onClick={saveTimer} className="ml-1 p-1 bg-green-600 rounded-md"><Check className="w-3 h-3 text-white" /></button>
+                    </div>
+                  ) : (
+                    <>
+                      <p onClick={handleEditTimer} className="text-xl font-black font-mono text-gray-900 dark:text-white cursor-pointer hover:text-blue-600 transition-colors" title="Click to edit">{formatSeconds(sessionTimer.remainingSeconds)}</p>
+                      <button onClick={toggleSessionTimer} className="p-2 bg-blue-600 text-white rounded-lg hover:scale-105 transition-all">
+                        {sessionTimer.isRunning ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                      </button>
+                      <button onClick={resetSessionTimer} className="p-2 bg-gray-500 text-white rounded-lg hover:scale-105 transition-all">
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -386,94 +478,23 @@ export default function Planner() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Real Plans */}
-            {dailyPlans[selectedDate]?.items.map((item: any) => {
-              const children = getItemChildren(item);
-              const isExpanded = expandedItems.includes(item.id);
-
-              return (
-                <div 
-                  key={item.id} 
-                  className={`p-6 rounded-3xl border-2 transition-all flex flex-col group ${
-                    item.completed 
-                      ? 'bg-green-500/10 border-green-500/20 opacity-60' 
-                      : 'bg-white dark:bg-white/5 border-black/5 dark:border-white/5 hover:border-blue-500/30'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <button 
-                        onClick={() => toggleDailyItem(selectedDate, item.id)}
-                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                          item.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-gray-600'
-                        }`}
-                      >
-                        {item.completed && <Check className="w-4 h-4" />}
-                      </button>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className={`text-[8px] font-black uppercase mb-0.5 ${item.completed ? 'text-green-600' : 'text-blue-600'}`}>{item.type}</p>
-                          {children.length > 0 && (
-                            <button 
-                              onClick={() => toggleItemExpansion(item.id)}
-                              className="text-[7px] font-black uppercase bg-gray-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md hover:bg-blue-600 hover:text-white transition-all"
-                            >
-                              {isExpanded ? 'Collapse' : 'Expand'}
-                            </button>
-                          )}
-                        </div>
-                        <p className={`text-sm font-bold ${item.completed ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'}`}>{item.name}</p>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        const newItems = dailyPlans[selectedDate].items.filter((i: any) => i.id !== item.id);
-                        updateDailyPlan(selectedDate, newItems);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Expanded Children */}
-                  <AnimatePresence>
-                    {isExpanded && children.length > 0 && (
-                      <motion.div 
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden mt-4 pt-4 border-t border-black/5 dark:border-white/5 space-y-3"
-                      >
-                        {children.map((child: any) => {
-                          const childInPlan = dailyPlans[selectedDate].items.find((i: any) => i.id === child.id);
-                          const isChildCompleted = childInPlan?.completed || item.completed;
-
-                          return (
-                            <div key={child.id} className="flex items-center gap-3 ml-4 group/child">
-                              <button 
-                                onClick={() => toggleDailyItem(selectedDate, child.id)}
-                                className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
-                                  isChildCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-gray-600'
-                                }`}
-                              >
-                                {isChildCompleted && <Check className="w-2.5 h-2.5" />}
-                              </button>
-                              <div className="flex-1">
-                                <p className={`text-[10px] font-bold ${isChildCompleted ? 'line-through text-gray-400' : 'text-gray-600 dark:text-gray-400'}`}>
-                                  {child.name}
-                                </p>
-                                <p className="text-[6px] font-black uppercase text-gray-400 opacity-50 tracking-widest">{child.type}</p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
+            {/* Real Plans (filtered to only show top-level items in this list, children are rendered inside) */}
+            {dailyPlans[selectedDate]?.items
+              .filter((item: any) => {
+                // If it's a subtopic, only show if its parent topic isn't in the plan
+                if (item.type === 'subtopic') {
+                  const [sid, tname] = item.id.split('::');
+                  const topicId = `${sid}::${tname}`;
+                  return !dailyPlans[selectedDate].items.some((i: any) => i.id === topicId);
+                }
+                // If it's a topic, only show if its parent subject isn't in the plan
+                if (item.type === 'topic') {
+                  const subjectId = item.id.split('::')[0];
+                  return !dailyPlans[selectedDate].items.some((i: any) => i.id === subjectId);
+                }
+                return true;
+              })
+              .map((item: any) => renderHierarchicalItem(item))}
 
             {/* Suggested Plans */}
             {suggestedPlans[selectedDate]?.items.map((item: any) => (
@@ -770,12 +791,12 @@ export default function Planner() {
                               className="w-5 h-5 accent-blue-600 rounded-lg cursor-pointer"
                             />
                             <p className="text-sm font-black uppercase tracking-tight">Phase {phase.id}: {phase.name}</p>
-                          </div>
-                          <ChevronDown className={`w-4 h-4 transition-transform ${expandedPhases.includes(phase.id) ? '' : '-rotate-90'}`} />
-                        </div>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${expandedPhases.includes(phase.id) ? '' : '-rotate-90'}`} />
+                            </div>
 
-                        <AnimatePresence>
-                          {expandedPhases.includes(phase.id) && (
+                            <AnimatePresence>
+                            {expandedPhases.includes(phase.id) && (
                             <motion.div 
                               initial={{ height: 0 }}
                               animate={{ height: 'auto' }}
@@ -783,17 +804,19 @@ export default function Planner() {
                             >
                               {phase.subjects.map(subject => {
                                 const subjectInGoal = goalTopics.some(i => i.id === subject.id);
+                                const isCompleted = progress[subject.id]?.completed;
                                 return (
-                                  <div key={subject.id} className="ml-4 space-y-2 border-l-2 border-blue-500/10 pl-4">
+                                  <div key={subject.id} className={`ml-4 space-y-2 border-l-2 border-blue-500/10 pl-4 ${isCompleted ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
                                     <div className="flex items-center justify-between group/goal">
                                       <div className="flex items-center gap-3">
                                         <input 
                                           type="checkbox"
-                                          checked={subjectInGoal}
+                                          checked={subjectInGoal || isCompleted}
+                                          disabled={isCompleted}
                                           onChange={() => toggleGoalItem({ id: subject.id, type: 'subject', name: subject.name, completed: false })}
                                           className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
                                         />
-                                        <p className="text-xs font-bold text-gray-700 dark:text-gray-300">{subject.name}</p>
+                                        <p className="text-xs font-bold text-gray-700 dark:text-gray-300">{subject.name} {isCompleted && '✓'}</p>
                                       </div>
                                       <button onClick={() => toggleSubject(subject.id)} className="p-1 hover:bg-blue-600 hover:text-white rounded-md transition-all">
                                         <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedSubjects.includes(subject.id) ? '' : '-rotate-90'}`} />
@@ -806,33 +829,35 @@ export default function Planner() {
                                           {subject.topics.map(topic => {
                                             const topicId = `${subject.id}::${topic}`;
                                             const topicInGoal = subjectInGoal || goalTopics.some(i => i.id === topicId);
+                                            const topicCompleted = isCompleted || progress[subject.id]?.topicsCompleted.includes(topic);
                                             return (
-                                              <div key={topic} className="space-y-2">
+                                              <div key={topic} className={`space-y-2 ${topicCompleted ? 'opacity-60' : ''}`}>
                                                 <div className="flex items-center gap-3">
                                                   <input 
                                                     type="checkbox"
-                                                    checked={topicInGoal}
-                                                    disabled={subjectInGoal}
+                                                    checked={topicInGoal || topicCompleted}
+                                                    disabled={subjectInGoal || topicCompleted}
                                                     onChange={() => toggleGoalItem({ id: topicId, type: 'topic', name: topic, completed: false })}
                                                     className="w-3.5 h-3.5 accent-blue-600 rounded cursor-pointer"
                                                   />
-                                                  <p className="text-[11px] font-black uppercase text-gray-500">{topic}</p>
+                                                  <p className="text-[11px] font-black uppercase text-gray-500">{topic} {topicCompleted && '✓'}</p>
                                                 </div>
                                                 {subject.subtopics[topic] && (
                                                   <div className="ml-6 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                     {subject.subtopics[topic].map(sub => {
                                                       const subId = `${topicId}::${sub}`;
                                                       const subInGoal = topicInGoal || goalTopics.some(i => i.id === subId);
+                                                      const subCompleted = topicCompleted || progress[subject.id]?.subtopicsCompleted.includes(sub);
                                                       return (
-                                                        <div key={sub} className="flex items-center gap-2">
+                                                        <div key={sub} className={`flex items-center gap-2 ${subCompleted ? 'opacity-60' : ''}`}>
                                                           <input 
                                                             type="checkbox"
-                                                            checked={subInGoal}
-                                                            disabled={topicInGoal}
+                                                            checked={subInGoal || subCompleted}
+                                                            disabled={topicInGoal || subCompleted}
                                                             onChange={() => toggleGoalItem({ id: subId, type: 'subtopic', name: sub, completed: false })}
                                                             className="w-3 h-3 accent-blue-600 rounded cursor-pointer"
                                                           />
-                                                          <p className="text-[10px] font-medium text-gray-400">{sub}</p>
+                                                          <p className="text-[10px] font-medium text-gray-400">{sub} {subCompleted && '✓'}</p>
                                                         </div>
                                                       );
                                                     })}
@@ -848,8 +873,9 @@ export default function Planner() {
                                 );
                               })}
                             </motion.div>
-                          )}
-                        </AnimatePresence>
+                            )}
+                            </AnimatePresence>
+
                       </div>
                     ))}
                   </div>

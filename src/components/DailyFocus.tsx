@@ -27,27 +27,68 @@ export default function DailyFocus() {
 
   if (!plan || plan.items.length === 0) return null;
 
-  const completedCount = plan.items.filter((i: any) => i.completed).length;
-  const progressPercent = Math.round((completedCount / plan.items.length) * 100);
+  // Granular Progress Calculation: Focus on subtopics, then topics, then subjects
+  const subtopics = plan.items.filter((i: any) => i.type === 'subtopic');
+  const topics = plan.items.filter((i: any) => i.type === 'topic');
+  const subjects = plan.items.filter((i: any) => i.type === 'subject');
+
+  let completedCount = 0;
+  let totalCount = 0;
+
+  if (subtopics.length > 0) {
+    totalCount = subtopics.length;
+    completedCount = subtopics.filter((i: any) => i.completed).length;
+  } else if (topics.length > 0) {
+    totalCount = topics.length;
+    completedCount = topics.filter((i: any) => i.completed).length;
+  } else {
+    totalCount = subjects.length;
+    completedCount = subjects.filter((i: any) => i.completed).length;
+  }
+
+  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   
-  // Group items hierarchically for display
-  const groupedItems = plan.items.reduce((acc: any, item: any) => {
-    if (item.type === 'subject') {
-      acc[item.id] = { ...item, topics: {} };
-    } else if (item.type === 'topic') {
-      const subjectId = item.id.split('::')[0];
-      if (!acc[subjectId]) acc[subjectId] = { id: subjectId, type: 'subject', name: 'Parent Course', topics: {} };
-      acc[subjectId].topics[item.id] = { ...item, subtopics: [] };
-    } else if (item.type === 'subtopic') {
-      const parts = item.id.split('::');
-      const subjectId = parts[0];
-      const topicId = `${parts[0]}::${parts[1]}`;
-      if (!acc[subjectId]) acc[subjectId] = { id: subjectId, type: 'subject', name: 'Parent Course', topics: {} };
-      if (!acc[subjectId].topics[topicId]) acc[subjectId].topics[topicId] = { id: topicId, type: 'topic', name: 'Parent Topic', subtopics: [] };
-      acc[subjectId].topics[topicId].subtopics.push(item);
+  // Group only items that are actually in the plan, following hierarchy
+  const topLevelItems = plan.items.filter((item: any) => {
+    if (item.type === 'subtopic') {
+      const topicId = item.id.split('::').slice(0, 2).join('::');
+      return !plan.items.some((i: any) => i.id === topicId);
     }
-    return acc;
-  }, {});
+    if (item.type === 'topic') {
+      const subjectId = item.id.split('::')[0];
+      return !plan.items.some((i: any) => i.id === subjectId);
+    }
+    return true;
+  });
+
+  const getChildren = (parentId: string) => {
+    return plan.items.filter((i: any) => i.id.startsWith(parentId + '::') && i.id.split('::').length === parentId.split('::').length + 1);
+  };
+
+  const renderTask = (item: any, depth = 0) => {
+    const children = getChildren(item.id);
+    return (
+      <div key={item.id} className={`${depth > 0 ? 'ml-6 border-l-2 border-indigo-500/10 pl-6 mt-3' : 'glass bg-white/40 dark:bg-white/5 p-6 rounded-[2.5rem] border border-black/5 dark:border-white/5 space-y-4 mb-4'}`}>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => toggleDailyItem(today, item.id)}
+            className={`${item.type === 'subject' ? 'w-7 h-7 rounded-xl' : item.type === 'topic' ? 'w-5 h-5 rounded-lg' : 'w-4 h-4 rounded'} border-2 flex items-center justify-center transition-all ${
+              item.completed ? 'bg-green-500 border-green-500 text-white' : 'border-indigo-200 dark:border-white/10'
+            }`}
+          >
+            {item.completed && <CheckCircle2 className={`${item.type === 'subject' ? 'w-4 h-4' : item.type === 'topic' ? 'w-3 h-3' : 'w-2.5 h-2.5'}`} />}
+          </button>
+          <div>
+            <p className={`text-[8px] font-black uppercase mb-0.5 ${item.completed ? 'text-green-600' : 'text-indigo-600'}`}>{item.type}</p>
+            <p className={`${item.type === 'subject' ? 'text-sm' : 'text-[11px]'} font-black leading-tight ${item.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}`}>
+              {item.name}
+            </p>
+          </div>
+        </div>
+        {children.length > 0 && children.map(child => renderTask(child, depth + 1))}
+      </div>
+    );
+  };
 
   // Calculate percentage of timer passed
   const timerProgress = sessionTimer.totalSeconds > 0 
@@ -73,67 +114,7 @@ export default function DailyFocus() {
           </div>
           
           <div className="space-y-6 max-h-[500px] overflow-y-auto pr-4 custom-scrollbar">
-            {Object.values(groupedItems).map((subject: any) => (
-              <div key={subject.id} className="glass bg-white/40 dark:bg-white/5 p-6 rounded-[2.5rem] border border-black/5 dark:border-white/5 space-y-4">
-                <div className="flex items-center gap-4">
-                  <button 
-                    onClick={() => toggleDailyItem(today, subject.id)}
-                    className={`w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all ${
-                      subject.completed ? 'bg-green-500 border-green-500 text-white' : 'border-indigo-200 dark:border-white/10'
-                    }`}
-                  >
-                    {subject.completed && <CheckCircle2 className="w-4 h-4" />}
-                  </button>
-                  <div>
-                    <p className={`text-[8px] font-black uppercase mb-0.5 ${subject.completed ? 'text-green-600' : 'text-indigo-600'}`}>Course</p>
-                    <p className={`text-sm font-black leading-tight ${subject.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}`}>
-                      {subject.name}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="ml-4 space-y-4 border-l-2 border-indigo-500/10 pl-6">
-                  {Object.values(subject.topics).map((topic: any) => (
-                    <div key={topic.id} className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <button 
-                          onClick={() => toggleDailyItem(today, topic.id)}
-                          className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${
-                            topic.completed ? 'bg-green-500 border-green-500 text-white' : 'border-indigo-200/50 dark:border-white/10'
-                          }`}
-                        >
-                          {topic.completed && <CheckCircle2 className="w-3 h-3" />}
-                        </button>
-                        <p className={`text-[11px] font-black uppercase tracking-tight ${topic.completed ? 'line-through text-gray-400' : 'text-gray-600 dark:text-gray-400'}`}>
-                          {topic.name}
-                        </p>
-                      </div>
-
-                      {topic.subtopics.length > 0 && (
-                        <div className="ml-8 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {topic.subtopics.map((sub: any) => (
-                            <div 
-                              key={sub.id}
-                              onClick={() => toggleDailyItem(today, sub.id)}
-                              className="flex items-center gap-3 group cursor-pointer"
-                            >
-                              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
-                                sub.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-white/10 group-hover:border-indigo-500'
-                              }`}>
-                                {sub.completed && <CheckCircle2 className="w-2.5 h-2.5" />}
-                              </div>
-                              <p className={`text-[10px] font-bold ${sub.completed ? 'line-through text-gray-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-indigo-600'}`}>
-                                {sub.name}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+            {topLevelItems.map(item => renderTask(item))}
           </div>
         </div>
 
@@ -161,9 +142,11 @@ export default function DailyFocus() {
                 </div>
               </div>
             </div>
-            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-500/10 inline-block px-4 py-1.5 rounded-full mt-6">
-              Goal: {Math.round(sessionTimer.totalSeconds / 3600)} Hours Study Session
-            </p>
+            <div className="pt-12">
+              <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-500/10 inline-block px-4 py-1.5 rounded-full">
+                Goal: {Math.floor(sessionTimer.totalSeconds / 3600)} Hours Study Session
+              </p>
+            </div>
           </div>
         </div>
 
