@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useTrackerStore } from '../store/useTrackerStore';
-import { Send, User as UserIcon, Shield, MessageSquare, Check, AlertCircle, Plus, Search, X } from 'lucide-react';
+import { Send, User as UserIcon, Shield, MessageSquare, Search, X } from 'lucide-react';
 
 export default function Inbox() {
   const { user, messages = [], fetchMessages } = useTrackerStore();
