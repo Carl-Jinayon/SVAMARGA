@@ -261,7 +261,7 @@ export const useTrackerStore = create<Store>((set, get) => {
     },
 
     syncWithCloud: async () => {
-      const { user, progress, sessions, weeklyPlans, activeWeekPlan, achievements, totalStudyTime, currentStreak, lastStudyDate } = get();
+      const { user, progress, sessions, weeklyPlans, activeWeekPlan, achievements, totalStudyTime, currentStreak, lastStudyDate, missionEndDate, dailyStudyHours } = get();
       if (!user) return;
 
       const data = {
@@ -273,6 +273,8 @@ export const useTrackerStore = create<Store>((set, get) => {
         total_study_time: totalStudyTime,
         current_streak: currentStreak,
         last_study_date: lastStudyDate,
+        mission_end_date: missionEndDate,
+        daily_study_hours: dailyStudyHours,
         updated_at: new Date().toISOString(),
       };
 

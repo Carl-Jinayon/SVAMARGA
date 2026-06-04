@@ -157,6 +157,7 @@ export interface TrackerState {
 
   // Mission
   missionEndDate: string | null;
+  dailyStudyHours: number;
   dailyPlans: Record<string, DailyPlan>;
   suggestedPlans: Record<string, DailyPlan>; // Added for suggested plans
   messages: Message[];
