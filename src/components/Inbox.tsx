@@ -24,11 +24,6 @@ export default function Inbox() {
     if (!email.trim() || !content.trim()) return;
     setSending(true);
 
-    // In a real app, we'd lookup user_id by email. 
-    // For now, we'll store the target email in a metadata field or just use user_id if it was provided.
-    // Since we can't lookup auth.users easily, we'll assume for this prototype 
-    // that we're sending to the ADMIN or from ADMIN to a known ID.
-    
     const { error } = await supabase.from('inbox').insert([
       {
         user_id: user?.id,
@@ -116,59 +111,6 @@ export default function Inbox() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[700px]">
-...
-      {/* New Message Modal */}
-      <AnimatePresence>
-        {showNewMessage && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowNewMessage(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-2xl"
-            >
-              <h3 className="text-2xl font-black uppercase tracking-tighter mb-6">
-                {newMsgType === 'Bug' ? 'Report a Bug' : 'New Conversation'}
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Recipient Email</label>
-                  <input 
-                    type="email"
-                    value={newMsgEmail}
-                    onChange={(e) => setNewMsgEmail(e.target.value)}
-                    placeholder="Enter email address..."
-                    className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Message</label>
-                  <textarea 
-                    value={newMsgContent}
-                    onChange={(e) => setNewMsgContent(e.target.value)}
-                    placeholder="Describe your issue or message..."
-                    className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 min-h-[150px] resize-none"
-                  />
-                </div>
-                <button 
-                  onClick={() => handleStartNewConversation(newMsgEmail, newMsgContent, newMsgType)}
-                  disabled={sending || !newMsgEmail.trim() || !newMsgContent.trim()}
-                  className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
-                >
-                  {sending ? 'Sending...' : 'Send Message'}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
         {/* Sidebar: Message List */}
         <div className="glass rounded-[2.5rem] overflow-hidden flex flex-col border-none shadow-2xl">
           <div className="p-6 border-b border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20">
@@ -346,6 +288,59 @@ export default function Inbox() {
           )}
         </div>
       </div>
+
+      {/* New Message Modal */}
+      <AnimatePresence>
+        {showNewMessage && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowNewMessage(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-2xl"
+            >
+              <h3 className="text-2xl font-black uppercase tracking-tighter mb-6">
+                {newMsgType === 'Bug' ? 'Report a Bug' : 'New Conversation'}
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Recipient Email</label>
+                  <input 
+                    type="email"
+                    value={newMsgEmail}
+                    onChange={(e) => setNewMsgEmail(e.target.value)}
+                    placeholder="Enter email address..."
+                    className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Message</label>
+                  <textarea 
+                    value={newMsgContent}
+                    onChange={(e) => setNewMsgContent(e.target.value)}
+                    placeholder="Describe your issue or message..."
+                    className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 min-h-[150px] resize-none"
+                  />
+                </div>
+                <button 
+                  onClick={() => handleStartNewConversation(newMsgEmail, newMsgContent, newMsgType)}
+                  disabled={sending || !newMsgEmail.trim() || !newMsgContent.trim()}
+                  className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {sending ? 'Sending...' : 'Send Message'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
