@@ -24,17 +24,22 @@ export default function Inbox() {
     if (!content.trim() || !user?.id) return;
     setSending(true);
 
-    // Check if an existing thread exists for this user (only for users, or if admin specifies an existing thread)
-    const existingParent = filteredMessages.find(m => m.user_id === user.id);
+    const targetRecipient = recipientEmail || 'System';
     
-    if (existingParent && !isAdmin) {
-      // If user already has a thread, just reply to it
+    // Check if an existing thread exists for this recipient
+    const existingThread = messages.find(m => {
+      const email = extractRecipientEmail(m.content);
+      return email === targetRecipient || (targetRecipient === 'System' && !email);
+    });
+    
+    if (existingThread && !isAdmin) {
+      // If a thread for this recipient exists, reply to it
       const { error } = await supabase.from('inbox').insert([
         {
           user_id: user.id,
           sender_role: 'user',
           content: content,
-          reply_to: existingParent.id,
+          reply_to: existingThread.id,
           created_at: new Date().toISOString(),
           is_read: false
         }
@@ -45,14 +50,14 @@ export default function Inbox() {
         setNewMsgContent('');
         setShowNewMessage(false);
         fetchMessages();
-        setSelectedMessage(existingParent.id);
+        setSelectedMessage(existingThread.id);
       } else {
         console.error('Error sending message:', error);
       }
     } else {
       // Create new parent thread
       const senderEmail = user.email || user.user_metadata?.email || 'Unknown';
-      const finalContent = `[Sender: ${senderEmail}]${recipientEmail ? `\n[To: ${recipientEmail}]` : ''}\n\n${content}`;
+      const finalContent = `[Recipient: ${targetRecipient}]\n[Sender: ${senderEmail}]\n\n${content}`;
 
       const { error } = await supabase.from('inbox').insert([
         {
@@ -112,13 +117,13 @@ export default function Inbox() {
 
   const getReplies = (messageId: string) => messages.filter(m => m.reply_to === messageId).reverse();
 
-  const extractEmail = (content: string) => {
-    const match = content.match(/\[Sender: (.*?)\]/);
+  const extractRecipientEmail = (content: string) => {
+    const match = content.match(/\[Recipient: (.*?)\]/);
     return match ? match[1] : null;
   };
 
   const cleanContent = (content: string) => {
-    return content.replace(/\[Sender: .*?\]/, '').replace(/\[To: .*?\]/, '').trim();
+    return content.replace(/\[Recipient: .*?\]/, '').replace(/\[Sender: .*?\]/, '').replace(/\[To: .*?\]/, '').trim();
   };
 
   return (
@@ -157,7 +162,7 @@ export default function Inbox() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 h-[750px]">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 h-[600px]">
         {/* Sidebar: Message List */}
         <div className="glass rounded-[2.5rem] overflow-hidden flex flex-col border-none shadow-2xl">
           <div className="p-6 border-b border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20">
@@ -167,7 +172,7 @@ export default function Inbox() {
             {filteredMessages.map((msg: any) => {
               const replies = getReplies(msg.id);
               const lastActivity = replies.length > 0 ? replies[replies.length - 1].created_at : msg.created_at;
-              const senderEmail = extractEmail(msg.content);
+              const recipientEmail = extractRecipientEmail(msg.content);
               
               return (
                 <button
@@ -189,9 +194,9 @@ export default function Inbox() {
                       {new Date(lastActivity).toLocaleDateString()}
                     </span>
                   </div>
-                  {senderEmail && (
+                  {recipientEmail && (
                     <p className={`text-[9px] font-black uppercase mb-1 opacity-70 ${selectedMessage === msg.id ? 'text-white' : 'text-blue-600'}`}>
-                      {senderEmail}
+                      {recipientEmail}
                     </p>
                   )}
                   <p className="text-sm font-bold line-clamp-1">{cleanContent(msg.content)}</p>
@@ -236,7 +241,7 @@ export default function Inbox() {
                         {msg?.issue_type} Report
                       </h4>
                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                        {msg ? extractEmail(msg.content) || 'Case ID: ' + msg.id.slice(0, 8) : ''}
+                        {msg ? extractRecipientEmail(msg.content) || 'System' : ''}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
