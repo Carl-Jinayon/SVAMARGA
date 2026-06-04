@@ -12,7 +12,9 @@ import Auth from './components/Auth';
 import Inbox from './components/Inbox';
 import About from './components/About';
 import PublicProfile from './components/PublicProfile';
+import ResetPassword from './components/ResetPassword';
 import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info } from 'lucide-react';
+import { supabase } from './lib/supabase';
 
 type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'inbox';
 
@@ -54,6 +56,30 @@ function MainApp() {
       return !isFromMe;
     });
   }, [messages, user]);
+
+  // Clear notifications when entering the Inbox tab
+  useEffect(() => {
+    if (activeTab === 'inbox' && user && hasUnread) {
+      const markAllAsRead = async () => {
+        const ADMIN_ID = '06391879-d280-472e-b253-7e0685bf1014';
+        const isAdmin = user.id === ADMIN_ID;
+
+        const unreadIds = messages
+          .filter(m => {
+            if (m.is_read) return false;
+            const isFromMe = isAdmin ? m.sender_role === 'admin' : m.sender_role === 'user';
+            return !isFromMe;
+          })
+          .map(m => m.id);
+
+        if (unreadIds.length > 0) {
+          await supabase.from('inbox').update({ is_read: true }).in('id', unreadIds);
+          fetchMessages();
+        }
+      };
+      markAllAsRead();
+    }
+  }, [activeTab, user, hasUnread, messages, fetchMessages]);
 
   if (!user) {
     return (
@@ -139,6 +165,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/profile/:id" element={<PublicProfile />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/*" element={<MainApp />} />
       </Routes>
     </Router>
