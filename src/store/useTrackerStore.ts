@@ -335,7 +335,7 @@ export const useTrackerStore = create<Store>((set, get) => {
         // Sync with Daily Plans
         if (dailyPlans[today]) {
           dailyPlans[today].items = dailyPlans[today].items.map(item => {
-            if (item.id === `${subjectId}-${topic}`) return { ...item, completed: newStatus };
+            if (item.id === `${subjectId}::${topic}`) return { ...item, completed: newStatus };
             return item;
           });
         }
@@ -374,7 +374,7 @@ export const useTrackerStore = create<Store>((set, get) => {
           }
         }
 
-        // Sync with Daily Plans (assumes subtopic ID format is subjectId-topicName-subtopicName)
+        // Sync with Daily Plans
         if (dailyPlans[today]) {
           dailyPlans[today].items = dailyPlans[today].items.map(item => {
             if (item.id.includes(subtopic)) return { ...item, completed: newStatus };
@@ -396,15 +396,15 @@ export const useTrackerStore = create<Store>((set, get) => {
       // Hierarchical Logic: If a parent is selected, remove children
       const filteredItems = items.filter((item, _index, self) => {
         if (item.type === 'subtopic') {
-          const parts = item.id.split('-');
+          const parts = item.id.split('::');
           const subjectId = parts[0];
           const topicName = parts[1];
-          const hasTopic = self.some(i => i.id === `${subjectId}-${topicName}` && i.type === 'topic');
+          const hasTopic = self.some(i => i.id === `${subjectId}::${topicName}` && i.type === 'topic');
           const hasSubject = self.some(i => i.id === subjectId && i.type === 'subject');
           return !hasTopic && !hasSubject;
         }
         if (item.type === 'topic') {
-          const parts = item.id.split('-');
+          const parts = item.id.split('::');
           const subjectId = parts[0];
           const hasSubject = self.some(i => i.id === subjectId && i.type === 'subject');
           return !hasSubject;
@@ -439,7 +439,7 @@ export const useTrackerStore = create<Store>((set, get) => {
                   progress[item.id].completed = newCompleted;
                 }
               } else if (item.type === 'topic') {
-                const [subjectId, topicName] = item.id.split('-');
+                const [subjectId, topicName] = item.id.split('::');
                 if (!progress[subjectId]) {
                   progress[subjectId] = { subjectId, completed: false, topicsCompleted: [topicName], subtopicsCompleted: [], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
                 } else {
@@ -448,9 +448,7 @@ export const useTrackerStore = create<Store>((set, get) => {
                   else if (!newCompleted && idx > -1) progress[subjectId].topicsCompleted.splice(idx, 1);
                 }
               } else if (item.type === 'subtopic') {
-                const parts = item.id.split('-');
-                const subjectId = parts[0];
-                const subtopicName = parts.slice(2).join('-');
+                const [subjectId, _topicName, subtopicName] = item.id.split('::');
                 if (!progress[subjectId]) {
                   progress[subjectId] = { subjectId, completed: false, topicsCompleted: [], subtopicsCompleted: [subtopicName], projectsCompleted: [], sessionsCount: 0, totalMinutes: 0 };
                 } else {

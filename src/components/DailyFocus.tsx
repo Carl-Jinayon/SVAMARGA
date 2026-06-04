@@ -35,13 +35,13 @@ export default function DailyFocus() {
     if (item.type === 'subject') {
       acc[item.id] = { ...item, topics: {} };
     } else if (item.type === 'topic') {
-      const subjectId = item.id.split('-')[0];
+      const subjectId = item.id.split('::')[0];
       if (!acc[subjectId]) acc[subjectId] = { id: subjectId, type: 'subject', name: 'Parent Course', topics: {} };
       acc[subjectId].topics[item.id] = { ...item, subtopics: [] };
     } else if (item.type === 'subtopic') {
-      const parts = item.id.split('-');
+      const parts = item.id.split('::');
       const subjectId = parts[0];
-      const topicId = `${parts[0]}-${parts[1]}`;
+      const topicId = `${parts[0]}::${parts[1]}`;
       if (!acc[subjectId]) acc[subjectId] = { id: subjectId, type: 'subject', name: 'Parent Course', topics: {} };
       if (!acc[subjectId].topics[topicId]) acc[subjectId].topics[topicId] = { id: topicId, type: 'topic', name: 'Parent Topic', subtopics: [] };
       acc[subjectId].topics[topicId].subtopics.push(item);

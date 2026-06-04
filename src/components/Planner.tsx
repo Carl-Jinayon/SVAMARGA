@@ -46,18 +46,19 @@ export default function Planner() {
 
   const getItemChildren = (item: any) => {
     if (item.type === 'phase') {
-      const phaseId = parseInt(item.id.split('-')[1]);
+      const phaseId = parseInt(item.id.split('::')[1]);
       return curriculum.find(p => p.id === phaseId)?.subjects.map(s => ({ id: s.id, type: 'subject', name: s.name })) || [];
     }
     if (item.type === 'subject') {
       const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === item.id);
-      return subject?.topics.map(t => ({ id: `${subject.id}-${t}`, type: 'topic', name: t })) || [];
+      return subject?.topics.map(t => ({ id: `${subject.id}::${t}`, type: 'topic', name: t })) || [];
     }
     if (item.type === 'topic') {
-      const parts = item.id.split('-');
-      const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === parts[0]);
+      const parts = item.id.split('::');
+      const subjectId = parts[0];
       const topicName = parts[1];
-      return subject?.subtopics[topicName]?.map(s => ({ id: `${parts[0]}-${parts[1]}-${s}`, type: 'subtopic', name: s })) || [];
+      const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === subjectId);
+      return subject?.subtopics[topicName]?.map(s => ({ id: `${subjectId}::${topicName}::${s}`, type: 'subtopic', name: s })) || [];
     }
     return [];
   };
@@ -491,7 +492,7 @@ export default function Planner() {
                                       className="overflow-hidden bg-white dark:bg-black/10 p-4 space-y-4"
                                     >
                                       {subject.topics.map(topic => {
-                                        const topicInTemp = subjectInTemp || tempSelection.some(i => i.id === `${subject.id}-${topic}`);
+                                        const topicInTemp = subjectInTemp || tempSelection.some(i => i.id === `${subject.id}::${topic}`);
                                         const topicCompleted = subjectCompleted || progress[subject.id]?.topicsCompleted.includes(topic);
                                         return (
                                           <div key={topic} className="ml-4 pl-4 border-l-2 border-blue-500/20">
@@ -500,7 +501,7 @@ export default function Planner() {
                                                 type="checkbox"
                                                 checked={topicInTemp || topicCompleted}
                                                 disabled={subjectInTemp || topicCompleted}
-                                                onChange={() => toggleTempItem({ id: `${subject.id}-${topic}`, type: 'topic', name: topic, completed: false })}
+                                                onChange={() => toggleTempItem({ id: `${subject.id}::${topic}`, type: 'topic', name: topic, completed: false })}
                                                 className={`w-4 h-4 rounded-md accent-blue-600 ${ (subjectInTemp || topicCompleted) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                               />
                                               <p className={`text-xs font-black uppercase tracking-tight transition-colors ${topicCompleted ? 'text-green-600' : 'text-gray-500 group-hover/topic:text-blue-600'}`}>{topic}</p>
@@ -508,7 +509,7 @@ export default function Planner() {
                                             {subject.subtopics[topic] && (
                                               <div className="space-y-2 mt-2 ml-7">
                                                 {subject.subtopics[topic].map(sub => {
-                                                  const subInTemp = topicInTemp || tempSelection.some(i => i.id === `${subject.id}-${topic}-${sub}`);
+                                                  const subInTemp = topicInTemp || tempSelection.some(i => i.id === `${subject.id}::${topic}::${sub}`);
                                                   const subCompleted = topicCompleted || progress[subject.id]?.subtopicsCompleted.includes(sub);
                                                   return (
                                                     <div key={sub} className="flex items-center gap-3 group/sub">
@@ -516,7 +517,7 @@ export default function Planner() {
                                                         type="checkbox"
                                                         checked={subInTemp || subCompleted}
                                                         disabled={topicInTemp || subCompleted}
-                                                        onChange={() => toggleTempItem({ id: `${subject.id}-${topic}-${sub}`, type: 'subtopic', name: sub, completed: false })}
+                                                        onChange={() => toggleTempItem({ id: `${subject.id}::${topic}::${sub}`, type: 'subtopic', name: sub, completed: false })}
                                                         className={`w-3.5 h-3.5 rounded accent-blue-600 ${ (topicInTemp || subCompleted) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                                       />
                                                       <p className={`text-[10px] font-bold transition-colors ${subCompleted ? 'text-green-600' : 'text-gray-400 group-hover/sub:text-gray-600 dark:group-hover/sub:text-gray-200'}`}>{sub}</p>
@@ -631,10 +632,10 @@ export default function Planner() {
                           <div className="flex items-center gap-4">
                             <input 
                               type="checkbox"
-                              checked={tempSelection.some(i => i.id === `phase-${phase.id}`)}
+                              checked={tempSelection.some(i => i.id === `phase::${phase.id}`)}
                               onChange={(e) => {
                                 e.stopPropagation();
-                                toggleTempItem({ id: `phase-${phase.id}`, type: 'phase', name: phase.name, completed: false });
+                                toggleTempItem({ id: `phase::${phase.id}`, type: 'phase', name: phase.name, completed: false });
                               }}
                               className="w-5 h-5 accent-blue-600"
                             />
