@@ -420,7 +420,7 @@ export default function Planner() {
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="relative w-full max-w-2xl max-h-[85vh] bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col border-none"
+              className="relative w-full max-w-4xl max-h-[75vh] bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col border-none"
             >
               <div className="p-6 sm:p-8 border-b border-black/5 dark:border-white/5 flex justify-between items-center bg-gray-50 dark:bg-black/20">
                 <div>
@@ -579,7 +579,7 @@ export default function Planner() {
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="relative w-full max-w-2xl max-h-[85vh] bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col border-none"
+              className="relative w-full max-w-4xl max-h-[75vh] bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col border-none"
             >
               <div className="p-8 border-b border-black/5 dark:border-white/5 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
                 <div className="flex justify-between items-start">

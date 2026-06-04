@@ -20,8 +20,8 @@ export default function Inbox() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleStartNewConversation = async (email: string, content: string, type: string = 'Message') => {
-    if (!email.trim() || !content.trim()) return;
+  const handleStartNewConversation = async (content: string, type: string = 'Message') => {
+    if (!content.trim()) return;
     setSending(true);
 
     const { error } = await supabase.from('inbox').insert([
@@ -37,6 +37,7 @@ export default function Inbox() {
 
     if (!error) {
       setReplyText('');
+      setNewMsgContent('');
       setShowNewMessage(false);
       fetchMessages();
     }
@@ -44,9 +45,9 @@ export default function Inbox() {
   };
 
   const [showNewMessage, setShowNewMessage] = useState(false);
-  const [newMsgEmail, setNewMsgEmail] = useState('');
   const [newMsgContent, setNewMsgContent] = useState('');
   const [newMsgType, setNewMsgType] = useState('Message');
+  const [bugType, setBugType] = useState('General Bug');
 
   const handleSendReply = async (originalMessageId: string, userId: string) => {
     if (!replyText.trim()) return;
@@ -77,7 +78,7 @@ export default function Inbox() {
   const getReplies = (messageId: string) => messages.filter(m => m.reply_to === messageId).reverse();
 
   return (
-    <div className="animate-slide-in-up max-w-5xl mx-auto space-y-8 pb-20">
+    <div className="animate-slide-in-up max-w-7xl mx-auto space-y-8 pb-20 px-4">
       <div className="flex items-center justify-between mb-2">
         <div>
           <h2 className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">
@@ -89,15 +90,17 @@ export default function Inbox() {
           </p>
         </div>
         <div className="flex gap-3">
-          <button 
-            onClick={() => {
-              setNewMsgType('Bug');
-              setShowNewMessage(true);
-            }}
-            className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
-          >
-            <AlertCircle className="w-4 h-4" /> Report Bug
-          </button>
+          {!isAdmin && (
+            <button 
+              onClick={() => {
+                setNewMsgType('Bug');
+                setShowNewMessage(true);
+              }}
+              className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+            >
+              <AlertCircle className="w-4 h-4" /> Report Bug
+            </button>
+          )}
           <button 
             onClick={() => {
               setNewMsgType('Message');
@@ -110,7 +113,7 @@ export default function Inbox() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[700px]">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 h-[750px]">
         {/* Sidebar: Message List */}
         <div className="glass rounded-[2.5rem] overflow-hidden flex flex-col border-none shadow-2xl">
           <div className="p-6 border-b border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20">
@@ -170,7 +173,7 @@ export default function Inbox() {
         </div>
 
         {/* Main Content: Conversation */}
-        <div className="lg:col-span-2 glass rounded-[2.5rem] flex flex-col border-none shadow-2xl relative overflow-hidden">
+        <div className="lg:col-span-3 glass rounded-[2.5rem] flex flex-col border-none shadow-2xl relative overflow-hidden">
           {selectedMessage ? (
             <>
               {/* Conversation Header */}
@@ -200,18 +203,28 @@ export default function Inbox() {
                   const replies = getReplies(selectedMessage);
                   if (!mainMsg) return null;
 
+                  const isMainMsgMine = isAdmin ? mainMsg.sender_role === 'admin' : mainMsg.sender_role === 'user';
+
                   return (
                     <>
                       {/* Original Message */}
-                      <div className="flex gap-4">
-                        <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-black/5 dark:border-white/5">
-                          <UserIcon className="w-5 h-5 text-gray-400" />
+                      <div className={`flex gap-4 ${isMainMsgMine ? 'flex-row-reverse' : ''}`}>
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
+                          isMainMsgMine 
+                            ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/20' 
+                            : 'bg-gray-100 dark:bg-gray-800 border-black/5 dark:border-white/5'
+                        }`}>
+                          {isAdmin && isMainMsgMine ? <Shield className="w-5 h-5" /> : <UserIcon className={`w-5 h-5 ${isMainMsgMine ? 'text-white' : 'text-gray-400'}`} />}
                         </div>
-                        <div className="space-y-2 max-w-[80%]">
-                          <div className="bg-white/60 dark:bg-white/5 p-5 rounded-3xl rounded-tl-none border border-white/40 dark:border-white/5 shadow-sm">
-                            <p className="text-sm font-medium text-gray-800 dark:text-gray-200 leading-relaxed">{mainMsg.content}</p>
+                        <div className={`space-y-2 max-w-[80%] ${isMainMsgMine ? 'text-right' : ''}`}>
+                          <div className={`p-4 rounded-3xl border shadow-sm ${
+                            isMainMsgMine 
+                              ? 'bg-blue-600 text-white border-blue-500 rounded-tr-none' 
+                              : 'bg-white/60 dark:bg-white/5 text-gray-800 dark:text-gray-200 border-white/40 dark:border-white/5 rounded-tl-none'
+                          }`}>
+                            <p className="text-sm font-medium leading-relaxed">{mainMsg.content}</p>
                           </div>
-                          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mx-1">
                             {new Date(mainMsg.created_at).toLocaleString()}
                           </p>
                         </div>
@@ -219,34 +232,38 @@ export default function Inbox() {
 
                       {/* Replies */}
                       <AnimatePresence>
-                        {replies.map((reply: any) => (
-                          <motion.div 
-                            key={reply.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className={`flex gap-4 ${reply.sender_role === 'admin' ? 'flex-row-reverse' : ''}`}
-                          >
-                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
-                              reply.sender_role === 'admin' 
-                                ? 'bg-blue-600 border-blue-500 text-white' 
-                                : 'bg-gray-100 dark:bg-gray-800 border-black/5 dark:border-white/5'
-                            }`}>
-                              {reply.sender_role === 'admin' ? <Shield className="w-5 h-5" /> : <UserIcon className="w-5 h-5 text-gray-400" />}
-                            </div>
-                            <div className={`space-y-2 max-w-[80%] ${reply.sender_role === 'admin' ? 'text-right' : ''}`}>
-                              <div className={`p-5 rounded-3xl border shadow-sm ${
-                                reply.sender_role === 'admin' 
-                                  ? 'bg-blue-600 text-white border-blue-500 rounded-tr-none' 
-                                  : 'bg-white/60 dark:bg-white/5 text-gray-800 dark:text-gray-200 border-white/40 dark:border-white/5 rounded-tl-none'
+                        {replies.map((reply: any) => {
+                          const isReplyMine = isAdmin ? reply.sender_role === 'admin' : reply.sender_role === 'user';
+                          
+                          return (
+                            <motion.div 
+                              key={reply.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className={`flex gap-4 ${isReplyMine ? 'flex-row-reverse' : ''}`}
+                            >
+                              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
+                                isReplyMine 
+                                  ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/20' 
+                                  : 'bg-gray-100 dark:bg-gray-800 border-black/5 dark:border-white/5'
                               }`}>
-                                <p className="text-sm font-medium leading-relaxed">{reply.content}</p>
+                                {reply.sender_role === 'admin' ? <Shield className="w-5 h-5" /> : <UserIcon className={`w-5 h-5 ${isReplyMine ? 'text-white' : 'text-gray-400'}`} />}
                               </div>
-                              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mx-1">
-                                {new Date(reply.created_at).toLocaleString()}
-                              </p>
-                            </div>
-                          </motion.div>
-                        ))}
+                              <div className={`space-y-2 max-w-[80%] ${isReplyMine ? 'text-right' : ''}`}>
+                                <div className={`p-4 rounded-3xl border shadow-sm ${
+                                  isReplyMine 
+                                    ? 'bg-blue-600 text-white border-blue-500 rounded-tr-none' 
+                                    : 'bg-white/60 dark:bg-white/5 text-gray-800 dark:text-gray-200 border-white/40 dark:border-white/5 rounded-tl-none'
+                                }`}>
+                                  <p className="text-sm font-medium leading-relaxed">{reply.content}</p>
+                                </div>
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mx-1">
+                                  {new Date(reply.created_at).toLocaleString()}
+                                </p>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
                       </AnimatePresence>
                     </>
                   );
@@ -310,28 +327,34 @@ export default function Inbox() {
                 {newMsgType === 'Bug' ? 'Report a Bug' : 'New Conversation'}
               </h3>
               <div className="space-y-4">
-                <div>
-                  <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Recipient Email</label>
-                  <input 
-                    type="email"
-                    value={newMsgEmail}
-                    onChange={(e) => setNewMsgEmail(e.target.value)}
-                    placeholder="Enter email address..."
-                    className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
+                {newMsgType === 'Bug' && (
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Bug Type</label>
+                    <select 
+                      value={bugType}
+                      onChange={(e) => setBugType(e.target.value)}
+                      className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 text-gray-900 dark:text-white"
+                    >
+                      <option value="General Bug">General Bug</option>
+                      <option value="UI Glitch">UI Glitch</option>
+                      <option value="Performance">Performance Issue</option>
+                      <option value="Feature Missing">Feature Missing</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Message</label>
                   <textarea 
                     value={newMsgContent}
                     onChange={(e) => setNewMsgContent(e.target.value)}
-                    placeholder="Describe your issue or message..."
+                    placeholder={newMsgType === 'Bug' ? "Describe what happened and how to reproduce it..." : "Type your message here..."}
                     className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 min-h-[150px] resize-none"
                   />
                 </div>
                 <button 
-                  onClick={() => handleStartNewConversation(newMsgEmail, newMsgContent, newMsgType)}
-                  disabled={sending || !newMsgEmail.trim() || !newMsgContent.trim()}
+                  onClick={() => handleStartNewConversation(newMsgContent, newMsgType === 'Bug' ? `Bug: ${bugType}` : 'Message')}
+                  disabled={sending || !newMsgContent.trim()}
                   className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                 >
                   {sending ? 'Sending...' : 'Send Message'}
