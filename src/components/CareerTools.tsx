@@ -203,8 +203,12 @@ Best regards,
                   <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Proof of Competence</h2>
                   <p className="text-xs font-bold text-green-600 uppercase tracking-widest mt-1">Verified Technical Milestone Export</p>
                 </div>
-                <button className="flex items-center gap-3 px-8 py-4 bg-green-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-green-600/20 hover:scale-105 active:scale-95 transition-all">
-                  <ExternalLink className="w-4 h-4" /> Generate Public Link
+                <button 
+                  onClick={() => copyToClipboard(`${window.location.origin}/profile/${user?.id}`, 'public-link')}
+                  className="flex items-center gap-3 px-8 py-4 bg-green-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-green-600/20 hover:scale-105 active:scale-95 transition-all"
+                >
+                  {copied === 'public-link' ? <Check className="w-4 h-4" /> : <ExternalLink className="w-4 h-4" />}
+                  {copied === 'public-link' ? 'Link Copied!' : 'Generate Public Link'}
                 </button>
               </div>
               
