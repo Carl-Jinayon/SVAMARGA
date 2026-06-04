@@ -97,3 +97,22 @@ body::before {
 .heatmap-intense {
   @apply bg-green-800 dark:bg-green-500;
 }
+
+@keyframes scan {
+  from { top: 0%; opacity: 0; }
+  50% { opacity: 0.8; }
+  to { top: 100%; opacity: 0; }
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

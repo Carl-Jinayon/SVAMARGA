@@ -89,21 +89,22 @@ export default function Planner() {
     return [];
   };
 
-  const renderHierarchicalItem = (item: any, depth = 0) => {
+  const renderHierarchicalItem = (item: any, depth = 0, isParentCompleted = false) => {
     const children = getItemChildren(item);
     const isExpanded = expandedItems.includes(item.id);
     const inPlan = dailyPlans[selectedDate]?.items.find((i: any) => i.id === item.id);
-    const isCompleted = inPlan?.completed;
+    const isCompleted = inPlan?.completed || isParentCompleted;
 
     return (
-      <div key={item.id} className={`space-y-2 ${depth > 0 ? 'ml-6 border-l border-blue-500/10 pl-4 mt-2' : 'p-6 rounded-3xl border-2 transition-all bg-white dark:bg-white/5 border-black/5 dark:border-white/5'}`}>
+      <div key={item.id} className={`space-y-2 ${depth > 0 ? 'ml-6 border-l border-blue-500/10 pl-4 mt-2' : 'p-6 rounded-3xl border-2 transition-all bg-white dark:bg-white/5 border-black/5 dark:border-white/5 shadow-lg shadow-black/5'}`}>
         <div className="flex items-center justify-between group">
           <div className="flex items-center gap-4">
             <button 
+              disabled={isParentCompleted}
               onClick={() => toggleDailyItem(selectedDate, item.id)}
               className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
                 isCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-gray-600'
-              }`}
+              } ${isParentCompleted ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {isCompleted && <Check className="w-4 h-4" />}
             </button>
@@ -143,7 +144,7 @@ export default function Planner() {
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              {children.map(child => renderHierarchicalItem(child, depth + 1))}
+              {children.map(child => renderHierarchicalItem(child, depth + 1, isCompleted))}
             </motion.div>
           )}
         </AnimatePresence>
@@ -378,62 +379,80 @@ export default function Planner() {
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-6"
+                        className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-[100px] flex items-center justify-center p-6 overflow-hidden"
                       >
+                        {/* Background Aura */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" />
+                        
                         <motion.div 
-                          initial={{ scale: 0.8, rotateX: 20 }}
-                          animate={{ scale: 1, rotateX: 0 }}
-                          className="w-full max-w-2xl bg-gradient-to-b from-blue-900/20 to-black/40 p-12 rounded-[5rem] border border-blue-500/30 shadow-[0_0_150px_rgba(37,99,235,0.15)] text-center space-y-12 relative overflow-hidden"
+                          initial={{ scale: 0.5, rotateY: 90, opacity: 0 }}
+                          animate={{ scale: 1, rotateY: 0, opacity: 1 }}
+                          className="relative w-full max-w-4xl glass border-blue-500/20 p-16 rounded-[6rem] shadow-[0_0_200px_rgba(37,99,235,0.1)] overflow-hidden"
                         >
-                          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent animate-pulse" />
+                          {/* Scanner Line */}
+                          <div className="absolute top-0 left-0 w-full h-px bg-blue-500/50 shadow-[0_0_20px_blue] animate-scan" />
                           
-                          <div className="space-y-4">
-                            <div className="inline-block px-4 py-1.5 bg-blue-600/10 border border-blue-500/20 rounded-full mb-4">
-                              <p className="text-[8px] font-black uppercase tracking-[0.4em] text-blue-400">Neural Sync Protocol</p>
+                          <div className="text-center space-y-16 relative z-10">
+                            <div className="space-y-4">
+                              <div className="inline-flex items-center gap-3 px-6 py-2 bg-blue-500/10 rounded-full border border-blue-500/20 mb-4">
+                                <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-400">Neural Flux Synchronization</span>
+                              </div>
+                              <h3 className="text-6xl font-black uppercase tracking-tighter text-white">Temporal <span className="text-blue-500">Amplitude</span></h3>
                             </div>
-                            <h3 className="text-4xl font-black uppercase tracking-tighter text-white">Focus <span className="text-blue-500">Amplitude</span></h3>
-                          </div>
 
-                          <div className="space-y-12">
-                            {[
-                              { label: 'Intensity (Hours)', key: 'h', max: 24, unit: 'H' },
-                              { label: 'Precision (Minutes)', key: 'm', max: 59, unit: 'M' }
-                            ].map(({ label, key, max, unit }) => (
-                              <div key={key} className="space-y-6">
-                                <div className="flex justify-between items-center px-4">
-                                  <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest">{label}</p>
-                                  <p className="text-2xl font-black text-blue-500 font-mono">{(timerInputs as any)[key]}<span className="text-[10px] ml-1 opacity-50">{unit}</span></p>
-                                </div>
-                                <div className="relative h-20 flex items-center">
-                                  <input 
-                                    type="range" 
-                                    min="0" 
-                                    max={max} 
-                                    value={(timerInputs as any)[key]} 
-                                    onChange={e => setTimerInputs({ ...timerInputs, [key]: parseInt(e.target.value) || 0 })}
-                                    className="w-full h-2 bg-blue-900/30 rounded-full appearance-none cursor-pointer accent-blue-600 hover:accent-blue-400 transition-all"
-                                  />
-                                  <div className="absolute -z-10 inset-0 flex justify-between px-1 opacity-10">
-                                    {[...Array(12)].map((_, i) => <div key={i} className="w-0.5 h-full bg-blue-500" />)}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+                              {[
+                                { label: 'Hour Intensity', key: 'h', max: 24, gradient: 'from-blue-600 to-indigo-600' },
+                                { label: 'Minute Precision', key: 'm', max: 59, gradient: 'from-blue-400 to-blue-600' }
+                              ].map(({ label, key, max, gradient }) => (
+                                <div key={key} className="space-y-10 group">
+                                  <div className="flex justify-between items-end px-2">
+                                    <p className="text-xs font-black uppercase text-gray-500 tracking-[0.3em]">{label}</p>
+                                    <p className="text-5xl font-black font-mono text-white">
+                                      {(timerInputs as any)[key]}<span className="text-xs ml-2 text-blue-500">{key.toUpperCase()}</span>
+                                    </p>
+                                  </div>
+                                  
+                                  <div className="relative h-2">
+                                    <div className="absolute inset-0 bg-white/5 rounded-full overflow-hidden">
+                                      <motion.div 
+                                        className={`h-full bg-gradient-to-r ${gradient}`}
+                                        animate={{ width: `${((timerInputs as any)[key] / max) * 100}%` }}
+                                      />
+                                    </div>
+                                    <input 
+                                      type="range" 
+                                      min="0" 
+                                      max={max} 
+                                      value={(timerInputs as any)[key]} 
+                                      onChange={e => setTimerInputs({ ...timerInputs, [key]: parseInt(e.target.value) || 0 })}
+                                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    />
+                                    {/* Tick Marks */}
+                                    <div className="absolute -bottom-6 left-0 w-full flex justify-between px-1">
+                                      {[...Array(6)].map((_, i) => <div key={i} className="w-px h-2 bg-white/10" />)}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
 
-                          <div className="flex gap-6 pt-12">
-                            <button 
-                              onClick={() => setIsEditingTimer(false)}
-                              className="flex-1 py-6 bg-white/5 text-gray-500 rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[10px] hover:bg-white/10 hover:text-white transition-all border border-white/5"
-                            >
-                              Disconnect
-                            </button>
-                            <button 
-                              onClick={saveTimer}
-                              className="flex-[2] py-6 bg-blue-600 text-white rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-[0_20px_50px_rgba(37,99,235,0.3)] hover:scale-105 active:scale-95 transition-all"
-                            >
-                              Synchronize Mission
-                            </button>
+                            <div className="flex gap-8 pt-10">
+                              <button 
+                                onClick={() => setIsEditingTimer(false)}
+                                className="flex-1 py-8 rounded-[3rem] bg-white/5 text-gray-500 font-black uppercase tracking-[0.4em] text-xs border border-white/5 hover:bg-white/10 hover:text-white transition-all group"
+                              >
+                                Terminate Connection
+                              </button>
+                              <button 
+                                onClick={saveTimer}
+                                className="flex-[2] py-8 rounded-[3rem] bg-blue-600 text-white font-black uppercase tracking-[0.4em] text-xs shadow-[0_40px_80px_rgba(37,99,235,0.4)] hover:scale-105 active:scale-95 transition-all relative overflow-hidden group"
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                Initiate Session
+                              </button>
+                            </div>
                           </div>
                         </motion.div>
                       </motion.div>
@@ -483,37 +502,51 @@ export default function Planner() {
           </button>
         </div>
 
-        {/* Date Horizontal Scroll */}
-        <div className="flex gap-4 overflow-x-auto pb-6 px-4 no-scrollbar">
-          {dates.map((date) => {
-            const d = new Date(date);
-            const isToday = date === new Date().toISOString().split('T')[0];
-            const hasPlan = dailyPlans[date]?.items.length > 0;
-            return (
-              <button
-                key={date}
-                onClick={() => setSelectedDate(date)}
-                className={`flex-shrink-0 w-28 h-36 rounded-[2rem] flex flex-col items-center justify-center transition-all border-2 relative ${
-                  selectedDate === date 
-                    ? 'bg-blue-600 border-blue-600 text-white shadow-2xl shadow-blue-600/30 scale-110' 
-                    : isToday 
-                      ? 'bg-blue-500/10 border-blue-500/30 text-blue-600'
-                      : 'bg-white/40 dark:bg-black/20 border-white/40 dark:border-white/5 text-gray-900 dark:text-white hover:border-blue-500/50'
-                }`}
-              >
-                <p className={`text-[10px] font-black uppercase mb-1 ${selectedDate === date ? 'text-white/70' : 'text-gray-400'}`}>
-                  {d.toLocaleDateString('en-US', { weekday: 'short' })}
-                </p>
-                <p className="text-3xl font-black">{d.getDate()}</p>
-                <p className={`text-[8px] font-black uppercase mt-1 ${selectedDate === date ? 'text-white/50' : 'text-gray-400'}`}>
-                  {d.toLocaleDateString('en-US', { month: 'short' })}
-                </p>
-                {hasPlan && (
-                  <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]" />
-                )}
-              </button>
-            );
-          })}
+        {/* Date Dimensional Timeline */}
+        <div className="relative group/timeline py-8">
+          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-50 dark:from-gray-900 to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-50 dark:from-gray-900 to-transparent z-10 pointer-events-none" />
+          
+          <div className="flex gap-8 overflow-x-auto py-12 px-32 no-scrollbar scroll-smooth snap-x">
+            {dates.map((date) => {
+              const d = new Date(date);
+              const isToday = date === new Date().toISOString().split('T')[0];
+              const isActive = selectedDate === date;
+              const hasPlan = dailyPlans[date]?.items.length > 0;
+              const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+              const dayNum = d.getDate();
+              const monthName = d.toLocaleDateString('en-US', { month: 'short' });
+
+              return (
+                <button
+                  key={date}
+                  onClick={() => setSelectedDate(date)}
+                  className={`flex-shrink-0 w-32 h-44 rounded-[3rem] flex flex-col items-center justify-center transition-all duration-700 snap-center relative group/date ${
+                    isActive 
+                      ? 'bg-blue-600 text-white shadow-[0_20px_60px_rgba(37,99,235,0.4)] scale-125 z-20' 
+                      : 'bg-white/40 dark:bg-black/20 border-2 border-white/40 dark:border-white/5 text-gray-500 hover:border-blue-500/50 hover:scale-105'
+                  }`}
+                >
+                  {isToday && !isActive && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">Present</div>
+                  )}
+                  {hasPlan && !isActive && (
+                    <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]" />
+                  )}
+                  <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${isActive ? 'text-blue-100' : 'text-gray-400'}`}>{monthName}</p>
+                  <p className={`text-4xl font-black mb-1 ${isActive ? 'text-white' : 'text-gray-900 dark:text-white'}`}>{dayNum}</p>
+                  <p className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-blue-200' : 'text-gray-500'}`}>{dayName}</p>
+                  
+                  {isActive && (
+                    <motion.div 
+                      layoutId="active-glow"
+                      className="absolute inset-0 rounded-[3rem] bg-blue-400 blur-2xl opacity-20 -z-10"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Selected Date Card */}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
 import { CheckCircle2, Clock, Zap, Bell } from 'lucide-react';
@@ -7,8 +7,62 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function DailyFocus() {
   const { dailyPlans, toggleDailyItem, sessionTimer, toggleSessionTimer, tickSessionTimer } = useTrackerStore();
   const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
+  const alarmRef = useRef<AudioContext | null>(null);
   const today = new Date().toISOString().split('T')[0];
   const plan = dailyPlans[today];
+
+  const startAlarm = () => {
+    if (alarmRef.current) return;
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 1); // Play a 1s beep
+    
+    alarmRef.current = ctx;
+    
+    // Set up a repeating beep every 2 seconds
+    const interval = setInterval(() => {
+      const newOsc = ctx.createOscillator();
+      const newGain = ctx.createGain();
+      newOsc.type = 'sine';
+      newOsc.frequency.setValueAtTime(880, ctx.currentTime);
+      newGain.gain.setValueAtTime(0.1, ctx.currentTime);
+      newGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      newOsc.connect(newGain);
+      newGain.connect(ctx.destination);
+      newOsc.start();
+      newOsc.stop(ctx.currentTime + 0.5);
+    }, 2000);
+
+    (alarmRef.current as any)._interval = interval;
+  };
+
+  const stopAlarm = () => {
+    if (alarmRef.current) {
+      clearInterval((alarmRef.current as any)._interval);
+      alarmRef.current.close();
+      alarmRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (sessionTimer.remainingSeconds === 0 && sessionTimer.totalSeconds > 0 && !sessionTimer.isRunning) {
+      startAlarm();
+    } else {
+      stopAlarm();
+    }
+    return () => stopAlarm();
+  }, [sessionTimer.remainingSeconds, sessionTimer.isRunning]);
 
   const toggleTaskExpansion = (id: string) => {
     setExpandedTasks((prev: string[]) => prev.includes(id) ? prev.filter((i: string) => i !== id) : [...prev, id]);
@@ -87,21 +141,22 @@ export default function DailyFocus() {
     });
   };
 
-  const renderTask = (item: any, depth = 0) => {
+  const renderTask = (item: any, depth = 0, isParentCompleted = false) => {
     const children = getChildren(item.id);
     const isExpanded = expandedTasks.includes(item.id);
     const inPlan = plan.items.find((i: any) => i.id === item.id);
-    const isCompleted = inPlan?.completed;
+    const isCompleted = inPlan?.completed || isParentCompleted;
 
     return (
       <div key={item.id} className={`${depth > 0 ? 'ml-6 border-l-2 border-indigo-500/10 pl-6 mt-3' : 'glass bg-white/40 dark:bg-white/5 p-6 rounded-[2.5rem] border border-black/5 dark:border-white/5 space-y-4 mb-4'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
+              disabled={isParentCompleted}
               onClick={() => toggleDailyItem(today, item.id)}
               className={`${item.type === 'subject' ? 'w-7 h-7 rounded-xl' : item.type === 'topic' ? 'w-5 h-5 rounded-lg' : 'w-4 h-4 rounded'} border-2 flex items-center justify-center transition-all ${
                 isCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-indigo-200 dark:border-white/10'
-              }`}
+              } ${isParentCompleted ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {isCompleted && <CheckCircle2 className={`${item.type === 'subject' ? 'w-4 h-4' : item.type === 'topic' ? 'w-3 h-3' : 'w-2.5 h-2.5'}`} />}
             </button>
@@ -128,7 +183,7 @@ export default function DailyFocus() {
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              {children.map((child: any) => renderTask(child, depth + 1))}
+              {children.map((child: any) => renderTask(child, depth + 1, isCompleted))}
             </motion.div>
           )}
         </AnimatePresence>
