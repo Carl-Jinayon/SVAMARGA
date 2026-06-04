@@ -269,6 +269,9 @@ export const useTrackerStore = create<Store>((set, get) => {
     toggleSubjectCompletion: (subjectId: string) => {
       set((state) => {
         const progress = { ...state.progress };
+        const dailyPlans = { ...state.dailyPlans };
+        const today = new Date().toISOString().split('T')[0];
+
         if (!progress[subjectId]) {
           progress[subjectId] = {
             subjectId,
@@ -286,7 +289,16 @@ export const useTrackerStore = create<Store>((set, get) => {
             progress[subjectId].completedAt = new Date().toISOString();
           }
         }
-        return { progress };
+
+        // Sync with Daily Plans (mark as completed in planner if found today)
+        if (dailyPlans[today]) {
+          dailyPlans[today].items = dailyPlans[today].items.map(item => {
+            if (item.id === subjectId) return { ...item, completed: progress[subjectId].completed };
+            return item;
+          });
+        }
+
+        return { progress, dailyPlans };
       });
       get().saveToStorage();
     },
@@ -294,6 +306,10 @@ export const useTrackerStore = create<Store>((set, get) => {
     markTopicCompleted: (subjectId: string, topic: string) => {
       set((state) => {
         const progress = { ...state.progress };
+        const dailyPlans = { ...state.dailyPlans };
+        const today = new Date().toISOString().split('T')[0];
+
+        let newStatus = false;
         if (!progress[subjectId]) {
           progress[subjectId] = {
             subjectId,
@@ -304,15 +320,27 @@ export const useTrackerStore = create<Store>((set, get) => {
             sessionsCount: 0,
             totalMinutes: 0,
           };
+          newStatus = true;
         } else {
           const idx = progress[subjectId].topicsCompleted.indexOf(topic);
           if (idx > -1) {
             progress[subjectId].topicsCompleted = progress[subjectId].topicsCompleted.filter(t => t !== topic);
+            newStatus = false;
           } else {
             progress[subjectId].topicsCompleted = [...progress[subjectId].topicsCompleted, topic];
+            newStatus = true;
           }
         }
-        return { progress };
+
+        // Sync with Daily Plans
+        if (dailyPlans[today]) {
+          dailyPlans[today].items = dailyPlans[today].items.map(item => {
+            if (item.id === `${subjectId}-${topic}`) return { ...item, completed: newStatus };
+            return item;
+          });
+        }
+
+        return { progress, dailyPlans };
       });
       get().saveToStorage();
     },
@@ -320,6 +348,10 @@ export const useTrackerStore = create<Store>((set, get) => {
     markSubtopicCompleted: (subjectId: string, subtopic: string) => {
       set((state) => {
         const progress = { ...state.progress };
+        const dailyPlans = { ...state.dailyPlans };
+        const today = new Date().toISOString().split('T')[0];
+
+        let newStatus = false;
         if (!progress[subjectId]) {
           progress[subjectId] = {
             subjectId,
@@ -330,15 +362,27 @@ export const useTrackerStore = create<Store>((set, get) => {
             sessionsCount: 0,
             totalMinutes: 0,
           };
+          newStatus = true;
         } else {
           const idx = progress[subjectId].subtopicsCompleted.indexOf(subtopic);
           if (idx > -1) {
             progress[subjectId].subtopicsCompleted = progress[subjectId].subtopicsCompleted.filter(s => s !== subtopic);
+            newStatus = false;
           } else {
             progress[subjectId].subtopicsCompleted = [...progress[subjectId].subtopicsCompleted, subtopic];
+            newStatus = true;
           }
         }
-        return { progress };
+
+        // Sync with Daily Plans (assumes subtopic ID format is subjectId-topicName-subtopicName)
+        if (dailyPlans[today]) {
+          dailyPlans[today].items = dailyPlans[today].items.map(item => {
+            if (item.id.includes(subtopic)) return { ...item, completed: newStatus };
+            return item;
+          });
+        }
+
+        return { progress, dailyPlans };
       });
       get().saveToStorage();
     },

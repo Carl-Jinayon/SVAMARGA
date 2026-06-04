@@ -38,6 +38,30 @@ export default function Planner() {
   }, [sessionTimer.isRunning]);
 
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  const toggleItemExpansion = (id: string) => {
+    setExpandedItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const getItemChildren = (item: any) => {
+    if (item.type === 'phase') {
+      const phaseId = parseInt(item.id.split('-')[1]);
+      return curriculum.find(p => p.id === phaseId)?.subjects.map(s => ({ id: s.id, type: 'subject', name: s.name })) || [];
+    }
+    if (item.type === 'subject') {
+      const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === item.id);
+      return subject?.topics.map(t => ({ id: `${subject.id}-${t}`, type: 'topic', name: t })) || [];
+    }
+    if (item.type === 'topic') {
+      const parts = item.id.split('-');
+      const subject = curriculum.flatMap(p => p.subjects).find(s => s.id === parts[0]);
+      const topicName = parts[1];
+      return subject?.subtopics[topicName]?.map(s => ({ id: `${parts[0]}-${parts[1]}-${s}`, type: 'subtopic', name: s })) || [];
+    }
+    return [];
+  };
+
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [showSelector, setShowSelector] = useState(false);
   const [tempSelection, setTempSelection] = useState<DailyPlan['items']>([]);
@@ -268,40 +292,77 @@ export default function Planner() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Real Plans */}
-            {dailyPlans[selectedDate]?.items.map((item: any) => (
-              <div 
-                key={item.id} 
-                className={`p-6 rounded-3xl border-2 transition-all flex items-center justify-between group ${
-                  item.completed 
-                    ? 'bg-green-500/10 border-green-500/20 opacity-60' 
-                    : 'bg-white dark:bg-white/5 border-black/5 dark:border-white/5 hover:border-blue-500/30'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <button 
-                    onClick={() => toggleDailyItem(selectedDate, item.id)}
-                    className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                      item.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-gray-600'
-                    }`}
-                  >
-                    {item.completed && <Check className="w-4 h-4" />}
-                  </button>
-                  <div>
-                    <p className={`text-[8px] font-black uppercase mb-0.5 ${item.completed ? 'text-green-600' : 'text-blue-600'}`}>{item.type}</p>
-                    <p className={`text-sm font-bold ${item.completed ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'}`}>{item.name}</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => {
-                    const newItems = dailyPlans[selectedDate].items.filter((i: any) => i.id !== item.id);
-                    updateDailyPlan(selectedDate, newItems);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+            {dailyPlans[selectedDate]?.items.map((item: any) => {
+              const children = getItemChildren(item);
+              const isExpanded = expandedItems.includes(item.id);
+
+              return (
+                <div 
+                  key={item.id} 
+                  className={`p-6 rounded-3xl border-2 transition-all flex flex-col group ${
+                    item.completed 
+                      ? 'bg-green-500/10 border-green-500/20 opacity-60' 
+                      : 'bg-white dark:bg-white/5 border-black/5 dark:border-white/5 hover:border-blue-500/30'
+                  }`}
                 >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <button 
+                        onClick={() => toggleDailyItem(selectedDate, item.id)}
+                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                          item.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-gray-600'
+                        }`}
+                      >
+                        {item.completed && <Check className="w-4 h-4" />}
+                      </button>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className={`text-[8px] font-black uppercase mb-0.5 ${item.completed ? 'text-green-600' : 'text-blue-600'}`}>{item.type}</p>
+                          {children.length > 0 && (
+                            <button 
+                              onClick={() => toggleItemExpansion(item.id)}
+                              className="text-[7px] font-black uppercase bg-gray-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md hover:bg-blue-600 hover:text-white transition-all"
+                            >
+                              {isExpanded ? 'Collapse' : 'Expand'}
+                            </button>
+                          )}
+                        </div>
+                        <p className={`text-sm font-bold ${item.completed ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'}`}>{item.name}</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        const newItems = dailyPlans[selectedDate].items.filter((i: any) => i.id !== item.id);
+                        updateDailyPlan(selectedDate, newItems);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Expanded Children */}
+                  <AnimatePresence>
+                    {isExpanded && children.length > 0 && (
+                      <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden mt-4 pt-4 border-t border-black/5 dark:border-white/5 space-y-2"
+                      >
+                        {children.map((child: any) => (
+                          <div key={child.id} className="flex items-center gap-2 ml-4">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40" />
+                            <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400">{child.name}</p>
+                            <p className="text-[7px] font-black uppercase text-gray-400 opacity-50">{child.type}</p>
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
 
             {/* Suggested Plans */}
             {suggestedPlans[selectedDate]?.items.map((item: any) => (
