@@ -59,7 +59,7 @@ export default function Inbox() {
   }, [safeMsgs, isAdmin, user?.id]);
 
   // Logic: Group messages by the "Other Party"
-  const displayedThreads = useMemo(() => {
+  const filteredThreads = useMemo(() => {
     return threadParents.filter(m => {
       const recipient = extractRecipientEmail(m.content);
       const sender = extractSenderEmail(m.content);
@@ -68,6 +68,18 @@ export default function Inbox() {
              getCleanContent(m.content).toLowerCase().includes(searchTerm.toLowerCase());
     });
   }, [threadParents, searchTerm, isAdmin]);
+
+  // Logic: Sort by latest message in thread
+  const displayedThreads = useMemo(() => {
+    const withLatest = filteredThreads.map(parent => {
+      const latest = safeMsgs.find(m => m.id === parent.id || m.reply_to === parent.id) || parent;
+      return { parent, latest };
+    });
+    
+    return withLatest.sort((a, b) => 
+      new Date(b.latest.created_at).getTime() - new Date(a.latest.created_at).getTime()
+    );
+  }, [filteredThreads, safeMsgs]);
 
   const currentReplies = useMemo(() => {
     if (!selectedThreadId) return [];
@@ -198,18 +210,21 @@ export default function Inbox() {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
-            {displayedThreads.map((m) => {
-              const isActive = selectedThreadId === m.id;
-              const sender = extractSenderEmail(m.content);
-              const recipient = extractRecipientEmail(m.content);
+            {displayedThreads.map(({ parent, latest }) => {
+              const isActive = selectedThreadId === parent.id;
+              const sender = extractSenderEmail(parent.content);
+              const recipient = extractRecipientEmail(parent.content);
               return (
-                <button key={m.id} onClick={() => setSelectedThreadId(m.id)} className={`w-full text-left p-4 rounded-[1.5rem] transition-all border-2 ${isActive ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'bg-white/40 dark:bg-black/20 border-transparent hover:border-blue-500/30 text-gray-900 dark:text-white'}`}>
+                <button key={parent.id} onClick={() => setSelectedThreadId(parent.id)} className={`w-full text-left p-4 rounded-[1.5rem] transition-all border-2 ${isActive ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'bg-white/40 dark:bg-black/20 border-transparent hover:border-blue-500/30 text-gray-900 dark:text-white'}`}>
                   <div className="flex justify-between items-start mb-1">
-                    <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase ${isActive ? 'bg-white/20' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'}`}>{m.issue_type || 'Message'}</span>
-                    <span className="text-[7px] opacity-60 font-bold">{new Date(m.created_at).toLocaleDateString()}</span>
+                    <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase ${isActive ? 'bg-white/20' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'}`}>{parent.issue_type || 'Message'}</span>
+                    <span className="text-[7px] opacity-60 font-bold">{new Date(latest.created_at).toLocaleDateString()}</span>
                   </div>
                   <p className={`text-[10px] font-black truncate ${isActive ? 'text-white' : 'text-blue-600'}`}>{isAdmin ? `From: ${sender}` : `To: ${recipient}`}</p>
-                  <p className="text-[11px] font-medium truncate opacity-70 italic">"{getCleanContent(m.content)}"</p>
+                  <p className="text-[11px] font-medium truncate opacity-70 italic">
+                    {latest.sender_role === (isAdmin ? 'admin' : 'user') ? 'You: ' : ''}
+                    "{getCleanContent(latest.content)}"
+                  </p>
                 </button>
               );
             })}

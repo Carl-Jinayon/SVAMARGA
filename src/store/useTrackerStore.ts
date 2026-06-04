@@ -497,7 +497,7 @@ export const useTrackerStore = create<Store>((set, get) => {
       let query = supabase.from('inbox').select('*');
 
       if (!isAdmin) {
-        query = query.or(`user_id.eq.${user.id},sender_role.eq.admin`);
+        query = query.eq('user_id', user.id);
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
