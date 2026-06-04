@@ -10,6 +10,7 @@ interface Store extends TrackerState {
   setActiveWeekPlan: (week: number | null) => void;
   setUser: (user: User | null) => void;
   signIn: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   syncWithCloud: () => Promise<void>;
   // ... (rest of the interface)
