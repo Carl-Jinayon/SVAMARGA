@@ -1,7 +1,5 @@
-import { Moon, Sun, CloudOff, Github, MessageSquare } from 'lucide-react';
+import { Moon, Sun, CloudOff, Github } from 'lucide-react';
 import { useTrackerStore } from '../store/useTrackerStore';
-import { useState } from 'react';
-import FeedbackModal from './FeedbackModal';
 
 interface HeaderProps {
   onToggleDarkMode: () => void;
@@ -9,7 +7,6 @@ interface HeaderProps {
 
 export default function Header({ onToggleDarkMode }: HeaderProps) {
   const { user, signIn, signOut } = useTrackerStore();
-  const [showFeedback, setShowFeedback] = useState(false);
 
   return (
     <>
@@ -66,13 +63,6 @@ export default function Header({ onToggleDarkMode }: HeaderProps) {
                 </button>
               )}
               <button
-                onClick={() => setShowFeedback(true)}
-                className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all border border-gray-200 dark:border-gray-700"
-                title="Send Feedback"
-              >
-                <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-              <button
                 onClick={onToggleDarkMode}
                 className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all border border-gray-200 dark:border-gray-700"
                 title="Toggle dark mode"
@@ -84,7 +74,6 @@ export default function Header({ onToggleDarkMode }: HeaderProps) {
           </div>
         </div>
       </header>
-      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
     </>
   );
 }

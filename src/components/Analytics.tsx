@@ -17,7 +17,7 @@ import {
 } from 'recharts';
 
 export default function Analytics() {
-  const { getSessions, progress } = useTrackerStore();
+  const { getSessions, progress, darkMode } = useTrackerStore();
   const sessions = getSessions();
 
   // Data for phase progress pie chart
@@ -131,11 +131,13 @@ export default function Analytics() {
               </Pie>
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+                  backgroundColor: darkMode ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)', 
                   borderRadius: '16px', 
                   border: 'none',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  color: darkMode ? '#fff' : '#000'
                 }}
+                itemStyle={{ color: darkMode ? '#fff' : '#000' }}
               />
               <Legend verticalAlign="bottom" height={36}/>
             </PieChart>
@@ -154,13 +156,15 @@ export default function Analytics() {
               <XAxis dataKey="phase" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
               <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
               <Tooltip 
-                cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                cursor={{ fill: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
                 contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+                  backgroundColor: darkMode ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)', 
                   borderRadius: '16px', 
                   border: 'none',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  color: darkMode ? '#fff' : '#000'
                 }}
+                itemStyle={{ color: darkMode ? '#fff' : '#000' }}
               />
               <Bar dataKey="hours" fill="#3b82f6" radius={[6, 6, 0, 0]} />
             </BarChart>
@@ -181,11 +185,13 @@ export default function Analytics() {
             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+                backgroundColor: darkMode ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)', 
                 borderRadius: '16px', 
                 border: 'none',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                color: darkMode ? '#fff' : '#000'
               }}
+              itemStyle={{ color: darkMode ? '#fff' : '#000' }}
             />
             <Line 
               type="monotone" 

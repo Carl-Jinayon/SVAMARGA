@@ -4,26 +4,25 @@ import { CheckCircle2, Clock, Zap, Bell } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function DailyFocus() {
-  const { dailyPlans, toggleDailyItem } = useTrackerStore();
+  const { dailyPlans, toggleDailyItem, sessionTimer, toggleSessionTimer, tickSessionTimer } = useTrackerStore();
   const today = new Date().toISOString().split('T')[0];
   const plan = dailyPlans[today];
 
-  const [currentTime, setCurrentTime] = useState(new Date());
-
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    let interval: NodeJS.Timeout;
+    if (sessionTimer.isRunning) {
+      interval = setInterval(() => {
+        tickSessionTimer();
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [sessionTimer.isRunning]);
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
-    });
+  const formatSeconds = (sec: number) => {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   if (!plan || plan.items.length === 0) return null;
@@ -31,8 +30,29 @@ export default function DailyFocus() {
   const completedCount = plan.items.filter((i: any) => i.completed).length;
   const progressPercent = Math.round((completedCount / plan.items.length) * 100);
   
-  // Calculate percentage of day passed (for the visual bar)
-  const dayProgress = ((currentTime.getHours() * 3600) + (currentTime.getMinutes() * 60) + currentTime.getSeconds()) / 86400 * 100;
+  // Group items hierarchically for display
+  const groupedItems = plan.items.reduce((acc: any, item: any) => {
+    if (item.type === 'subject') {
+      acc[item.id] = { ...item, topics: {} };
+    } else if (item.type === 'topic') {
+      const subjectId = item.id.split('-')[0];
+      if (!acc[subjectId]) acc[subjectId] = { id: subjectId, type: 'subject', name: 'Parent Course', topics: {} };
+      acc[subjectId].topics[item.id] = { ...item, subtopics: [] };
+    } else if (item.type === 'subtopic') {
+      const parts = item.id.split('-');
+      const subjectId = parts[0];
+      const topicId = `${parts[0]}-${parts[1]}`;
+      if (!acc[subjectId]) acc[subjectId] = { id: subjectId, type: 'subject', name: 'Parent Course', topics: {} };
+      if (!acc[subjectId].topics[topicId]) acc[subjectId].topics[topicId] = { id: topicId, type: 'topic', name: 'Parent Topic', subtopics: [] };
+      acc[subjectId].topics[topicId].subtopics.push(item);
+    }
+    return acc;
+  }, {});
+
+  // Calculate percentage of timer passed
+  const timerProgress = sessionTimer.totalSeconds > 0 
+    ? ((sessionTimer.totalSeconds - sessionTimer.remainingSeconds) / sessionTimer.totalSeconds) * 100 
+    : 0;
 
   return (
     <div className="glass p-10 rounded-[3.5rem] shadow-2xl mb-12 border-none relative overflow-hidden bg-gradient-to-br from-indigo-600/5 to-purple-600/5">
@@ -52,53 +72,103 @@ export default function DailyFocus() {
             </div>
           </div>
           
-          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-4 custom-scrollbar">
-            {plan.items.map((item: any) => (
-              <motion.div 
-                key={item.id}
-                whileHover={{ x: 5 }}
-                onClick={() => toggleDailyItem(today, item.id)}
-                className={`p-5 rounded-3xl border-2 transition-all cursor-pointer flex items-center gap-4 ${
-                  item.completed 
-                    ? 'bg-green-500/10 border-green-500/20 opacity-60' 
-                    : 'bg-white dark:bg-white/5 border-black/5 dark:border-white/5 hover:border-indigo-500/30'
-                }`}
-              >
-                <div className={`w-6 h-6 rounded-xl border-2 flex items-center justify-center transition-all ${item.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
-                  {item.completed && <CheckCircle2 className="w-4 h-4" />}
-                </div>
-                <div className="flex-1">
-                  <p className={`text-[8px] font-black uppercase mb-0.5 ${item.completed ? 'text-green-600' : 'text-indigo-600 opacity-60'}`}>{item.type}</p>
-                  <p className={`text-sm font-bold leading-tight ${item.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
-                    {item.name}
-                  </p>
-                </div>
-              </motion.div>
+          <div className="space-y-6 max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+            {Object.values(groupedItems).map((subject: any) => (
+              <div key={subject.id} className="space-y-3">
+                <motion.div 
+                  whileHover={{ x: 5 }}
+                  onClick={() => toggleDailyItem(today, subject.id)}
+                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3 ${
+                    subject.completed 
+                      ? 'bg-green-500/10 border-green-500/20 opacity-60' 
+                      : 'bg-white dark:bg-white/5 border-black/5 dark:border-white/5'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${subject.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
+                    {subject.completed && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`text-[7px] font-black uppercase mb-0.5 ${subject.completed ? 'text-green-600' : 'text-indigo-600'}`}>Course</p>
+                    <p className={`text-xs font-black leading-tight ${subject.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                      {subject.name}
+                    </p>
+                  </div>
+                </motion.div>
+
+                {Object.values(subject.topics).map((topic: any) => (
+                  <div key={topic.id} className="ml-6 space-y-2">
+                    <motion.div 
+                      whileHover={{ x: 5 }}
+                      onClick={() => toggleDailyItem(today, topic.id)}
+                      className={`p-3 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-3 ${
+                        topic.completed 
+                          ? 'bg-green-500/10 border-green-500/20 opacity-60' 
+                          : 'bg-white/40 dark:bg-white/5 border-black/5 dark:border-white/5'
+                      }`}
+                    >
+                      <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all ${topic.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
+                        {topic.completed && <CheckCircle2 className="w-3 h-3" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className={`text-[6px] font-black uppercase mb-0.5 ${topic.completed ? 'text-green-600' : 'text-blue-600'}`}>Topic</p>
+                        <p className={`text-[11px] font-bold leading-tight ${topic.completed ? 'line-through text-gray-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                          {topic.name}
+                        </p>
+                      </div>
+                    </motion.div>
+
+                    {topic.subtopics.map((sub: any) => (
+                      <motion.div 
+                        key={sub.id}
+                        whileHover={{ x: 5 }}
+                        onClick={() => toggleDailyItem(today, sub.id)}
+                        className={`ml-6 p-2 rounded-lg border-2 transition-all cursor-pointer flex items-center gap-3 ${
+                          sub.completed 
+                            ? 'bg-green-500/10 border-green-500/20 opacity-60' 
+                            : 'bg-white/20 dark:bg-white/5 border-black/5 dark:border-white/5'
+                        }`}
+                      >
+                        <div className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-all ${sub.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300'}`}>
+                          {sub.completed && <CheckCircle2 className="w-2.5 h-2.5" />}
+                        </div>
+                        <p className={`text-[10px] font-medium leading-tight ${sub.completed ? 'line-through text-gray-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                          {sub.name}
+                        </p>
+                      </motion.div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Real-time Clock */}
+        {/* Mission Timer */}
         <div className="lg:col-span-4 flex flex-col items-center justify-center text-center space-y-8 border-x border-black/5 dark:border-white/5 px-12">
           <div className="space-y-4 w-full">
             <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.3em] flex items-center justify-center gap-2">
-              <Clock className="w-3 h-3" /> System Time
+              <Clock className="w-3 h-3" /> Mission Timer
             </p>
-            <div className="relative inline-block">
-              <h2 className="text-7xl font-black font-mono tracking-tighter text-gray-900 dark:text-white">
-                {formatTime(currentTime)}
+            <div className="relative inline-block group cursor-pointer" onClick={toggleSessionTimer}>
+              <h2 className={`text-7xl font-black font-mono tracking-tighter transition-colors ${sessionTimer.isRunning ? 'text-blue-600' : 'text-gray-900 dark:text-white opacity-40'}`}>
+                {formatSeconds(sessionTimer.remainingSeconds)}
               </h2>
-              {/* Visual Day Progress Bar (Bottom of Clock) */}
+              {/* Visual Timer Progress Bar */}
               <div className="absolute -bottom-4 left-0 w-full h-1.5 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
-                  animate={{ width: `${dayProgress}%` }}
+                  animate={{ width: `${timerProgress}%` }}
                   className="h-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)]"
                 />
               </div>
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="bg-white/90 dark:bg-black/90 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl">
+                  {sessionTimer.isRunning ? 'Pause Mission' : 'Resume Mission'}
+                </div>
+              </div>
             </div>
             <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-500/10 inline-block px-4 py-1.5 rounded-full mt-6">
-              {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+              Goal: {Math.round(sessionTimer.totalSeconds / 3600)} Hours Study Session
             </p>
           </div>
         </div>

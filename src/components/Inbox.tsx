@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useTrackerStore } from '../store/useTrackerStore';
-import { Send, User as UserIcon, Shield, MessageSquare, Check, Clock } from 'lucide-react';
+import { Send, User as UserIcon, Shield, MessageSquare, Check, Clock, AlertCircle, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Inbox() {
@@ -16,20 +16,25 @@ export default function Inbox() {
 
   useEffect(() => {
     fetchMessages();
-    const interval = setInterval(fetchMessages, 30000); // Poll every 30s
+    const interval = setInterval(fetchMessages, 5000); // Poll every 5s
     return () => clearInterval(interval);
   }, []);
 
-  const handleSendReply = async (originalMessageId: string, userId: string) => {
-    if (!replyText.trim()) return;
+  const handleStartNewConversation = async (email: string, content: string, type: string = 'Message') => {
+    if (!email.trim() || !content.trim()) return;
     setSending(true);
 
+    // In a real app, we'd lookup user_id by email. 
+    // For now, we'll store the target email in a metadata field or just use user_id if it was provided.
+    // Since we can't lookup auth.users easily, we'll assume for this prototype 
+    // that we're sending to the ADMIN or from ADMIN to a known ID.
+    
     const { error } = await supabase.from('inbox').insert([
       {
-        user_id: userId,
+        user_id: user?.id,
         sender_role: isAdmin ? 'admin' : 'user',
-        content: replyText,
-        reply_to: originalMessageId,
+        content: content,
+        issue_type: type,
         created_at: new Date().toISOString(),
         is_read: false
       }
@@ -37,16 +42,16 @@ export default function Inbox() {
 
     if (!error) {
       setReplyText('');
+      setShowNewMessage(false);
       fetchMessages();
     }
     setSending(false);
   };
 
-  const filteredMessages = isAdmin 
-    ? messages.filter(m => !m.reply_to) // Admin sees original reports
-    : messages.filter(m => m.user_id === user?.id && !m.reply_to); // User sees their own reports
-
-  const getReplies = (messageId: string) => messages.filter(m => m.reply_to === messageId).reverse();
+  const [showNewMessage, setShowNewMessage] = useState(false);
+  const [newMsgEmail, setNewMsgEmail] = useState('');
+  const [newMsgContent, setNewMsgContent] = useState('');
+  const [newMsgType, setNewMsgType] = useState('Message');
 
   return (
     <div className="animate-slide-in-up max-w-5xl mx-auto space-y-8 pb-20">
@@ -60,15 +65,82 @@ export default function Inbox() {
             {isAdmin ? 'Monitoring user reports and acknowledgments' : 'History of your reports and developer replies'}
           </p>
         </div>
-        <button 
-          onClick={() => fetchMessages()}
-          className="p-3 bg-white/50 dark:bg-white/10 rounded-2xl hover:bg-white dark:hover:bg-white/20 transition-all border border-white/20"
-        >
-          <Clock className="w-5 h-5" />
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => {
+              setNewMsgType('Bug');
+              setShowNewMessage(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+          >
+            <AlertCircle className="w-4 h-4" /> Report Bug
+          </button>
+          <button 
+            onClick={() => {
+              setNewMsgType('Message');
+              setShowNewMessage(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+          >
+            <Plus className="w-4 h-4" /> New Message
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[700px]">
+...
+      {/* New Message Modal */}
+      <AnimatePresence>
+        {showNewMessage && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowNewMessage(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-2xl"
+            >
+              <h3 className="text-2xl font-black uppercase tracking-tighter mb-6">
+                {newMsgType === 'Bug' ? 'Report a Bug' : 'New Conversation'}
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Recipient Email</label>
+                  <input 
+                    type="email"
+                    value={newMsgEmail}
+                    onChange={(e) => setNewMsgEmail(e.target.value)}
+                    placeholder="Enter email address..."
+                    className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Message</label>
+                  <textarea 
+                    value={newMsgContent}
+                    onChange={(e) => setNewMsgContent(e.target.value)}
+                    placeholder="Describe your issue or message..."
+                    className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-blue-500/20 min-h-[150px] resize-none"
+                  />
+                </div>
+                <button 
+                  onClick={() => handleStartNewConversation(newMsgEmail, newMsgContent, newMsgType)}
+                  disabled={sending || !newMsgEmail.trim() || !newMsgContent.trim()}
+                  className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {sending ? 'Sending...' : 'Send Message'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
         {/* Sidebar: Message List */}
         <div className="glass rounded-[2.5rem] overflow-hidden flex flex-col border-none shadow-2xl">
           <div className="p-6 border-b border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20">

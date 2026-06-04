@@ -118,10 +118,19 @@ export interface DailyPlan {
   date: string;
   items: {
     id: string;
-    type: 'subject' | 'topic' | 'subtopic';
+    type: 'phase' | 'subject' | 'topic' | 'subtopic';
     name: string;
     completed: boolean;
+    parentId?: string;
+    isSuggested?: boolean;
   }[];
+}
+
+export interface SessionTimer {
+  remainingSeconds: number;
+  totalSeconds: number;
+  isRunning: boolean;
+  lastTick?: string;
 }
 
 export interface TrackerState {
@@ -149,5 +158,7 @@ export interface TrackerState {
   // Mission
   missionEndDate: string | null;
   dailyPlans: Record<string, DailyPlan>;
+  suggestedPlans: Record<string, DailyPlan>; // Added for suggested plans
   messages: Message[];
+  sessionTimer: SessionTimer; // Added for session timer
 }

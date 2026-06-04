@@ -23,8 +23,17 @@ interface Store extends TrackerState {
   missionEndDate: string | null;
   setMissionEndDate: (date: string | null) => void;
   dailyPlans: Record<string, DailyPlan>;
+  suggestedPlans: Record<string, DailyPlan>;
   updateDailyPlan: (date: string, items: DailyPlan['items']) => void;
+  setSuggestedPlans: (plans: Record<string, DailyPlan>) => void;
   toggleDailyItem: (date: string, itemId: string) => void;
+
+  // Timer
+  sessionTimer: SessionTimer;
+  setSessionTimer: (seconds: number) => void;
+  toggleSessionTimer: () => void;
+  resetSessionTimer: () => void;
+  tickSessionTimer: () => void;
 
   // Inbox
   messages: Message[];
@@ -80,7 +89,13 @@ const initialState: TrackerState = {
   currentStreak: 0,
   missionEndDate: null,
   dailyPlans: {},
+  suggestedPlans: {},
   messages: [],
+  sessionTimer: {
+    remainingSeconds: 0,
+    totalSeconds: 0,
+    isRunning: false,
+  },
   portfolio: {
     bio: '',
     tagline: '',
@@ -138,14 +153,65 @@ export const useTrackerStore = create<Store>((set, get) => {
         lastStudyDate: state.lastStudyDate,
         missionEndDate: state.missionEndDate,
         dailyPlans: state.dailyPlans,
+        suggestedPlans: state.suggestedPlans,
         messages: state.messages,
         portfolio: state.portfolio,
+        sessionTimer: state.sessionTimer,
       };
       localStorage.setItem('tracker-state', JSON.stringify(data));
 
       if (state.user) {
         get().syncWithCloud();
       }
+    },
+
+    setSessionTimer: (seconds: number) => {
+      set({ 
+        sessionTimer: { 
+          remainingSeconds: seconds, 
+          totalSeconds: seconds, 
+          isRunning: false 
+        } 
+      });
+      get().saveToStorage();
+    },
+
+    toggleSessionTimer: () => {
+      set((state) => ({
+        sessionTimer: {
+          ...state.sessionTimer,
+          isRunning: !state.sessionTimer.isRunning,
+          lastTick: new Date().toISOString()
+        }
+      }));
+    },
+
+    resetSessionTimer: () => {
+      set((state) => ({
+        sessionTimer: {
+          ...state.sessionTimer,
+          remainingSeconds: state.sessionTimer.totalSeconds,
+          isRunning: false
+        }
+      }));
+      get().saveToStorage();
+    },
+
+    tickSessionTimer: () => {
+      const { sessionTimer } = get();
+      if (!sessionTimer.isRunning || sessionTimer.remainingSeconds <= 0) return;
+
+      set((state) => ({
+        sessionTimer: {
+          ...state.sessionTimer,
+          remainingSeconds: Math.max(0, state.sessionTimer.remainingSeconds - 1)
+        }
+      }));
+    },
+
+    setSuggestedPlans: (plans: Record<string, DailyPlan>) => {
+      set({ suggestedPlans: plans });
+      get().saveToStorage();
     },
 
     setActiveWeekPlan: (week) => {
@@ -282,11 +348,30 @@ export const useTrackerStore = create<Store>((set, get) => {
       get().saveToStorage();
     },
 
-    updateDailyPlan: (date: string, items: DailyPlan['items']) => {
+    updateDailyPlan: (date, items) => {
+      // Hierarchical Logic: If a parent is selected, remove children
+      const filteredItems = items.filter((item, index, self) => {
+        if (item.type === 'subtopic') {
+          const parts = item.id.split('-');
+          const subjectId = parts[0];
+          const topicName = parts[1];
+          const hasTopic = self.some(i => i.id === `${subjectId}-${topicName}` && i.type === 'topic');
+          const hasSubject = self.some(i => i.id === subjectId && i.type === 'subject');
+          return !hasTopic && !hasSubject;
+        }
+        if (item.type === 'topic') {
+          const parts = item.id.split('-');
+          const subjectId = parts[0];
+          const hasSubject = self.some(i => i.id === subjectId && i.type === 'subject');
+          return !hasSubject;
+        }
+        return true;
+      });
+
       set((state) => ({
         dailyPlans: {
           ...state.dailyPlans,
-          [date]: { date, items }
+          [date]: { date, items: filteredItems }
         }
       }));
       get().saveToStorage();
