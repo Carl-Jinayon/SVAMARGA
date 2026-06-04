@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useTrackerStore } from './store/useTrackerStore';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
@@ -10,19 +11,19 @@ import CareerTools from './components/CareerTools';
 import Auth from './components/Auth';
 import Inbox from './components/Inbox';
 import About from './components/About';
+import PublicProfile from './components/PublicProfile';
 import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info } from 'lucide-react';
 
 type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'inbox';
 
-
-function App() {
+function MainApp() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
-  const { darkMode, toggleDarkMode, loadFromStorage, user } = useTrackerStore();
+  const { darkMode, toggleDarkMode, loadFromStorage, user, messages = [], fetchMessages } = useTrackerStore();
 
   // Initialize theme synchronously before render
   useEffect(() => {
     loadFromStorage();
-  }, []);
+  }, [loadFromStorage]);
 
   // Sync dark mode class with state changes
   useEffect(() => {
@@ -32,6 +33,27 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+  // Fetch messages for notification dot
+  useEffect(() => {
+    if (user) {
+      fetchMessages();
+      const interval = setInterval(fetchMessages, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [user, fetchMessages]);
+
+  const hasUnread = useMemo(() => {
+    if (!user) return false;
+    const ADMIN_ID = '06391879-d280-472e-b253-7e0685bf1014';
+    const isAdmin = user.id === ADMIN_ID;
+
+    return messages.some(m => {
+      if (m.is_read) return false;
+      const isFromMe = isAdmin ? m.sender_role === 'admin' : m.sender_role === 'user';
+      return !isFromMe;
+    });
+  }, [messages, user]);
 
   if (!user) {
     return (
@@ -65,7 +87,7 @@ function App() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-2.5 text-sm font-black uppercase tracking-widest whitespace-nowrap rounded-2xl transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-6 py-2.5 text-sm font-black uppercase tracking-widest whitespace-nowrap rounded-2xl transition-all duration-300 relative ${
                     activeTab === tab.id
                       ? 'bg-blue-600 text-white shadow-[0_10px_20px_rgba(37,99,235,0.3)] scale-105'
                       : 'text-gray-600 dark:text-gray-400 hover:bg-white/40 dark:hover:bg-gray-800/40'
@@ -73,6 +95,9 @@ function App() {
                 >
                   {tab.icon}
                   {tab.label}
+                  {tab.id === 'inbox' && hasUnread && (
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-gray-900 shadow-sm" />
+                  )}
                 </button>
               ))}
             </div>
@@ -106,6 +131,17 @@ function App() {
         </footer>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/profile/:id" element={<PublicProfile />} />
+        <Route path="/*" element={<MainApp />} />
+      </Routes>
+    </Router>
   );
 }
 

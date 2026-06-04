@@ -143,9 +143,30 @@ export default function Inbox() {
     setSending(false);
   };
 
-  if (!user) return null;
-
   const activeThread = threadParents.find(m => m.id === selectedThreadId);
+
+  // Logic: Mark as Read
+  useEffect(() => {
+    const markAsRead = async () => {
+      if (!selectedThreadId || !user) return;
+      
+      const unreadIds = [
+        activeThread?.is_read === false ? activeThread.id : null,
+        ...currentReplies.filter(r => r.is_read === false).map(r => r.id)
+      ].filter(Boolean);
+
+      if (unreadIds.length > 0) {
+        await supabase
+          .from('inbox')
+          .update({ is_read: true })
+          .in('id', unreadIds);
+        fetchMessages();
+      }
+    };
+    markAsRead();
+  }, [selectedThreadId, currentReplies.length]);
+
+  if (!user) return null;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-20 px-4 animate-slide-in-up">
