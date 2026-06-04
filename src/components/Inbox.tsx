@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useTrackerStore } from '../store/useTrackerStore';
-import { Send, User as UserIcon, Shield, MessageSquare, Check, Clock, AlertCircle, Plus } from 'lucide-react';
+import { Send, User as UserIcon, Shield, MessageSquare, Check, AlertCircle, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Inbox() {
@@ -52,6 +52,34 @@ export default function Inbox() {
   const [newMsgEmail, setNewMsgEmail] = useState('');
   const [newMsgContent, setNewMsgContent] = useState('');
   const [newMsgType, setNewMsgType] = useState('Message');
+
+  const handleSendReply = async (originalMessageId: string, userId: string) => {
+    if (!replyText.trim()) return;
+    setSending(true);
+
+    const { error } = await supabase.from('inbox').insert([
+      {
+        user_id: userId,
+        sender_role: isAdmin ? 'admin' : 'user',
+        content: replyText,
+        reply_to: originalMessageId,
+        created_at: new Date().toISOString(),
+        is_read: false
+      }
+    ]);
+
+    if (!error) {
+      setReplyText('');
+      fetchMessages();
+    }
+    setSending(false);
+  };
+
+  const filteredMessages = isAdmin 
+    ? messages.filter(m => !m.reply_to) // Admin sees original reports
+    : messages.filter(m => m.user_id === user?.id && !m.reply_to); // User sees their own reports
+
+  const getReplies = (messageId: string) => messages.filter(m => m.reply_to === messageId).reverse();
 
   return (
     <div className="animate-slide-in-up max-w-5xl mx-auto space-y-8 pb-20">
@@ -147,7 +175,7 @@ export default function Inbox() {
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Recent Conversations</p>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
-            {filteredMessages.map((msg) => {
+            {filteredMessages.map((msg: any) => {
               const replies = getReplies(msg.id);
               const lastActivity = replies.length > 0 ? replies[replies.length - 1].created_at : msg.created_at;
               
@@ -249,7 +277,7 @@ export default function Inbox() {
 
                       {/* Replies */}
                       <AnimatePresence>
-                        {replies.map((reply) => (
+                        {replies.map((reply: any) => (
                           <motion.div 
                             key={reply.id}
                             initial={{ opacity: 0, y: 10 }}

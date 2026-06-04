@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TrackerState, Session, Achievement, WeekPlan, Portfolio, Message, DailyPlan } from '../types/index';
+import { TrackerState, Session, Achievement, WeekPlan, Portfolio, Message, DailyPlan, SessionTimer } from '../types/index';
 import { curriculum } from '../data/curriculum';
 import { supabase } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
@@ -350,7 +350,7 @@ export const useTrackerStore = create<Store>((set, get) => {
 
     updateDailyPlan: (date, items) => {
       // Hierarchical Logic: If a parent is selected, remove children
-      const filteredItems = items.filter((item, index, self) => {
+      const filteredItems = items.filter((item, _index, self) => {
         if (item.type === 'subtopic') {
           const parts = item.id.split('-');
           const subjectId = parts[0];

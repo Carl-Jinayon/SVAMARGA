@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { CheckCircle2, Clock, Zap, Bell } from 'lucide-react';
 import { motion } from 'framer-motion';

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
 import { ChevronDown, ChevronRight, Calendar as CalendarIcon, Sparkles, Plus, X, Check, BookOpen, Trash2, Clock } from 'lucide-react';
@@ -16,7 +16,6 @@ export default function Planner() {
     suggestedPlans, 
     setSuggestedPlans,
     sessionTimer,
-    setSessionTimer,
     toggleSessionTimer,
     resetSessionTimer,
     tickSessionTimer,
@@ -88,7 +87,7 @@ export default function Planner() {
     }
   };
 
-  const toggleTempItem = (item: DailyPlan['items'][0], isGenerator: boolean = false) => {
+  const toggleTempItem = (item: DailyPlan['items'][0]) => {
     setTempSelection(prev => {
       const exists = prev.find(i => i.id === item.id);
       if (exists) return prev.filter(i => i.id !== item.id);
@@ -260,7 +259,7 @@ export default function Planner() {
               </h4>
             </div>
             <button 
-              onClick={handleOpenSelector}
+              onClick={() => handleOpenSelector(false)}
               className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95"
             >
               <Plus className="w-6 h-6" />
@@ -343,54 +342,6 @@ export default function Planner() {
           </div>
         </div>
       </div>
-
-      {/* Suggested Plan Results */}
-      <AnimatePresence>
-        {suggestedPlan && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glass p-10 rounded-[3rem] border-none shadow-2xl bg-gradient-to-br from-purple-500/5 to-blue-500/5"
-          >
-            <div className="flex items-center justify-between mb-10">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-purple-600 flex items-center justify-center text-white shadow-xl">
-                  <Sparkles className="w-7 h-7" />
-                </div>
-                <div>
-                  <h4 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">AI Suggested Roadmap</h4>
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Strategic milestones based on your {missionEndDate} target</p>
-                </div>
-              </div>
-              <button onClick={() => setSuggestedPlan(null)} className="p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"><X className="w-5 h-5" /></button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {suggestedPlan.map((milestone, i) => (
-                <div key={i} className="p-6 bg-white/40 dark:bg-black/20 rounded-[2rem] border border-white/40 dark:border-white/5 relative overflow-hidden group">
-                  <p className="text-[10px] font-black text-purple-600 uppercase mb-2">Milestone {i + 1}</p>
-                  <h5 className="font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-4">{milestone.title}</h5>
-                  <div className="space-y-2 mb-6">
-                    {milestone.items.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <Check className="w-3 h-3 text-green-500" />
-                        <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 line-clamp-1">{item}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="pt-4 border-t border-black/5 dark:border-white/5 flex justify-between items-center">
-                    <p className="text-[10px] font-black uppercase text-gray-400">Target Date</p>
-                    <p className="text-xs font-black text-blue-600">{milestone.date}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-10 p-6 bg-blue-600 rounded-[2rem] text-center text-white shadow-2xl shadow-blue-600/30">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">Full Curriculum Mastery Estimated</p>
-              <h5 className="text-2xl font-black mt-1 uppercase italic">{new Date(missionEndDate!).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h5>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Hierarchical Selection Modal */}
       <AnimatePresence>
@@ -622,7 +573,7 @@ export default function Planner() {
                               checked={tempSelection.some(i => i.id === `phase-${phase.id}`)}
                               onChange={(e) => {
                                 e.stopPropagation();
-                                toggleTempItem({ id: `phase-${phase.id}`, type: 'phase', name: phase.name, completed: false }, true);
+                                toggleTempItem({ id: `phase-${phase.id}`, type: 'phase', name: phase.name, completed: false });
                               }}
                               className="w-5 h-5 accent-blue-600"
                             />
@@ -644,7 +595,7 @@ export default function Planner() {
                                     <input 
                                       type="checkbox"
                                       checked={tempSelection.some(i => i.id === subject.id)}
-                                      onChange={() => toggleTempItem({ id: subject.id, type: 'subject', name: subject.name, completed: false }, true)}
+                                      onChange={() => toggleTempItem({ id: subject.id, type: 'subject', name: subject.name, completed: false })}
                                       className="w-4 h-4 accent-blue-600"
                                     />
                                     <p className="text-xs font-bold text-gray-600 dark:text-gray-400">{subject.name}</p>
