@@ -21,16 +21,17 @@ export default function Inbox() {
   }, []);
 
   const handleStartNewConversation = async (content: string, type: string = 'Message', recipientEmail?: string) => {
-    if (!content.trim()) return;
+    if (!content.trim() || !user?.id) return;
     setSending(true);
+
+    const finalContent = recipientEmail ? `To: ${recipientEmail}\n\n${content}` : content;
 
     const { error } = await supabase.from('inbox').insert([
       {
-        user_id: user?.id,
+        user_id: user.id,
         sender_role: isAdmin ? 'admin' : 'user',
-        content: content,
+        content: finalContent,
         issue_type: type,
-        recipient_email: recipientEmail,
         created_at: new Date().toISOString(),
         is_read: false
       }
@@ -42,6 +43,8 @@ export default function Inbox() {
       setNewMsgEmail('');
       setShowNewMessage(false);
       fetchMessages();
+    } else {
+      console.error('Error sending message:', error);
     }
     setSending(false);
   };
