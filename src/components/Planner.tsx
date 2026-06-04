@@ -374,14 +374,71 @@ export default function Planner() {
                 <p className="text-[10px] font-black uppercase text-gray-400">Session Timer</p>
                 <div className="flex items-center gap-3">
                   {isEditingTimer ? (
-                    <div className="flex items-center gap-1">
-                      <input type="number" min="0" max="99" value={timerInputs.h} onChange={e => setTimerInputs({...timerInputs, h: parseInt(e.target.value) || 0})} className="w-8 bg-black/20 rounded text-center text-xs font-bold" />
-                      <span className="text-[10px]">:</span>
-                      <input type="number" min="0" max="59" value={timerInputs.m} onChange={e => setTimerInputs({...timerInputs, m: parseInt(e.target.value) || 0})} className="w-8 bg-black/20 rounded text-center text-xs font-bold" />
-                      <span className="text-[10px]">:</span>
-                      <input type="number" min="0" max="59" value={timerInputs.s} onChange={e => setTimerInputs({...timerInputs, s: parseInt(e.target.value) || 0})} className="w-8 bg-black/20 rounded text-center text-xs font-bold" />
-                      <button onClick={saveTimer} className="ml-1 p-1 bg-green-600 rounded-md"><Check className="w-3 h-3 text-white" /></button>
-                    </div>
+                    <AnimatePresence>
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="fixed inset-0 z-[150] bg-black/80 backdrop-blur-xl flex items-center justify-center p-6"
+                      >
+                        <motion.div 
+                          initial={{ scale: 0.9, y: 20 }}
+                          animate={{ scale: 1, y: 0 }}
+                          className="glass p-12 rounded-[4rem] border-blue-500/20 shadow-[0_0_100px_rgba(37,99,235,0.2)] max-w-xl w-full text-center space-y-12"
+                        >
+                          <div className="space-y-4">
+                            <h3 className="text-3xl font-black uppercase tracking-tighter text-white italic">Tune Study <span className="text-blue-500">Frequency</span></h3>
+                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Adjust your mission duration parameters</p>
+                          </div>
+
+                          <div className="flex justify-center items-center gap-8">
+                            {[
+                              { label: 'Hours', key: 'h', max: 99 },
+                              { label: 'Minutes', key: 'm', max: 59 },
+                              { label: 'Seconds', key: 's', max: 59 }
+                            ].map(({ label, key, max }) => (
+                              <div key={key} className="space-y-4">
+                                <p className="text-[10px] font-black uppercase text-blue-500/60 tracking-widest">{label}</p>
+                                <div className="flex flex-col items-center gap-3">
+                                  <button 
+                                    onClick={() => setTimerInputs(prev => ({ ...prev, [key]: Math.min(max, (prev as any)[key] + 1) }))}
+                                    className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center border border-white/10"
+                                  >
+                                    <ChevronRight className="w-5 h-5 -rotate-90" />
+                                  </button>
+                                  <input 
+                                    type="number" 
+                                    value={(timerInputs as any)[key]} 
+                                    onChange={e => setTimerInputs({ ...timerInputs, [key]: Math.min(max, Math.max(0, parseInt(e.target.value) || 0)) })}
+                                    className="w-24 h-24 bg-transparent border-2 border-blue-600/30 rounded-[2.5rem] text-4xl font-black text-white text-center focus:outline-none focus:border-blue-500 transition-all shadow-[0_0_30px_rgba(37,99,235,0.1)]" 
+                                  />
+                                  <button 
+                                    onClick={() => setTimerInputs(prev => ({ ...prev, [key]: Math.max(0, (prev as any)[key] - 1) }))}
+                                    className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center border border-white/10"
+                                  >
+                                    <ChevronRight className="w-5 h-5 rotate-90" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="flex gap-4 pt-8">
+                            <button 
+                              onClick={() => setIsEditingTimer(false)}
+                              className="flex-1 py-5 bg-white/5 text-gray-400 rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all"
+                            >
+                              Abort
+                            </button>
+                            <button 
+                              onClick={saveTimer}
+                              className="flex-[2] py-5 bg-blue-600 text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-2xl shadow-blue-600/40 hover:scale-105 active:scale-95 transition-all"
+                            >
+                              Initialize Timer
+                            </button>
+                          </div>
+                        </motion.div>
+                      </motion.div>
+                    </AnimatePresence>
                   ) : (
                     <>
                       <p onClick={handleEditTimer} className="text-xl font-black font-mono text-gray-900 dark:text-white cursor-pointer hover:text-blue-600 transition-colors" title="Click to edit">{formatSeconds(sessionTimer.remainingSeconds)}</p>

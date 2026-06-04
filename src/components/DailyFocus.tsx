@@ -1,12 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTrackerStore } from '../store/useTrackerStore';
+import { curriculum } from '../data/curriculum';
 import { CheckCircle2, Clock, Zap, Bell } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DailyFocus() {
   const { dailyPlans, toggleDailyItem, sessionTimer, toggleSessionTimer, tickSessionTimer } = useTrackerStore();
+  const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
   const today = new Date().toISOString().split('T')[0];
   const plan = dailyPlans[today];
+
+  const toggleTaskExpansion = (id: string) => {
+    setExpandedTasks((prev: string[]) => prev.includes(id) ? prev.filter((i: string) => i !== id) : [...prev, id]);
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -62,30 +68,68 @@ export default function DailyFocus() {
   });
 
   const getChildren = (parentId: string) => {
-    return plan.items.filter((i: any) => i.id.startsWith(parentId + '::') && i.id.split('::').length === parentId.split('::').length + 1);
+    // Look in the plan first
+    const planChildren = plan.items.filter((i: any) => i.id.startsWith(parentId + '::') && i.id.split('::').length === parentId.split('::').length + 1);
+    if (planChildren.length > 0) return planChildren;
+
+    // If not in plan, look in curriculum (virtual children)
+    const parts = parentId.split('::');
+    if (parts.length === 1) { // Subject -> Topics
+      const s = curriculum.flatMap((p: any) => p.subjects).find((s: any) => s.id === parts[0]);
+      return s?.topics.map((t: any) => ({ id: `${parts[0]}::${t}`, type: 'topic', name: t, completed: false })) || [];
+    }
+    if (parts.length === 2) { // Topic -> Subtopics
+      const s = curriculum.flatMap((p: any) => p.subjects).find((s: any) => s.id === parts[0]);
+      return s?.subtopics[parts[1]]?.map((sub: any) => ({ id: `${parentId}::${sub}`, type: 'subtopic', name: sub, completed: false })) || [];
+    }
+    return [];
   };
 
   const renderTask = (item: any, depth = 0) => {
     const children = getChildren(item.id);
+    const isExpanded = expandedTasks.includes(item.id);
+    const inPlan = plan.items.find((i: any) => i.id === item.id);
+    const isCompleted = inPlan?.completed;
+
     return (
       <div key={item.id} className={`${depth > 0 ? 'ml-6 border-l-2 border-indigo-500/10 pl-6 mt-3' : 'glass bg-white/40 dark:bg-white/5 p-6 rounded-[2.5rem] border border-black/5 dark:border-white/5 space-y-4 mb-4'}`}>
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => toggleDailyItem(today, item.id)}
-            className={`${item.type === 'subject' ? 'w-7 h-7 rounded-xl' : item.type === 'topic' ? 'w-5 h-5 rounded-lg' : 'w-4 h-4 rounded'} border-2 flex items-center justify-center transition-all ${
-              item.completed ? 'bg-green-500 border-green-500 text-white' : 'border-indigo-200 dark:border-white/10'
-            }`}
-          >
-            {item.completed && <CheckCircle2 className={`${item.type === 'subject' ? 'w-4 h-4' : item.type === 'topic' ? 'w-3 h-3' : 'w-2.5 h-2.5'}`} />}
-          </button>
-          <div>
-            <p className={`text-[8px] font-black uppercase mb-0.5 ${item.completed ? 'text-green-600' : 'text-indigo-600'}`}>{item.type}</p>
-            <p className={`${item.type === 'subject' ? 'text-sm' : 'text-[11px]'} font-black leading-tight ${item.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}`}>
-              {item.name}
-            </p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => toggleDailyItem(today, item.id)}
+              className={`${item.type === 'subject' ? 'w-7 h-7 rounded-xl' : item.type === 'topic' ? 'w-5 h-5 rounded-lg' : 'w-4 h-4 rounded'} border-2 flex items-center justify-center transition-all ${
+                isCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-indigo-200 dark:border-white/10'
+              }`}
+            >
+              {isCompleted && <CheckCircle2 className={`${item.type === 'subject' ? 'w-4 h-4' : item.type === 'topic' ? 'w-3 h-3' : 'w-2.5 h-2.5'}`} />}
+            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className={`text-[8px] font-black uppercase mb-0.5 ${isCompleted ? 'text-green-600' : 'text-indigo-600'}`}>{item.type}</p>
+                {children.length > 0 && (
+                   <button onClick={() => toggleTaskExpansion(item.id)} className="text-[7px] font-black uppercase bg-indigo-600/10 text-indigo-600 px-1.5 py-0.5 rounded-md hover:bg-indigo-600 hover:text-white transition-all">
+                      {isExpanded ? 'Collapse' : 'Expand'}
+                   </button>
+                )}
+              </div>
+              <p className={`${item.type === 'subject' ? 'text-sm' : 'text-[11px]'} font-black leading-tight ${isCompleted ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}`}>
+                {item.name}
+              </p>
+            </div>
           </div>
         </div>
-        {children.length > 0 && children.map(child => renderTask(child, depth + 1))}
+        <AnimatePresence>
+          {isExpanded && children.length > 0 && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              {children.map((child: any) => renderTask(child, depth + 1))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   };

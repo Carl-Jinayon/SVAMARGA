@@ -453,8 +453,29 @@ export const useTrackerStore = create<Store>((set, get) => {
         const progress = { ...state.progress };
         
         if (plans[date]) {
-          const itemToToggle = plans[date].items.find(i => i.id === itemId);
-          if (!itemToToggle) return state;
+          let itemToToggle = plans[date].items.find(i => i.id === itemId);
+          
+          // If item doesn't exist in plan, create it (handles virtual children)
+          if (!itemToToggle) {
+             const parts = itemId.split('::');
+             let name = 'Unknown';
+             let type: 'subject' | 'topic' | 'subtopic' = 'subject';
+             
+             if (parts.length === 1) {
+               const s = curriculum.flatMap(p => p.subjects).find(s => s.id === parts[0]);
+               name = s?.name || parts[0];
+               type = 'subject';
+             } else if (parts.length === 2) {
+               name = parts[1];
+               type = 'topic';
+             } else if (parts.length === 3) {
+               name = parts[2];
+               type = 'subtopic';
+             }
+             
+             itemToToggle = { id: itemId, type, name, completed: false };
+             plans[date].items.push(itemToToggle);
+          }
 
           const newCompleted = !itemToToggle.completed;
 
