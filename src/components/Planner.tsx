@@ -356,7 +356,7 @@ export default function Planner() {
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       {/* Mission Setup Header */}
-      <div className="glass p-10 rounded-[3rem] shadow-2xl relative overflow-hidden border-none">
+      <div className="glass p-10 rounded-[3rem] shadow-2xl relative overflow-visible border-none">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="space-y-2">
             <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
@@ -409,85 +409,84 @@ export default function Planner() {
             </div>
           </div>
         </div>
-
-        {/* Simplified Timer Edit Modal */}
-        <AnimatePresence>
-          {isEditingTimer && (
-            <div className="fixed inset-0 z-[150] flex items-center justify-center p-6">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsEditingTimer(false)}
-                className="absolute inset-0 bg-black/60 backdrop-blur-md"
-              />
-              <motion.div 
-                initial={{ scale: 0.9, y: 20, opacity: 0 }}
-                animate={{ scale: 1, y: 0, opacity: 1 }}
-                exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                className="relative w-full max-w-lg glass border-white/20 p-10 rounded-[3rem] shadow-2xl overflow-hidden"
-              >
-                <div className="text-center space-y-8 relative z-10">
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-black uppercase tracking-tighter text-gray-900 dark:text-white">Configure <span className="text-blue-600">Session</span></h3>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Adjust your focus duration</p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-8">
-                    {[
-                      { label: 'Hours', key: 'h', max: 24 },
-                      { label: 'Minutes', key: 'm', max: 59 }
-                    ].map(({ label, key, max }) => (
-                      <div key={key} className="space-y-4">
-                        <div className="flex justify-between items-end px-1">
-                          <p className="text-[9px] font-black uppercase text-gray-500 tracking-widest">{label}</p>
-                          <p className="text-3xl font-black font-mono text-blue-600">
-                            {(timerInputs as any)[key]}<span className="text-[10px] ml-1 opacity-50">{key.toUpperCase()}</span>
-                          </p>
-                        </div>
-                        
-                        <div className="relative h-1.5">
-                          <div className="absolute inset-0 bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
-                            <motion.div 
-                              className="h-full bg-blue-600"
-                              animate={{ width: `${((timerInputs as any)[key] / max) * 100}%` }}
-                            />
-                          </div>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max={max} 
-                            value={(timerInputs as any)[key]} 
-                            onChange={e => setTimerInputs({ ...timerInputs, [key]: parseInt(e.target.value) || 0 })}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-4 pt-6">
-                    <button 
-                      onClick={() => setIsEditingTimer(false)}
-                      className="flex-1 py-4 rounded-2xl bg-black/5 dark:bg-white/5 text-gray-500 font-black uppercase tracking-widest text-[9px] hover:bg-black/10 dark:hover:bg-white/10 transition-all"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      onClick={saveTimer}
-                      className="flex-[2] py-4 rounded-2xl bg-blue-600 text-white font-black uppercase tracking-widest text-[9px] shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
-                    >
-                      Save Configuration
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-        
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full -mr-48 -mt-48 blur-3xl" />
       </div>
+
+      {/* Simplified Timer Edit Modal (Moved outside header to prevent clipping) */}
+      <AnimatePresence>
+        {isEditingTimer && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsEditingTimer(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 20, opacity: 0 }}
+              className="relative w-full max-w-lg glass border-white/20 p-10 rounded-[3rem] shadow-2xl overflow-hidden"
+            >
+              <div className="text-center space-y-8 relative z-10">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-black uppercase tracking-tighter text-gray-900 dark:text-white">Configure <span className="text-blue-600">Session</span></h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Adjust your focus duration</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8">
+                  {[
+                    { label: 'Hours', key: 'h', max: 24 },
+                    { label: 'Minutes', key: 'm', max: 59 }
+                  ].map(({ label, key, max }) => (
+                    <div key={key} className="space-y-4">
+                      <div className="flex justify-between items-end px-1">
+                        <p className="text-[9px] font-black uppercase text-gray-500 tracking-widest">{label}</p>
+                        <p className="text-3xl font-black font-mono text-blue-600">
+                          {(timerInputs as any)[key]}<span className="text-[10px] ml-1 opacity-50">{key.toUpperCase()}</span>
+                        </p>
+                      </div>
+                      
+                      <div className="relative h-1.5">
+                        <div className="absolute inset-0 bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+                          <motion.div 
+                            className="h-full bg-blue-600"
+                            animate={{ width: `${((timerInputs as any)[key] / max) * 100}%` }}
+                          />
+                        </div>
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max={max} 
+                          value={(timerInputs as any)[key]} 
+                          onChange={e => setTimerInputs({ ...timerInputs, [key]: parseInt(e.target.value) || 0 })}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-4 pt-6">
+                  <button 
+                    onClick={() => setIsEditingTimer(false)}
+                    className="flex-1 py-4 rounded-2xl bg-black/5 dark:bg-white/5 text-gray-500 font-black uppercase tracking-widest text-[9px] hover:bg-black/10 dark:hover:bg-white/10 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={saveTimer}
+                    className="flex-[2] py-4 rounded-2xl bg-blue-600 text-white font-black uppercase tracking-widest text-[9px] shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
+                  >
+                    Save Configuration
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Daily Planner View */}
       <div className="space-y-6">
