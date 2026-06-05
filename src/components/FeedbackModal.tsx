@@ -16,7 +16,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
     setSending(true);
 
     const myEmail = user?.email || user?.user_metadata?.email || user?.user_metadata?.full_name || user?.user_metadata?.user_name || 'Unknown';
-    const finalContent = `[Recipient: System]\n[Sender: ${myEmail}]\n\n${message}`;
+    const finalContent = `[Recipient: Admin]\n[Sender: ${myEmail}]\n\n${message}`;
 
     const { error } = await supabase.from('inbox').insert([
       { 
@@ -67,7 +67,7 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="What went wrong? Tell us the details..."
-                className="w-full h-32 p-4 bg-white/40 dark:bg-black/20 border border-white/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full h-32 p-4 bg-white/40 dark:bg-black/20 border border-white/20 rounded-2xl text-sm focus:outline-none focus:ring-0 outline-none"
                 required
               />
             </div>

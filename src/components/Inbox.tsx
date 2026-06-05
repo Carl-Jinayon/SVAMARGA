@@ -268,8 +268,8 @@ export default function Inbox() {
                 })}
               </div>
               <div className="p-6 border-t border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20">
-                <div className="flex gap-4 items-end bg-white/40 dark:bg-black/40 p-2 rounded-[1.5rem] border border-black/5 dark:border-white/5 shadow-inner">
-                  <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type a response..." className="flex-1 bg-transparent border-none p-3 text-sm font-medium focus:ring-0 resize-none min-h-[50px] max-h-[150px] text-gray-900 dark:text-white" />
+                <div className="flex gap-4 items-end bg-white/40 dark:bg-black/40 p-2 rounded-[1.5rem] border border-black/5 dark:border-white/5 shadow-inner focus-within:ring-0 focus-within:border-black/10 dark:focus-within:border-white/10 transition-all">
+                  <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type a response..." className="flex-1 bg-transparent border-none p-3 text-sm font-medium focus:ring-0 outline-none resize-none min-h-[50px] max-h-[150px] text-gray-900 dark:text-white" />
                   <button onClick={handleReply} disabled={sending || !replyText.trim()} className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center hover:bg-blue-700 transition-all shadow-lg active:scale-95 disabled:opacity-50 shrink-0"><Send className="w-5 h-5" /></button>
                 </div>
               </div>
