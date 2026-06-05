@@ -20,7 +20,13 @@ export default function Inbox() {
   const isAdmin = user?.id === ADMIN_ID;
 
   const getMyEmail = (u: any) => u?.email || u?.user_metadata?.email || u?.user_metadata?.full_name || u?.user_metadata?.user_name || 'Unknown';
-  const myEmail = getMyEmail(user);
+
+  const safeMsgs = useMemo(() => Array.isArray(messages) ? messages : [], [messages]);
+
+  const currentReplies = useMemo(() => {
+    if (!selectedThreadId) return [];
+    return safeMsgs.filter(r => r.reply_to === selectedThreadId).reverse();
+  }, [safeMsgs, selectedThreadId]);
 
   useEffect(() => {
     if (user) {
@@ -80,8 +86,6 @@ export default function Inbox() {
       .trim();
   };
 
-  const safeMsgs = useMemo(() => Array.isArray(messages) ? messages : [], [messages]);
-
   // Logic: Identify thread parents (top-level messages)
   const threadParents = useMemo(() => {
     return safeMsgs.filter(m => !m.reply_to && (isAdmin || m.user_id === user?.id));
@@ -108,11 +112,6 @@ export default function Inbox() {
     );
   }, [filteredThreads, safeMsgs]);
 
-  const currentReplies = useMemo(() => {
-    if (!selectedThreadId) return [];
-    return safeMsgs.filter(r => r.reply_to === selectedThreadId).reverse();
-  }, [safeMsgs, selectedThreadId]);
-
   const handleStart = async () => {
     if (!newContent.trim() || !user?.id) return;
     setSending(true);
@@ -120,12 +119,9 @@ export default function Inbox() {
     const myEmail = getMyEmail(user);
     const targetRecipient = (newType === 'Bug' ? 'Admin' : newEmail || 'Admin').trim();
     
-    // 1. Try to find an existing thread with this email (either as sender or recipient)
+    // 1. Try to find an existing thread with this email
     const existing = threadParents.find(m => {
-      const rec = extractRecipientEmail(m.content).toLowerCase();
-      const snd = extractSenderEmail(m.content).toLowerCase();
-      const target = targetRecipient.toLowerCase();
-      return isAdmin ? (snd === target) : (rec === target);
+      return getOtherParty(m).toLowerCase() === targetRecipient.toLowerCase();
     });
 
     if (existing) {
@@ -148,7 +144,7 @@ export default function Inbox() {
       // We search ALL messages to see if we ever saw this email before to find their ID.
       let targetUserId = user.id;
       if (isAdmin) {
-        const previousMsg = safeMsgs.find(m => extractSenderEmail(m.content).toLowerCase() === targetRecipient.toLowerCase());
+        const previousMsg = safeMsgs.find(m => getOtherParty(m).toLowerCase() === targetRecipient.toLowerCase());
         if (previousMsg) targetUserId = previousMsg.user_id;
       }
 
