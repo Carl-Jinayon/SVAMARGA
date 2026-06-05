@@ -551,6 +551,11 @@ export const useTrackerStore = create<Store>((set, get) => {
       let query = supabase.from('inbox').select('*');
 
       if (!isAdmin) {
+        // Users see threads they own (user_id) OR messages where they are mentioned in tags
+        // However, since we use user_id to scope the thread, we should ensure the user_id 
+        // is set correctly on both sides of a peer-to-peer conversation.
+        // For now, let's keep it simple: users see messages where user_id is theirs.
+        // We'll fix the user_id assignment in Inbox.tsx to ensure both parties can see it.
         query = query.eq('user_id', user.id);
       }
 

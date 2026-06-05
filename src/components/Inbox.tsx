@@ -118,6 +118,7 @@ export default function Inbox() {
 
     const myEmail = getMyEmail(user);
     const targetRecipient = (newType === 'Bug' ? 'Admin' : newEmail || 'Admin').trim();
+    const isTargetAdmin = targetRecipient.toLowerCase() === 'admin';
     
     // 1. Try to find an existing thread with this email
     const existing = threadParents.find(m => {
@@ -126,13 +127,45 @@ export default function Inbox() {
 
     if (existing) {
       // Reply to existing thread
-      const { error } = await supabase.from('inbox').insert([{
-        user_id: existing.user_id, // Keep the thread owner's ID
+      const messagesToInsert = [];
+      
+      // Always insert for the current user
+      messagesToInsert.push({
+        user_id: user.id,
         sender_role: isAdmin ? 'admin' : 'user',
         content: newContent,
         reply_to: existing.id,
-        is_read: false
-      }]);
+        is_read: true // Sender's copy is always read
+      });
+
+      // If it's peer-to-peer (User to User), insert for the other party too
+      if (!isAdmin && !isTargetAdmin) {
+        let targetUserId = null;
+        const previousMsg = safeMsgs.find(m => getOtherParty(m).toLowerCase() === targetRecipient.toLowerCase());
+        if (previousMsg) targetUserId = previousMsg.user_id;
+
+        if (targetUserId && targetUserId !== user.id) {
+          messagesToInsert.push({
+            user_id: targetUserId,
+            sender_role: 'user',
+            content: newContent,
+            reply_to: existing.id,
+            is_read: false
+          });
+        }
+      } 
+      // User to Admin or Admin to User: Insert only once using the thread owner's ID
+      else if (existing.user_id !== user.id) {
+        messagesToInsert.push({
+          user_id: existing.user_id,
+          sender_role: isAdmin ? 'admin' : 'user',
+          content: newContent,
+          reply_to: existing.id,
+          is_read: false
+        });
+      }
+
+      const { error } = await supabase.from('inbox').insert(messagesToInsert);
       if (!error) {
         setNewContent(''); setShowModal(false); fetchMessages(); setSelectedThreadId(existing.id);
       }
@@ -140,21 +173,35 @@ export default function Inbox() {
       // Start a brand new thread
       const finalContent = `[Recipient: ${targetRecipient}]\n[Sender: ${myEmail}]\n\n${newContent}`;
       
-      // If admin starts it, we don't have the user's UUID yet. 
-      // We search ALL messages to see if we ever saw this email before to find their ID.
       let targetUserId = user.id;
-      if (isAdmin) {
+      if (isAdmin || (!isAdmin && !isTargetAdmin)) {
         const previousMsg = safeMsgs.find(m => getOtherParty(m).toLowerCase() === targetRecipient.toLowerCase());
         if (previousMsg) targetUserId = previousMsg.user_id;
       }
 
-      const { error } = await supabase.from('inbox').insert([{
-        user_id: targetUserId,
+      const messagesToInsert = [];
+
+      // Always insert for sender
+      messagesToInsert.push({
+        user_id: user.id,
         sender_role: isAdmin ? 'admin' : 'user',
         content: finalContent,
         issue_type: newType === 'Bug' ? `Bug: ${bugType}` : 'Message',
-        is_read: false
-      }]);
+        is_read: true
+      });
+
+      // Insert for recipient if different and not admin (admin sees all anyway)
+      if (targetUserId && targetUserId !== user.id) {
+        messagesToInsert.push({
+          user_id: targetUserId,
+          sender_role: isAdmin ? 'admin' : 'user',
+          content: finalContent,
+          issue_type: newType === 'Bug' ? `Bug: ${bugType}` : 'Message',
+          is_read: false
+        });
+      }
+
+      const { error } = await supabase.from('inbox').insert(messagesToInsert);
       
       if (!error) {
         setNewContent(''); setNewEmail(''); setShowModal(false); fetchMessages();
@@ -167,13 +214,48 @@ export default function Inbox() {
     const thread = threadParents.find(m => m.id === selectedThreadId);
     if (!replyText.trim() || !thread || !user?.id) return;
     setSending(true);
-    const { error } = await supabase.from('inbox').insert([{
-      user_id: thread.user_id, // Always use the thread owner's ID
+
+    const targetRecipient = getOtherParty(thread);
+    const isTargetAdmin = targetRecipient.toLowerCase() === 'admin';
+    const messagesToInsert = [];
+
+    // Always insert for sender
+    messagesToInsert.push({
+      user_id: user.id,
       sender_role: isAdmin ? 'admin' : 'user',
       content: replyText,
       reply_to: thread.id,
-      is_read: false
-    }]);
+      is_read: true
+    });
+
+    // Handle recipient visibility
+    if (!isAdmin && !isTargetAdmin) {
+       // User to User: need to find the recipient's user_id
+       let targetUserId = null;
+       const previousMsg = safeMsgs.find(m => getOtherParty(m).toLowerCase() === targetRecipient.toLowerCase());
+       if (previousMsg) targetUserId = previousMsg.user_id;
+
+       if (targetUserId && targetUserId !== user.id) {
+         messagesToInsert.push({
+           user_id: targetUserId,
+           sender_role: 'user',
+           content: replyText,
+           reply_to: thread.id,
+           is_read: false
+         });
+       }
+    } else if (thread.user_id !== user.id) {
+      // Admin to User or User to Admin
+      messagesToInsert.push({
+        user_id: thread.user_id,
+        sender_role: isAdmin ? 'admin' : 'user',
+        content: replyText,
+        reply_to: thread.id,
+        is_read: false
+      });
+    }
+
+    const { error } = await supabase.from('inbox').insert(messagesToInsert);
     if (!error) { setReplyText(''); fetchMessages(); }
     setSending(false);
   };
