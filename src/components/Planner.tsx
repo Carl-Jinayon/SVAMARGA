@@ -157,6 +157,9 @@ export default function Planner() {
   const [tempSelection, setTempSelection] = useState<DailyPlan['items']>([]);
   const [expandedPhases, setExpandedPhases] = useState<number[]>([]);
   const [expandedSubjects, setExpandedSubjects] = useState<string[]>([]);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [calendarView, setCalendarView] = useState(new Date());
+  const [viewMode, setViewMode] = useState<'days' | 'years'>('days');
 
   const togglePhase = (id: number) => {
     setExpandedPhases(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
@@ -185,11 +188,6 @@ export default function Planner() {
     }
     return arr;
   }, [missionEndDate]);
-
-  const handleSetEndDate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMissionEndDate(e.target.value);
-    setToast({ message: 'Mission timeline updated!', type: 'success' });
-  };
 
   const handleOpenSelector = (isGenerator: boolean = false) => {
     if (isGenerator) {
@@ -351,10 +349,152 @@ export default function Planner() {
     }
   };
 
+  const calendarDays = useMemo(() => {
+    const year = calendarView.getFullYear();
+    const month = calendarView.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    const days = [];
+    // Padding for start of month
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    // Days of month
+    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
+    return days;
+  }, [calendarView]);
+
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const arr = [];
+    for (let i = currentYear; i <= currentYear + 10; i++) arr.push(i);
+    return arr;
+  }, []);
+
+  const handleDateSelect = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    setMissionEndDate(dateStr);
+    setShowCalendar(false);
+    setToast({ message: 'Target deadline updated!', type: 'success' });
+  };
+
   return (
     <div className="animate-slide-in-up max-w-6xl mx-auto space-y-12 pb-32">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
+      {/* Custom Premium Calendar Modal */}
+      <AnimatePresence>
+        {showCalendar && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowCalendar(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, rotateX: 15, opacity: 0 }}
+              animate={{ scale: 1, rotateX: 0, opacity: 1 }}
+              exit={{ scale: 0.9, rotateX: -15, opacity: 0 }}
+              className="relative w-full max-w-md glass border-white/10 p-8 rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.5)] overflow-hidden"
+            >
+              <div className="absolute -top-24 -left-24 w-48 h-48 bg-blue-600/20 rounded-full blur-[80px] animate-pulse" />
+              
+              <div className="relative z-10 space-y-8">
+                <div className="flex justify-between items-center">
+                  <div onClick={() => setViewMode(viewMode === 'days' ? 'years' : 'days')} className="cursor-pointer group">
+                    <h3 className="text-2xl font-black uppercase tracking-tighter text-white group-hover:text-blue-500 transition-colors">
+                      {viewMode === 'days' ? 'Select ' : 'Target '}
+                      <span className="text-blue-500">{viewMode === 'days' ? 'Deadline' : 'Year'}</span>
+                    </h3>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1 flex items-center gap-2">
+                      {calendarView.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                      <ChevronDown className={`w-3 h-3 transition-transform ${viewMode === 'years' ? 'rotate-180' : ''}`} />
+                    </p>
+                  </div>
+                  {viewMode === 'days' && (
+                    <div className="flex gap-2">
+                      <button onClick={() => setCalendarView(new Date(calendarView.setMonth(calendarView.getMonth() - 1)))} className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-white"><ChevronRight className="w-4 h-4 rotate-180" /></button>
+                      <button onClick={() => setCalendarView(new Date(calendarView.setMonth(calendarView.getMonth() + 1)))} className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-white"><ChevronRight className="w-4 h-4" /></button>
+                    </div>
+                  )}
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {viewMode === 'days' ? (
+                    <motion.div 
+                      key="days"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="grid grid-cols-7 gap-1"
+                    >
+                      {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
+                        <div key={d} className="text-center text-[9px] font-black text-blue-500/50 uppercase py-2">{d}</div>
+                      ))}
+                      {calendarDays.map((date, i) => {
+                        if (!date) return <div key={`empty-${i}`} />;
+                        const isSelected = missionEndDate === date.toISOString().split('T')[0];
+                        const isToday = date.toDateString() === new Date().toDateString();
+                        const isPast = date < new Date(new Date().setHours(0,0,0,0));
+
+                        return (
+                          <button
+                            key={i}
+                            disabled={isPast}
+                            onClick={() => handleDateSelect(date)}
+                            className={`aspect-square rounded-2xl flex items-center justify-center text-xs font-bold transition-all relative group ${
+                              isSelected 
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/40 scale-110 z-10' 
+                                : isPast 
+                                  ? 'text-gray-700 opacity-20 cursor-not-allowed' 
+                                  : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                            }`}
+                          >
+                            {date.getDate()}
+                            {isToday && !isSelected && <div className="absolute bottom-1.5 w-1 h-1 bg-blue-500 rounded-full" />}
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  ) : (
+                    <motion.div 
+                      key="years"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="grid grid-cols-3 gap-3"
+                    >
+                      {years.map(year => (
+                        <button
+                          key={year}
+                          onClick={() => {
+                            setCalendarView(new Date(year, calendarView.getMonth(), 1));
+                            setViewMode('days');
+                          }}
+                          className={`py-4 rounded-2xl text-sm font-black transition-all ${
+                            calendarView.getFullYear() === year 
+                              ? 'bg-blue-600 text-white shadow-lg' 
+                              : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {year}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <button 
+                  onClick={() => setShowCalendar(false)}
+                  className="w-full py-4 rounded-2xl bg-white/5 text-gray-500 font-black uppercase tracking-widest text-[9px] hover:bg-white/10 hover:text-white transition-all"
+                >
+                  Close Navigator
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Mission Setup Header */}
       <div className="glass p-10 rounded-[3rem] shadow-2xl relative overflow-visible border-none">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
@@ -387,28 +527,37 @@ export default function Planner() {
               </div>
             </div>
 
-            <div className="bg-white/40 dark:bg-black/20 p-4 rounded-3xl border border-white/40 dark:border-white/5 flex items-center gap-4 group hover:border-blue-500/30 transition-all relative">
-              <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
-                <CalendarIcon className="w-6 h-6 text-white" />
+            <div 
+              onClick={() => setShowCalendar(true)}
+              className="bg-white/40 dark:bg-black/20 p-6 rounded-[2.5rem] border border-white/40 dark:border-white/5 flex items-center gap-6 group hover:border-blue-500/30 transition-all relative overflow-hidden cursor-pointer"
+            >
+              {/* Background Glow */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-600/10 transition-colors" />
+              
+              <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/20 group-hover:scale-110 transition-transform relative z-10">
+                <CalendarIcon className="w-7 h-7 text-white" />
               </div>
-              <div className="flex-1 relative cursor-pointer group/dateinput">
-                <p className="text-[10px] font-black uppercase text-gray-400 group-hover/dateinput:text-blue-600 transition-colors">Target End Date</p>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">
-                    {missionEndDate ? new Date(missionEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Set Deadline'}
-                  </p>
-                  <ChevronDown className="w-3 h-3 text-gray-400 group-hover/dateinput:text-blue-600 transition-all" />
+
+              <div className="flex-1 relative z-10">
+                <p className="text-[10px] font-black uppercase text-gray-400 group-hover:text-blue-600 transition-colors tracking-[0.2em] mb-1">Target End Date</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xl font-black text-gray-900 dark:text-white leading-none">
+                      {missionEndDate ? new Date(missionEndDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Set Deadline'}
+                    </h4>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase mt-1">
+                      {missionEndDate ? new Date(missionEndDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric' }) : 'Phase 5 completion'}
+                    </p>
+                  </div>
+                  <div className="bg-blue-600/10 text-blue-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    Open Calendar
+                  </div>
                 </div>
-                <input 
-                  type="date" 
-                  value={missionEndDate || ''} 
-                  onChange={handleSetEndDate}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                />
               </div>
             </div>
           </div>
         </div>
+
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full -mr-48 -mt-48 blur-3xl" />
       </div>
 
@@ -835,14 +984,17 @@ export default function Planner() {
 
                   <div className="space-y-4">
                     <p className="text-xs font-black uppercase text-gray-400 tracking-widest">Target End Date</p>
-                    <div className="flex items-center gap-4 bg-gray-50 dark:bg-white/5 p-6 rounded-[2rem] border border-black/5 dark:border-white/5 h-[88px]">
-                      <CalendarIcon className="w-6 h-6 text-blue-600" />
-                      <input 
-                        type="date" 
-                        value={missionEndDate || ''} 
-                        onChange={(e) => setMissionEndDate(e.target.value)}
-                        className="flex-1 bg-transparent text-sm font-bold text-gray-900 dark:text-white focus:outline-none dark:[color-scheme:dark]"
-                      />
+                    <div 
+                      onClick={() => { setViewMode('days'); setShowCalendar(true); }}
+                      className="flex items-center gap-4 bg-gray-50 dark:bg-white/5 p-6 rounded-[2rem] border border-black/5 dark:border-white/5 h-[88px] cursor-pointer hover:border-blue-500/30 transition-all group/gen-date"
+                    >
+                      <CalendarIcon className="w-6 h-6 text-blue-600 group-hover/gen-date:scale-110 transition-transform" />
+                      <div>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">
+                          {missionEndDate ? new Date(missionEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Set Deadline'}
+                        </p>
+                        <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-0.5">Click to Change</p>
+                      </div>
                     </div>
                   </div>
                 </div>
