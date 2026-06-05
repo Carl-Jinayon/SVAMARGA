@@ -367,126 +367,125 @@ export default function Planner() {
             </p>
           </div>
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="bg-white/40 dark:bg-black/20 p-4 rounded-3xl border border-white/40 dark:border-white/5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-600/20">
+            <div className="bg-white/40 dark:bg-black/20 p-4 rounded-3xl border border-white/40 dark:border-white/5 flex items-center gap-4 group hover:border-blue-500/30 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-600/20 group-hover:scale-110 transition-transform">
                 <Clock className="w-6 h-6 text-white" />
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-[10px] font-black uppercase text-gray-400">Session Timer</p>
                 <div className="flex items-center gap-3">
-                  {isEditingTimer ? (
-                    <AnimatePresence>
-                      <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-[100px] flex items-center justify-center p-6 overflow-hidden"
-                      >
-                        {/* Background Aura */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" />
-                        
-                        <motion.div 
-                          initial={{ scale: 0.5, rotateY: 90, opacity: 0 }}
-                          animate={{ scale: 1, rotateY: 0, opacity: 1 }}
-                          className="relative w-full max-w-4xl glass border-blue-500/20 p-16 rounded-[6rem] shadow-[0_0_200px_rgba(37,99,235,0.1)] overflow-hidden"
-                        >
-                          {/* Scanner Line */}
-                          <div className="absolute top-0 left-0 w-full h-px bg-blue-500/50 shadow-[0_0_20px_blue] animate-scan" />
-                          
-                          <div className="text-center space-y-16 relative z-10">
-                            <div className="space-y-4">
-                              <div className="inline-flex items-center gap-3 px-6 py-2 bg-blue-500/10 rounded-full border border-blue-500/20 mb-4">
-                                <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-400">Neural Flux Synchronization</span>
-                              </div>
-                              <h3 className="text-6xl font-black uppercase tracking-tighter text-white">Temporal <span className="text-blue-500">Amplitude</span></h3>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
-                              {[
-                                { label: 'Hour Intensity', key: 'h', max: 24, gradient: 'from-blue-600 to-indigo-600' },
-                                { label: 'Minute Precision', key: 'm', max: 59, gradient: 'from-blue-400 to-blue-600' }
-                              ].map(({ label, key, max, gradient }) => (
-                                <div key={key} className="space-y-10 group">
-                                  <div className="flex justify-between items-end px-2">
-                                    <p className="text-xs font-black uppercase text-gray-500 tracking-[0.3em]">{label}</p>
-                                    <p className="text-5xl font-black font-mono text-white">
-                                      {(timerInputs as any)[key]}<span className="text-xs ml-2 text-blue-500">{key.toUpperCase()}</span>
-                                    </p>
-                                  </div>
-                                  
-                                  <div className="relative h-2">
-                                    <div className="absolute inset-0 bg-white/5 rounded-full overflow-hidden">
-                                      <motion.div 
-                                        className={`h-full bg-gradient-to-r ${gradient}`}
-                                        animate={{ width: `${((timerInputs as any)[key] / max) * 100}%` }}
-                                      />
-                                    </div>
-                                    <input 
-                                      type="range" 
-                                      min="0" 
-                                      max={max} 
-                                      value={(timerInputs as any)[key]} 
-                                      onChange={e => setTimerInputs({ ...timerInputs, [key]: parseInt(e.target.value) || 0 })}
-                                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    />
-                                    {/* Tick Marks */}
-                                    <div className="absolute -bottom-6 left-0 w-full flex justify-between px-1">
-                                      {[...Array(6)].map((_, i) => <div key={i} className="w-px h-2 bg-white/10" />)}
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="flex gap-8 pt-10">
-                              <button 
-                                onClick={() => setIsEditingTimer(false)}
-                                className="flex-1 py-8 rounded-[3rem] bg-white/5 text-gray-500 font-black uppercase tracking-[0.4em] text-xs border border-white/5 hover:bg-white/10 hover:text-white transition-all group"
-                              >
-                                Terminate Connection
-                              </button>
-                              <button 
-                                onClick={saveTimer}
-                                className="flex-[2] py-8 rounded-[3rem] bg-blue-600 text-white font-black uppercase tracking-[0.4em] text-xs shadow-[0_40px_80px_rgba(37,99,235,0.4)] hover:scale-105 active:scale-95 transition-all relative overflow-hidden group"
-                              >
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                                Initiate Session
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </motion.div>
-                    </AnimatePresence>
-                  ) : (
-                    <>
-                      <p onClick={handleEditTimer} className="text-xl font-black font-mono text-gray-900 dark:text-white cursor-pointer hover:text-blue-600 transition-colors" title="Click to edit">{formatSeconds(sessionTimer.remainingSeconds)}</p>
-                      <button onClick={toggleSessionTimer} className="p-2 bg-blue-600 text-white rounded-lg hover:scale-105 transition-all">
-                        {sessionTimer.isRunning ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                      </button>
-                      <button onClick={resetSessionTimer} className="p-2 bg-gray-500 text-white rounded-lg hover:scale-105 transition-all">
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </>
-                  )}
+                  <p onClick={handleEditTimer} className="text-xl font-black font-mono text-gray-900 dark:text-white cursor-pointer hover:text-blue-600 transition-colors" title="Click to edit">{formatSeconds(sessionTimer.remainingSeconds)}</p>
+                  <div className="flex gap-1">
+                    <button onClick={toggleSessionTimer} className="p-2 bg-blue-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all">
+                      {sessionTimer.isRunning ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                    </button>
+                    <button onClick={resetSessionTimer} className="p-2 bg-gray-500/20 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-all">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="bg-white/40 dark:bg-black/20 p-4 rounded-3xl border border-white/40 dark:border-white/5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
+
+            <div className="bg-white/40 dark:bg-black/20 p-4 rounded-3xl border border-white/40 dark:border-white/5 flex items-center gap-4 group hover:border-blue-500/30 transition-all relative">
+              <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
                 <CalendarIcon className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <p className="text-[10px] font-black uppercase text-gray-400">Target End Date</p>
+              <div className="flex-1 relative cursor-pointer group/dateinput">
+                <p className="text-[10px] font-black uppercase text-gray-400 group-hover/dateinput:text-blue-600 transition-colors">Target End Date</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">
+                    {missionEndDate ? new Date(missionEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Set Deadline'}
+                  </p>
+                  <ChevronDown className="w-3 h-3 text-gray-400 group-hover/dateinput:text-blue-600 transition-all" />
+                </div>
                 <input 
                   type="date" 
                   value={missionEndDate || ''} 
                   onChange={handleSetEndDate}
-                  className="bg-transparent text-sm font-bold text-gray-900 dark:text-white focus:outline-none dark:[color-scheme:dark]"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
               </div>
             </div>
           </div>
         </div>
+
+        {/* Simplified Timer Edit Modal */}
+        <AnimatePresence>
+          {isEditingTimer && (
+            <div className="fixed inset-0 z-[150] flex items-center justify-center p-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsEditingTimer(false)}
+                className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                className="relative w-full max-w-lg glass border-white/20 p-10 rounded-[3rem] shadow-2xl overflow-hidden"
+              >
+                <div className="text-center space-y-8 relative z-10">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-black uppercase tracking-tighter text-gray-900 dark:text-white">Configure <span className="text-blue-600">Session</span></h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Adjust your focus duration</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-8">
+                    {[
+                      { label: 'Hours', key: 'h', max: 24 },
+                      { label: 'Minutes', key: 'm', max: 59 }
+                    ].map(({ label, key, max }) => (
+                      <div key={key} className="space-y-4">
+                        <div className="flex justify-between items-end px-1">
+                          <p className="text-[9px] font-black uppercase text-gray-500 tracking-widest">{label}</p>
+                          <p className="text-3xl font-black font-mono text-blue-600">
+                            {(timerInputs as any)[key]}<span className="text-[10px] ml-1 opacity-50">{key.toUpperCase()}</span>
+                          </p>
+                        </div>
+                        
+                        <div className="relative h-1.5">
+                          <div className="absolute inset-0 bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+                            <motion.div 
+                              className="h-full bg-blue-600"
+                              animate={{ width: `${((timerInputs as any)[key] / max) * 100}%` }}
+                            />
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max={max} 
+                            value={(timerInputs as any)[key]} 
+                            onChange={e => setTimerInputs({ ...timerInputs, [key]: parseInt(e.target.value) || 0 })}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-4 pt-6">
+                    <button 
+                      onClick={() => setIsEditingTimer(false)}
+                      className="flex-1 py-4 rounded-2xl bg-black/5 dark:bg-white/5 text-gray-500 font-black uppercase tracking-widest text-[9px] hover:bg-black/10 dark:hover:bg-white/10 transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={saveTimer}
+                      className="flex-[2] py-4 rounded-2xl bg-blue-600 text-white font-black uppercase tracking-widest text-[9px] shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
+                    >
+                      Save Configuration
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+        
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full -mr-48 -mt-48 blur-3xl" />
       </div>
 
@@ -503,11 +502,8 @@ export default function Planner() {
         </div>
 
         {/* Date Dimensional Timeline */}
-        <div className="relative group/timeline py-8">
-          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-gray-50 dark:from-gray-900 to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-gray-50 dark:from-gray-900 to-transparent z-10 pointer-events-none" />
-          
-          <div className="flex gap-8 overflow-x-auto py-12 px-32 no-scrollbar scroll-smooth snap-x">
+        <div className="relative group/timeline py-4">
+          <div className="flex gap-4 overflow-x-auto py-8 px-4 no-scrollbar scroll-smooth snap-x">
             {dates.map((date) => {
               const d = new Date(date);
               const isToday = date === new Date().toISOString().split('T')[0];
@@ -521,26 +517,26 @@ export default function Planner() {
                 <button
                   key={date}
                   onClick={() => setSelectedDate(date)}
-                  className={`flex-shrink-0 w-32 h-44 rounded-[3rem] flex flex-col items-center justify-center transition-all duration-700 snap-center relative group/date ${
+                  className={`flex-shrink-0 w-24 h-32 rounded-3xl flex flex-col items-center justify-center transition-all duration-500 snap-center relative group/date ${
                     isActive 
-                      ? 'bg-blue-600 text-white shadow-[0_20px_60px_rgba(37,99,235,0.4)] scale-125 z-20' 
-                      : 'bg-white/40 dark:bg-black/20 border-2 border-white/40 dark:border-white/5 text-gray-500 hover:border-blue-500/50 hover:scale-105'
+                      ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/30 ring-4 ring-blue-600/20' 
+                      : 'bg-white/40 dark:bg-black/20 border border-white/40 dark:border-white/5 text-gray-500 hover:border-blue-500/30 hover:bg-white/60'
                   }`}
                 >
-                  {isToday && !isActive && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">Present</div>
+                  {isToday && (
+                    <div className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm ${isActive ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>Today</div>
                   )}
                   {hasPlan && !isActive && (
-                    <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]" />
+                    <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-blue-500" />
                   )}
-                  <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${isActive ? 'text-blue-100' : 'text-gray-400'}`}>{monthName}</p>
-                  <p className={`text-4xl font-black mb-1 ${isActive ? 'text-white' : 'text-gray-900 dark:text-white'}`}>{dayNum}</p>
-                  <p className={`text-[10px] font-bold uppercase tracking-widest ${isActive ? 'text-blue-200' : 'text-gray-500'}`}>{dayName}</p>
+                  <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${isActive ? 'text-blue-100' : 'text-gray-400'}`}>{monthName}</p>
+                  <p className={`text-2xl font-black ${isActive ? 'text-white' : 'text-gray-900 dark:text-white'}`}>{dayNum}</p>
+                  <p className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? 'text-blue-200' : 'text-gray-500'}`}>{dayName}</p>
                   
                   {isActive && (
                     <motion.div 
-                      layoutId="active-glow"
-                      className="absolute inset-0 rounded-[3rem] bg-blue-400 blur-2xl opacity-20 -z-10"
+                      layoutId="active-pill"
+                      className="absolute -bottom-1 w-8 h-1 bg-white rounded-full"
                     />
                   )}
                 </button>
