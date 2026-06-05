@@ -20,6 +20,7 @@ export default function Inbox() {
   const isAdmin = user?.id === ADMIN_ID;
 
   const getMyEmail = (u: any) => u?.email || u?.user_metadata?.email || u?.user_metadata?.full_name || u?.user_metadata?.user_name || 'Unknown';
+  const myEmail = getMyEmail(user);
 
   useEffect(() => {
     if (user) {
@@ -29,18 +30,26 @@ export default function Inbox() {
     }
   }, [user]);
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom only on selection or new local message
+  const lastMsgCount = useRef(0);
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const isNewThread = selectedThreadId;
+      const hasNewMessages = currentReplies.length > lastMsgCount.current;
+      
+      // If we just switched threads or WE sent a message (or just received one while at bottom)
+      if (isNewThread || hasNewMessages) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
     }
-  }, [selectedThreadId, messages]);
+    lastMsgCount.current = currentReplies.length;
+  }, [selectedThreadId, currentReplies.length]);
 
   // Helper: Extract Recipient Email from content tags
   const extractRecipientEmail = (content: string) => {
-    if (!content) return 'System';
+    if (!content) return 'Admin';
     const match = content.match(/\[Recipient:\s*([^\]\n]+)\]/i);
-    return match ? match[1].trim() : 'System';
+    return match ? match[1].trim() : 'Admin';
   };
 
   // Helper: Extract Sender Email from content tags
@@ -48,6 +57,18 @@ export default function Inbox() {
     if (!content) return 'Unknown';
     const match = content.match(/\[Sender:\s*([^\]\n]+)\]/i);
     return match ? match[1].trim() : 'Unknown';
+  };
+
+  const getOtherParty = (msg: any) => {
+    const sender = extractSenderEmail(msg.content);
+    const recipient = extractRecipientEmail(msg.content);
+    
+    if (isAdmin) {
+      // If I'm admin, the other party is whoever is NOT me (Admin)
+      return sender.toLowerCase().includes('admin') ? recipient : sender;
+    }
+    // If I'm a user, the other party is the recipient (usually Admin) or the sender (if Admin replied)
+    return recipient.toLowerCase().includes('admin') ? 'Admin' : recipient;
   };
 
   const getCleanContent = (content: string) => {
@@ -69,9 +90,7 @@ export default function Inbox() {
   // Logic: Group messages by the "Other Party"
   const filteredThreads = useMemo(() => {
     return threadParents.filter(m => {
-      const recipient = extractRecipientEmail(m.content);
-      const sender = extractSenderEmail(m.content);
-      const otherParty = isAdmin ? sender : recipient;
+      const otherParty = getOtherParty(m);
       return otherParty.toLowerCase().includes(searchTerm.toLowerCase()) || 
              getCleanContent(m.content).toLowerCase().includes(searchTerm.toLowerCase());
     });
@@ -99,7 +118,7 @@ export default function Inbox() {
     setSending(true);
 
     const myEmail = getMyEmail(user);
-    const targetRecipient = (newType === 'Bug' ? 'System' : newEmail || 'System').trim();
+    const targetRecipient = (newType === 'Bug' ? 'Admin' : newEmail || 'Admin').trim();
     
     // 1. Try to find an existing thread with this email (either as sender or recipient)
     const existing = threadParents.find(m => {
@@ -220,15 +239,14 @@ export default function Inbox() {
           <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
             {displayedThreads.map(({ parent, latest }) => {
               const isActive = selectedThreadId === parent.id;
-              const sender = extractSenderEmail(parent.content);
-              const recipient = extractRecipientEmail(parent.content);
+              const otherParty = getOtherParty(parent);
               return (
                 <button key={parent.id} onClick={() => setSelectedThreadId(parent.id)} className={`w-full text-left p-4 rounded-[1.5rem] transition-all border-2 ${isActive ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'bg-white/40 dark:bg-black/20 border-transparent hover:border-blue-500/30 text-gray-900 dark:text-white'}`}>
                   <div className="flex justify-between items-start mb-1">
                     <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase ${isActive ? 'bg-white/20' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'}`}>{parent.issue_type || 'Message'}</span>
                     <span className="text-[7px] opacity-60 font-bold">{new Date(latest.created_at).toLocaleDateString()}</span>
                   </div>
-                  <p className={`text-[10px] font-black truncate ${isActive ? 'text-white' : 'text-blue-600'}`}>{isAdmin ? `From: ${sender}` : `To: ${recipient}`}</p>
+                  <p className={`text-[10px] font-black truncate ${isActive ? 'text-white' : 'text-blue-600'}`}>{isAdmin ? `User: ${otherParty}` : `To: ${otherParty}`}</p>
                   <p className="text-[11px] font-medium truncate opacity-70 italic">
                     {latest.sender_role === (isAdmin ? 'admin' : 'user') ? 'You: ' : ''}
                     "{getCleanContent(latest.content)}"
@@ -245,7 +263,7 @@ export default function Inbox() {
               <div className="p-6 border-b border-black/5 dark:border-white/5 bg-white/20 dark:bg-black/20 flex justify-between items-center">
                 <div>
                   <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter">{activeThread.issue_type} Report</h4>
-                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{isAdmin ? `User: ${extractSenderEmail(activeThread.content)}` : `Recipient: ${extractRecipientEmail(activeThread.content)}`}</p>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{isAdmin ? `User: ${getOtherParty(activeThread)}` : `Recipient: ${getOtherParty(activeThread)}`}</p>
                 </div>
                 <span className="px-3 py-1 bg-green-500 text-white rounded-full text-[10px] font-black uppercase">Active</span>
               </div>
