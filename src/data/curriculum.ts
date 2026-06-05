@@ -1026,56 +1026,83 @@ export const curriculum: Phase[] = [
         hours: 90,
         duration: '8 weeks',
         difficulty: 'Hard',
-        description: 'Designing systems for millions of users. Build the vocabulary now, mastery comes on the job.',
+        prerequisites: ['CS203', 'CS204', 'CS301'],
+        description: "System design is how senior engineers think. It's about designing systems that serve millions of users without falling over. You won't master this in 8 weeks — but you must build the vocabulary now and deepen it on the job through every system you touch.",
         topics: ['Scalability Foundations', 'Core Infrastructure Components', 'Design Case Studies', 'Reliability & Operations'],
         subtopics: {
           'Scalability Foundations': [
-            'Vertical vs Horizontal scaling',
-            'Load Balancers and Caching strategies',
-            'CDNs and Database scaling (sharding)',
-            'Consistent Hashing'
+            'Vertical vs horizontal scaling: when each applies, limits of each',
+            'Load balancers: round-robin, least connections, IP hashing, sticky sessions',
+            'Caching strategies: cache-aside (lazy), write-through, write-behind, read-through',
+            'Cache eviction policies: LRU, LFU, FIFO — which to use when',
+            'CDNs: push vs pull, edge caching, cache invalidation, geographic distribution',
+            'Database scaling: read replicas (lag), sharding (horizontal partitioning), partitioning strategies',
+            'Consistent hashing: how distributed systems map keys to nodes without remapping everything'
           ],
           'Core Infrastructure Components': [
-            'Message Queues: Kafka vs RabbitMQ',
-            'Microservices vs Monolith tradeoffs',
-            'API Gateway and Service Discovery',
-            'Circuit Breaker pattern'
+            'Message queues: async processing, decoupling producers from consumers, at-least-once delivery',
+            'Kafka: topics, partitions, consumer groups, offset management, exactly-once semantics',
+            'RabbitMQ vs Kafka vs SQS: when each is the right tool',
+            'Microservices vs monolith: the real tradeoffs, not the hype — start monolith, extract services',
+            'API gateway: single entry point, routing, rate limiting, auth, request transformation',
+            'Service discovery: Consul, Kubernetes service discovery — how services find each other',
+            'Circuit breaker pattern: prevent cascade failures, Hystrix, resilience4j concepts'
           ],
           'Design Case Studies': [
-            'URL Shortener and Social Feed (fan-out)',
-            'Video Streaming (chunking, adaptive bitrate)',
-            'Ride-Sharing (geospatial indexing)',
-            'Chat App (WebSockets, message ordering)'
+            'URL Shortener: hash function, collision handling, custom aliases, analytics, TTL',
+            'Social Feed (Twitter): fanout on write vs fanout on read — when each wins',
+            'Video Streaming (YouTube): chunking, transcoding pipeline, adaptive bitrate, CDN strategy',
+            'Ride-Sharing (Grab/Uber): geospatial indexing (geohash, quadtree), driver matching, surge pricing',
+            'Chat Application (Slack): WebSockets, message ordering, presence, search at scale',
+            'Notification System: fan-out, push vs pull, SMS/email/push at scale, delivery receipts',
+            'Distributed File Storage (Google Drive): chunking, deduplication, sync protocol, conflict resolution',
+            'Search Engine: inverted index, TF-IDF, ranking signals, query parsing'
           ],
           'Reliability & Operations': [
-            'CAP Theorem and PACELC',
-            'Fault tolerance and Replication factor',
-            'Monitoring, Alerting, and SLOs'
+            'CAP theorem: you can only have 2 — know which 2 each major system chooses and why',
+            'PACELC: extends CAP — latency vs consistency tradeoff when no partition',
+            'Fault tolerance: replication factor, failover, circuit breaker, bulkhead pattern',
+            'Monitoring: the four golden signals (latency, traffic, errors, saturation)',
+            'SLA/SLO/SLI: definitions, how to set realistic targets, error budgets',
+            'Distributed tracing: correlation IDs, Jaeger, OpenTelemetry, trace sampling',
+            'Chaos engineering: deliberately break things to find weaknesses before users do'
           ]
         },
         projects: [
-          { name: 'URL Shortener', description: 'Design doc and implementation', level: 'Adv', outcome: 'Hash collision handling, custom aliases, analytics, TTL' },
-          { name: 'System Design Primer', description: 'Complete the primer roadmap', level: 'Adv', outcome: 'Documentation of all major patterns and case studies' },
+          { 
+            name: 'URL Shortener', 
+            description: 'End-to-end with Redis caching + analytics', 
+            level: 'Adv', 
+            outcome: 'Custom aliases, click analytics dashboard, expiry, rate limiting, deployed, load tested' 
+          },
+          { 
+            name: 'Design Documents', 
+            description: 'Architecture docs for 5 case studies', 
+            level: 'Adv', 
+            outcome: 'Each: requirements, capacity estimates, component diagram, data model, API design, tradeoffs' 
+          },
         ],
         resources: [
-          { name: 'System Design Primer', type: 'GitHub', cost: 'Free', stars: 5, url: 'https://github.com/donnemartin/system-design-primer', notes: 'The definitive free resource for interview prep' },
-          { name: 'ByteByteGo', type: 'Course', cost: 'Mixed', stars: 5, url: 'https://bytebytego.com', notes: 'Alex Xu\'s visual system design — excellent for intuition' },
-          { name: 'Designing Data-Intensive Apps', type: 'Book', cost: 'Paid', stars: 5, notes: 'The "bible" of system design — read it slowly' },
+          { name: 'System Design Primer', type: 'GitHub', cost: 'Free', stars: 5, url: 'https://github.com/donnemartin/system-design-primer', notes: 'Largest free system design resource' },
+          { name: 'ByteByteGo (Alex Xu)', type: 'YouTube/Book', cost: 'Mixed', stars: 5, url: 'https://bytebytego.com', notes: 'Best visual explanations — watch free YouTube, buy the book if you can' },
+          { name: 'DDIA (Kleppmann)', type: 'Book', cost: 'Paid', stars: 5, notes: 'Designing Data-Intensive Applications — the most important tech book' },
+          { name: 'Grokking SD Interview', type: 'Course', cost: 'Paid', stars: 4, url: 'https://www.educative.io', notes: 'Structured interview format, good if budget allows' },
         ],
         commonMistakes: [
-          'Jumping into microservices too early',
-          'Ignoring database consistency tradeoffs',
-          'Not quantifying requirements before designing',
-          'Applying "cool" tech without a reason'
+          'Starting with solutions before clarifying requirements — always clarify scale first',
+          'Not making explicit tradeoffs — \'it depends\' without explanation is not an answer',
+          'Over-engineering for a startup\'s scale — design for 10x your current load, not 1000x',
+          'Not knowing the numbers: 1ms RAM access, 1ms network, 10ms disk — know these cold',
+          'Designing everything as microservices from day one — start with a monolith'
         ],
         selfCheck: [
-          'Can you design a URL shortener that handles 1M requests/sec?',
-          'Can you explain the CAP theorem with a real-world example?',
-          'Can you explain the fan-out problem in social media feeds?',
-          'Can you describe how consistent hashing works?',
-          'Can you explain when to use a message queue?'
+          'Can you design a URL shortener end-to-end in 45 minutes including tradeoffs?',
+          'Can you explain CAP theorem with a concrete example of each combination?',
+          'Can you describe 3 different strategies to scale a read-heavy PostgreSQL database?',
+          'Can you explain what a message queue solves that a synchronous API call cannot?',
+          'Can you describe the fanout problem in social feeds and both solutions?'
         ],
-        whenStuck: 'Start with the simplest monolith. Only add complexity when you can explain exactly what bottleneck it solves. "Scale" is a number, not a feeling.'
+        whenStuck: "In a system design interview: always start by clarifying requirements and estimating scale. Jumping to solutions without scope is the #1 mistake senior engineers see. 'Let me clarify first' always impresses."
       },
       {
         id: 'CS304',
