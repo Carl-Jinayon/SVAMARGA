@@ -811,13 +811,18 @@ export const curriculum: Phase[] = [
     niceToHave: ['CS303 System Design (vocabulary now, mastery on the job)', 'Advanced React patterns'],
     interviewHabit: 'From Phase 3: do one full system design mock per month. Set a 45-minute timer. Draw on paper. No notes. Also: start applying to junior roles.',
     capstone: {
-      name: 'Real-Time SaaS Platform',
-      description: 'Build a production-quality SaaS: task manager or team chat with real-time features.',
+      name: 'Team Project Management Tool (Mini-Linear/Jira)',
+      description: 'Build and deploy a complete SaaS application: a team project management tool.',
       requirements: [
-        'React + TS Frontend with optimistic updates and custom hooks.',
-        'FastAPI Backend with JWT rotation and background Celery jobs.',
-        'Postgres for data, Redis for caching/websockets, S3 for files.',
-        'GitHub Actions CI/CD deploying to AWS/GCP or Render/Railway.'
+        'FastAPI backend with RBAC auth (Role-Based Access Control).',
+        'React + TypeScript frontend with optimized state management.',
+        'PostgreSQL on Cloud SQL (GCP) or RDS (AWS).',
+        'Redis caching for performance and session management.',
+        'File uploads to S3 (AWS) or Cloud Storage (GCP).',
+        'Real-time notifications via WebSockets.',
+        'Full CI/CD pipeline (test, lint, build, deploy).',
+        'Monitoring with CloudWatch/Cloud Logging and Sentry error tracking.',
+        'Proper system design document explaining architectural decisions.'
       ]
     },
     subjects: [
@@ -1106,56 +1111,185 @@ export const curriculum: Phase[] = [
       },
       {
         id: 'CS304',
-        name: 'DevOps',
+        name: 'Software Engineering Practices & DevOps',
         hours: 50,
         duration: '4 weeks',
         difficulty: 'Intermediate',
-        description: 'CI/CD and workflows. Learn to ship code safely and automatically.',
-        topics: ['Agile Workflows', 'CI/CD Pipelines', 'Containerization', 'Infrastructure as Code'],
+        prerequisites: ['CS202', 'CS301'],
+        description: "Real-world software is a team sport. This is how code goes from an idea in your head to a feature running in production without breaking things. Learn these practices now so your first job doesn't shock you.",
+        topics: ['Agile & Team Workflow', 'CI/CD Pipeline Mastery', 'Code Quality & Professionalism', 'Engineering Soft Skills'],
         subtopics: {
-          'Agile Workflows': ['GitFlow vs Trunk-based development', 'Code Review best practices'],
-          'CI/CD Pipelines': ['GitHub Actions, GitLab CI', 'Automated testing and linting'],
-          'Containerization': ['Docker, Kubernetes basics', 'Registry management'],
-          'Infrastructure as Code': ['Terraform/CloudFormation concepts', 'Deployment strategies (Blue/Green, Canary)']
+          'Agile & Team Workflow': [
+            "Agile manifesto: what it actually says vs how it's misused",
+            'Scrum: sprints (2 weeks), daily standups (15 min max), sprint review, retrospective',
+            'Kanban: visualize work, WIP limits, cycle time — good for ops and maintenance work',
+            'Git workflow: Gitflow vs trunk-based development — when each works',
+            'PR discipline: small PRs (< 400 lines), good descriptions, self-review before requesting review',
+            'Code review culture: be kind, be specific, explain the why, distinguish blocker vs nit',
+            'Conventional commits: feat, fix, docs, chore, refactor, test, perf, ci'
+          ],
+          'CI/CD Pipeline Mastery': [
+            'CI: run tests automatically on every push — non-negotiable',
+            'CD: deploy automatically on merge to main — not just possible but expected',
+            'GitHub Actions: YAML syntax, jobs, steps, actions marketplace, secrets management',
+            'Writing efficient workflows: caching dependencies, parallel jobs, matrix builds',
+            'Docker in pipelines: build image, push to registry (Docker Hub, GHCR), tag strategy',
+            'Environment management: dev, staging, production — promote through environments',
+            'Feature flags: deploy code without activating features — LaunchDarkly, custom flags',
+            'Rollback strategy: how to revert a bad deployment safely'
+          ],
+          'Code Quality & Professionalism': [
+            'Code review: what to look for — correctness, security, performance, readability, tests',
+            'Technical debt: categorize it (intentional vs accidental), track it, pay it down regularly',
+            'Refactoring safely: rename, extract function, extract class, inline, move — with tests',
+            'Documentation: docstrings (Google/NumPy style), README (what, why, how, examples)',
+            'ADR (Architecture Decision Records): document why you made a decision, not just what',
+            'Structured logging: JSON format, correlation IDs, log levels, what to log and what not to',
+            'Error monitoring: Sentry — every unhandled exception tracked, alerted, assigned'
+          ],
+          'Engineering Soft Skills': [
+            'Writing clear bug reports: reproduction steps, expected vs actual, environment, logs',
+            'Asking for help effectively: show what you tried, share the error, share context',
+            'Technical communication: explain decisions without jargon to non-technical stakeholders',
+            'Estimating work: range estimates, what you know vs what you need to learn',
+            'Giving and receiving critical feedback: direct, kind, specific, actionable',
+            'Meeting discipline: come prepared, take notes, confirm decisions, follow up in writing'
+          ]
         },
-        projects: [{ name: 'CI/CD Pipeline', description: 'Automated pipeline for Blog API', level: 'Int', outcome: 'Lints, tests, builds Docker, and deploys on merge' }],
-        resources: [{ name: 'GitHub Actions Docs', type: 'Docs', cost: 'Free', stars: 5, url: 'https://docs.github.com/actions' }],
-        commonMistakes: ['Manual deployments', 'No staging environment', 'Ignoring pipeline failures'],
-        selfCheck: ['Can you set up a pipeline from scratch?', 'Difference between CI and CD?'],
-        whenStuck: 'Read the logs from top to bottom. Most CI failures are just environment variable issues.'
+        projects: [
+          { 
+            name: 'Full CI/CD Pipeline', 
+            description: 'GitHub Actions for Blog API: test, lint, build, deploy', 
+            level: 'Int', 
+            outcome: 'Tests on every PR, build Docker on merge, deploy to cloud, Sentry alerts on failure' 
+          },
+          { 
+            name: 'Open Source Contribution', 
+            description: 'Real PR merged to an open source project', 
+            level: 'Int', 
+            outcome: 'Fix a real bug or add a real feature — document the full process in your portfolio' 
+          }
+        ],
+        resources: [
+          { name: 'GitHub Actions Docs', type: 'Docs', cost: 'Free', stars: 5, url: 'https://docs.github.com/actions', notes: 'Official docs — comprehensive, well-structured' },
+          { name: 'Google Engineering Practices', type: 'Docs', cost: 'Free', stars: 5, url: 'https://google.github.io/eng-practices', notes: 'How Google does code review, read fully' },
+          { name: 'The Pragmatic Programmer', type: 'Book', cost: 'Paid', stars: 5, notes: 'Hunt & Thomas — essential reading for every professional engineer' },
+          { name: 'Accelerate (Forsgren)', type: 'Book', cost: 'Paid', stars: 4, notes: 'Science of DevOps — evidence-based engineering practices' }
+        ],
+        commonMistakes: [
+          'Writing PRs that are 2000 lines — nobody reviews them properly, they just approve',
+          'Skipping the staging environment — deploying dev directly to prod causes incidents',
+          'Treating CI as optional — CI is your safety net, never disable it',
+          'Not writing ADRs — you will forget why you made architectural decisions without them'
+        ],
+        selfCheck: [
+          'Can you write a complete GitHub Actions workflow from scratch including matrix builds?',
+          'Can you explain the difference between CI and CD and give examples of each?',
+          'Can you write a constructive, kind, and specific code review comment on a junior\'s PR?',
+          'Can you write an Architecture Decision Record for a technology choice you made?'
+        ],
+        whenStuck: 'If a CI pipeline fails: read the log from the top, not the bottom. Every failure has a root cause clearly stated. Jumping to the bottom and guessing wastes 30 minutes. Read top to bottom, once.'
       },
       {
         id: 'CS305',
-        name: 'Cloud Fundamentals (AWS/GCP)',
+        name: 'Cloud Fundamentals (AWS & GCP)',
         hours: 70,
         duration: '4 weeks',
         difficulty: 'Intermediate',
-        description: 'AWS/GCP are listed in the majority of PH mid-level job postings.',
-        topics: ['Compute', 'Storage', 'Networking', 'Serverless'],
+        prerequisites: ['CS301', 'CS304'],
+        description: "Cloud is not optional in 2025 — it is where every application runs. AWS and GCP are listed in the majority of PH tech job postings for mid-level and above. Understanding cloud fundamentals makes you immediately more productive on day one of any job.",
+        topics: ['AWS Core Services', 'GCP Core Services', 'Cloud Architecture Patterns', 'Cloud in Practice'],
         subtopics: {
-          'Compute': ['EC2/Compute Engine, ECS/Cloud Run', 'Auto-scaling groups'],
-          'Storage': ['S3/Cloud Storage, RDS/Cloud SQL'],
-          'Networking': ['VPCs, Subnets, Security Groups, IAM'],
-          'Serverless': ['Lambda/Cloud Functions', 'Event-driven architecture']
+          'AWS Core Services': [
+            'IAM: users, groups, roles, policies, principle of least privilege',
+            'EC2: instances, AMIs, security groups, key pairs, user data scripts',
+            'VPC: subnets (public vs private), route tables, internet gateways, NAT gateways',
+            'S3: buckets, objects, storage classes, versioning, lifecycle policies',
+            'RDS: managed PostgreSQL/MySQL, snapshots, read replicas, Multi-AZ',
+            'ElastiCache: managed Redis/Memcached — cache your database queries',
+            'Lambda: serverless functions, triggers (API Gateway, S3, SQS), cold starts',
+            'API Gateway: REST vs HTTP APIs, rate limiting, usage plans, Lambda integration',
+            'CloudWatch: logs, metrics, alarms, dashboards — your observability layer',
+            'Route 53: DNS management, health checks, routing policies'
+          ],
+          'GCP Core Services': [
+            'IAM: service accounts, roles, bindings — different from AWS but same concepts',
+            'Compute Engine: VMs, machine types, preemptible instances (equivalent to EC2)',
+            'Cloud Storage: buckets, ACLs, signed URLs (equivalent to S3)',
+            'Cloud SQL: managed PostgreSQL/MySQL (equivalent to RDS)',
+            'Cloud Run: serverless containers — easier than Lambda for web APIs',
+            'BigQuery: serverless data warehouse — SQL on petabyte-scale data',
+            'Cloud Build: CI/CD pipelines — GitHub Actions alternative in GCP',
+            'Vertex AI: managed ML platform — where CS403 models go in production',
+            'Cloud Functions: event-driven serverless (equivalent to Lambda)'
+          ],
+          'Cloud Architecture Patterns': [
+            'Three-tier architecture: load balancer > app servers > database',
+            'Serverless architecture: API Gateway + Lambda/Cloud Run + managed DB',
+            'Container architecture: Kubernetes overview — pods, services, deployments',
+            'Infrastructure as Code: Terraform basics — define, version, and review infrastructure',
+            'Cost management: spot/preemptible instances, right-sizing, reserved instances, billing alerts',
+            'Security: security groups, NACLs, VPC flow logs, CloudTrail, GuardDuty',
+            'High availability: multi-AZ deployment, health checks, auto-scaling groups'
+          ],
+          'Cloud in Practice': [
+            'Deploying a FastAPI app to Cloud Run: Dockerfile, Cloud Build, env vars',
+            'Setting up a PostgreSQL instance on Cloud SQL or RDS with connection pooling',
+            'Storing user-uploaded files in S3/Cloud Storage with pre-signed URLs',
+            'Setting up CloudWatch/Cloud Logging dashboards for your applications',
+            'Cost estimation: AWS Pricing Calculator, GCP Pricing Calculator',
+            'AWS/GCP Free Tier: what\'s actually free, usage limits, how to avoid surprise bills',
+            'Certification roadmap: AWS Solutions Architect Associate or GCP Associate Cloud Engineer'
+          ]
         },
-        projects: [{ name: 'Cloud Deployment', description: 'Deploy app to AWS/GCP', level: 'Int', outcome: 'Fully hosted app with DB, S3 storage, and custom domain' }],
-        resources: [{ name: 'AWS Cloud Practitioner', type: 'Course', cost: 'Mixed', stars: 5, url: 'https://explore.skillbuilder.aws' }],
-        commonMistakes: ['Leaving resources running (cost)', 'Using root user', 'Public S3 buckets'],
-        selfCheck: ['Security Group vs NACL?', 'Lambda vs EC2?'],
-        whenStuck: 'Check IAM permissions first. 90% of cloud issues are permissions.'
+        projects: [
+          { 
+            name: 'Cloud-Deployed API', 
+            description: 'Deploy CS301 Blog API on Cloud Run or EC2', 
+            level: 'Int', 
+            outcome: 'VPC with private subnet for DB, S3 for files, Redis on ElastiCache, CloudWatch alerts' 
+          },
+          { 
+            name: 'Serverless Image Processor', 
+            description: 'Lambda/Cloud Function that resizes uploaded images', 
+            level: 'Int', 
+            outcome: 'Triggered by S3 upload, stores resized versions, no server to manage, pay per invocation' 
+          }
+        ],
+        resources: [
+          { name: 'AWS Free Tier', type: 'Platform', cost: 'Free', stars: 5, url: 'https://aws.amazon.com/free', notes: 'Create an account and build with free tier services' },
+          { name: 'Cloud Run Documentation', type: 'Docs', cost: 'Free', stars: 5, url: 'https://cloud.google.com/run', notes: 'Simplest way to deploy containers, excellent docs' },
+          { name: 'AWS Solutions Architect Study', type: 'Course', cost: 'Mixed', stars: 4, notes: 'Adrian Cantrill or Stephane Maarek — both excellent for SAA-C03' },
+          { name: 'Terraform Getting Started', type: 'Docs', cost: 'Free', stars: 4, url: 'https://developer.hashicorp.com/terraform/tutorials', notes: 'Official, hands-on' }
+        ],
+        commonMistakes: [
+          'Using the root AWS account for everything — always use IAM with least privilege',
+          'Not setting billing alerts — surprise cloud bills happen to experienced engineers too',
+          'Not understanding the free tier limits — some services are free up to a limit, then expensive',
+          'Treating cloud as just \'someone else\'s computer\' — understanding the primitives matters',
+          'Not using IaC (Terraform) — clicking in the console doesn\'t scale'
+        ],
+        selfCheck: [
+          'Can you explain the difference between a security group and a NACL in AWS?',
+          'Can you deploy a containerized FastAPI app to Cloud Run using Cloud Build?',
+          'Can you explain what IAM roles are and why they are more secure than IAM users?',
+          'Can you estimate the monthly cost of running a small web app on AWS?',
+          'Can you explain the difference between Lambda and Cloud Run and when to use each?'
+        ],
+        whenStuck: 'If a cloud deployment fails: check the logs first (CloudWatch/Cloud Logging). 90% of issues are: wrong IAM permissions, misconfigured security groups, or missing environment variables.'
       }
     ],
   },
   {
     id: 4,
-    name: 'Machine Learning & AI',
+    name: 'Machine Learning & AI Engineering',
     duration: '9-12 months',
     hours: 820,
     color: '#f59e0b',
-    description: 'Become an ML Engineer. Your ultimate destination.',
-    mustComplete: ['CS401 ML Foundations', 'CS402 Deep Learning', 'CS403 MLOps + LLMs'],
-    niceToHave: ['CS404 Specialization', 'CS405 Data Viz', 'CS406 Data Eng.'],
-    interviewHabit: 'Participate in 1 Kaggle competition per month. Focus on the discussion and top solutions.',
+    description: 'Your ultimate destination. Math meets code. Every phase before this was preparation.',
+    mustComplete: ['CS401 ML Foundations (all modules)', 'CS402 Deep Learning (Modules 1-6)', 'CS403 MLOps + LLM Engineering'],
+    niceToHave: ['CS404 pick ONE specialization track', 'CS406 Data Engineering (if targeting data-heavy roles)', 'CS405 Data Visualization'],
+    interviewHabit: 'From Phase 4: apply to ML roles even before Phase 4 is complete. Companies often hire ML engineers with strong Python/backend skills and train ML on the job. Your CS201-CS305 background already makes you competitive for many ML adjacent roles.',
     capstone: {
       name: 'End-to-End ML Product',
       description: 'Build and deploy a full ML application (e.g., Recommendation System, RAG Chatbot).',
@@ -1169,42 +1303,244 @@ export const curriculum: Phase[] = [
     subjects: [
       {
         id: 'CS401',
-        name: 'ML Foundations',
+        name: 'Machine Learning Foundations',
         hours: 200,
         duration: '14 weeks',
         difficulty: 'Hard',
-        description: 'Mathematics, stats, and classic ML. Feature engineering is the key.',
-        topics: ['Math for ML', 'Supervised Learning', 'Unsupervised Learning', 'Model Evaluation'],
+        prerequisites: ['CS102', 'CS101', 'CS201'],
+        description: "Every ML algorithm has a mathematical story behind it. Learn the story first — the code follows naturally. The most important skill in ML is not knowing which algorithm to use — it is feature engineering. Spend more time on Module 4 than on anything else.",
+        topics: ['Module 1: ML Fundamentals', 'Module 2: Supervised Learning Algorithms', 'Module 3: Unsupervised Learning', 'Module 4: Feature Engineering — The Most Impactful Skill', 'Module 5: Model Optimization'],
         subtopics: {
-          'Math for ML': ['Linear Algebra and Calculus for ML', 'Probability and Stats'],
-          'Supervised Learning': ['Linear/Logistic Regression', 'Trees and Forests', 'SVMs and KNN'],
-          'Unsupervised Learning': ['Clustering (K-Means)', 'Dimensionality Reduction (PCA)'],
-          'Model Evaluation': ['Bias-Variance tradeoff', 'Cross-validation', 'Metrics (F1, AUC, MSE)']
+          'Module 1: ML Fundamentals': [
+            'What is ML: supervised, unsupervised, reinforcement, self-supervised — definitions and examples',
+            'The ML pipeline: problem definition > data collection > EDA > preprocessing > feature engineering > modeling > evaluation > deployment > monitoring',
+            'Bias-variance tradeoff: the central tension of all of ML — understand this deeply',
+            'Overfitting: too complex, memorizes training data — detection via train-val gap',
+            'Underfitting: too simple, misses patterns — detection via high training error',
+            'Train/validation/test split: why 3 sets, never touch test until final evaluation',
+            'Cross-validation: k-fold, stratified k-fold (for imbalanced), time-series split',
+            'Evaluation metrics: accuracy, precision, recall, F1, AUC-ROC, PR curve',
+            'Regression metrics: MSE, RMSE, MAE, MAPE, R-squared — when each is appropriate'
+          ],
+          'Module 2: Supervised Learning Algorithms': [
+            'Linear Regression: cost function (MSE), gradient descent, normal equation, assumptions, R^2',
+            'Logistic Regression: sigmoid function, log loss, decision boundary, regularization',
+            'Decision Trees: information gain, Gini impurity, pruning, max_depth, min_samples_leaf',
+            'Random Forest: bagging, out-of-bag error, feature importance — most reliable baseline',
+            'Gradient Boosting: sequential ensembles, XGBoost, LightGBM, CatBoost',
+            'SVM: hyperplane, support vectors, margin, kernel trick (RBF, polynomial)',
+            'K-Nearest Neighbors: distance metrics, curse of dimensionality',
+            'Naive Bayes: conditional independence, text classification, Laplace smoothing'
+          ],
+          'Module 3: Unsupervised Learning': [
+            'K-Means: algorithm, elbow method, silhouette score, limitations',
+            'Hierarchical clustering: agglomerative (bottom-up), dendrogram, linkage criteria (Ward)',
+            'DBSCAN: density-based, handles arbitrary shapes, no K needed, handles noise',
+            'PCA: variance explained, scree plot, when to use it',
+            't-SNE: visualization only, perplexity parameter (do NOT use for features)',
+            'UMAP: faster than t-SNE, preserves global structure, can be used for features',
+            'Association rules: support, confidence, lift, Apriori algorithm'
+          ],
+          'Module 4: Feature Engineering — The Most Impactful Skill': [
+            'EDA: describe(), value_counts(), hist(), pairplot(), heatmap(), distributions and outliers',
+            'Missing values: understand WHY data is missing (MCAR, MAR, MNAR) before imputing',
+            'Imputation: mean/median/mode, KNN impute, iterative imputer, flag missingness',
+            'Categorical encoding: one-hot, label, target (high cardinality), binary',
+            'Feature scaling: StandardScaler, MinMaxScaler, RobustScaler (outliers present)',
+            'Outlier detection: IQR method, Z-score, Isolation Forest — cap or remove',
+            'Feature selection: correlation matrix, mutual information, permutation importance, RFE',
+            'Feature creation: datetime features, interaction terms, polynomial features',
+            'Imbalanced datasets: SMOTE, ADASYN, class_weight=\'balanced\', threshold tuning',
+            'Target leakage: the silent killer — never let future information into training'
+          ],
+          'Module 5: Model Optimization': [
+            'Hyperparameter tuning: GridSearchCV, RandomizedSearchCV, Optuna (Bayesian)',
+            'Optuna: define objective, suggest parameters, pruning, visualization',
+            'sklearn Pipeline: chain preprocessing + model — prevents data leakage',
+            'Regularization: L1 (Lasso), L2 (Ridge), Elastic Net',
+            'Calibration: Platt scaling, isotonic regression — accurate probabilities',
+            'Learning curves: diagnose whether more data or a better model is needed',
+            'Ensemble methods: voting (soft/hard), stacking (meta-learner), blending'
+          ]
         },
-        projects: [{ name: 'Kaggle Titanic/House Prices', description: 'Classic ML competitions', level: 'Int', outcome: 'Top 20% submission, documented EDA' }],
-        resources: [{ name: 'Andrew Ng ML Specialization', type: 'Course', cost: 'Mixed', stars: 5, url: 'https://coursera.org' }],
-        commonMistakes: ['Skipping EDA', 'Data leakage', 'Overfitting to test set'],
-        selfCheck: ['Explain Bias vs Variance?', 'How does Gradient Descent work?'],
-        whenStuck: 'Plot the data. Visualization always reveals why the model is failing.'
+        projects: [
+          { 
+            name: 'Kaggle: Titanic', 
+            description: 'EDA + 5 algorithms + ensemble + submission', 
+            level: 'Int', 
+            outcome: 'Top 10% ranking, documented feature engineering decisions, algorithm comparison table' 
+          },
+          { 
+            name: 'Spam Classifier', 
+            description: 'NLP classification with multiple algorithms', 
+            level: 'Adv', 
+            outcome: 'TF-IDF + 5 algorithms, precision-recall tradeoff analysis, ROC curves, confusion matrices' 
+          },
+          { 
+            name: 'PH Customer Segmentation', 
+            description: 'K-Means on Philippine e-commerce dataset', 
+            level: 'Adv', 
+            outcome: 'Optimal K via elbow + silhouette, cluster profiling, actionable business recommendations' 
+          },
+          { 
+            name: 'House Price Prediction', 
+            description: 'End-to-end regression with full feature engineering', 
+            level: 'Adv', 
+            outcome: 'Feature importance analysis, log transforms, stacking ensemble, RMSE under 0.13' 
+          }
+        ],
+        resources: [
+          { name: 'Andrew Ng ML Specialization', type: 'Course', cost: 'Free', stars: 5, url: 'https://www.coursera.org/specializations/machine-learning-introduction', notes: 'Audit free, the most important ML course ever made, do everything' },
+          { name: 'Hands-On ML (Geron)', type: 'Book', cost: 'Paid', stars: 5, notes: 'Best practical ML book — Python, scikit-learn, TF, Keras — read every chapter' },
+          { name: 'Kaggle Learn', type: 'Course', cost: 'Free', stars: 4, url: 'https://www.kaggle.com/learn', notes: 'Free short courses on ML, feature engineering, data viz — excellent quality' },
+          { name: 'Scikit-learn User Guide', type: 'Docs', cost: 'Free', stars: 5, url: 'https://scikit-learn.org/stable/user_guide.html', notes: 'Best ML library docs — read the user guide, not just API reference' }
+        ],
+        commonMistakes: [
+          'Using test data for any decision during development — this includes feature engineering',
+          'Not doing EDA before modeling — you will miss data quality issues that ruin models',
+          'Treating feature engineering as less important than algorithm selection — it\'s the opposite',
+          'Optimizing for accuracy on imbalanced datasets — use F1 or AUC-ROC instead',
+          'Not understanding what a model is actually doing — black-box thinking leads to bad decisions'
+        ],
+        selfCheck: [
+          'Can you explain the bias-variance tradeoff using a diagram you drew yourself?',
+          'Can you derive gradient descent for linear regression from scratch on paper?',
+          'Can you explain why target leakage is dangerous and give a real example?',
+          'Can you describe 5 ways to handle an imbalanced classification dataset with tradeoffs?',
+          'Can you explain what a kernel does in SVM without using the word \'kernel\'?',
+          'Can you explain when you would choose XGBoost over Random Forest?'
+        ],
+        whenStuck: 'If your model is not performing: 80% of the time the problem is the data, not the algorithm. Check: target leakage, data distribution shift between train/test, incorrect label encoding, missing value handling. Plot everything before changing the model.'
       },
       {
         id: 'CS402',
-        name: 'Deep Learning',
+        name: 'Deep Learning & Neural Networks',
         hours: 230,
         duration: '14 weeks',
         difficulty: 'Very Hard',
-        description: 'Hardest subject. Neural networks from first principles.',
-        topics: ['Neural Networks', 'Computer Vision (CNNs)', 'Natural Language Processing (RNNs/Transformers)'],
+        prerequisites: ['CS401', 'CS102'],
+        description: "Deep learning is the hardest subject in this curriculum. The math is real, the debugging is painful, and the rewards are extraordinary. Every expert in this field struggled at backpropagation once. Be patient. The breakthrough moments are worth the struggle.",
+        topics: ['Module 1: Neural Network Foundations', 'Module 2: Regularization & Training Tricks', 'Module 3: Convolutional Neural Networks', 'Module 4: Recurrent Networks & Sequence Modeling', 'Module 5: Transformers & Attention Mechanism', 'Module 6: Generative Models', 'Module 7: PyTorch in Depth'],
         subtopics: {
-          'Neural Networks': ['Backpropagation from scratch', 'Activation functions, Optimizers'],
-          'Computer Vision (CNNs)': ['Convolutions, Pooling, ResNet', 'Object Detection'],
-          'Natural Language Processing': ['Word Embeddings, Attention mechanism', 'Transformers (BERT, GPT)']
+          'Module 1: Neural Network Foundations': [
+            'Perceptron: linear classifier, XOR problem, limitations',
+            'Multilayer Perceptron: hidden layers, universal approximation theorem',
+            'Forward pass: matrix multiplications + activation functions — implement in numpy first',
+            'Activation functions: Sigmoid, Tanh, ReLU, Leaky ReLU, GELU, Swish',
+            'Loss functions: MSE, Binary CrossEntropy, Categorical CrossEntropy',
+            'Backpropagation: chain rule applied to computation graphs — DERIVE THIS ON PAPER',
+            'Weight initialization: Xavier/Glorot (sigmoid/tanh), He (ReLU)',
+            'Gradient descent: batch, mini-batch, stochastic (SGD)',
+            'Optimizers: SGD (momentum), RMSProp, Adam, AdamW (weight decay)'
+          ],
+          'Module 2: Regularization & Training Tricks': [
+            'Dropout: randomly zero activations — ensembling effect',
+            'Batch normalization: normalize layer inputs, accelerates training',
+            'Layer normalization: used in Transformers and RNNs',
+            'Early stopping: monitor validation loss, patience, save best weights',
+            'Learning rate schedules: warmup, step decay, cosine annealing, OneCycleLR',
+            'Gradient clipping: clip_grad_norm_ — essential for RNNs',
+            'Weight decay: L2 regularization in optimizer (AdamW)',
+            'Mixed precision training: float16 for speed, float32 for stability'
+          ],
+          'Module 3: Convolutional Neural Networks': [
+            'Convolution operation: filter, stride, padding, output size formula',
+            'Feature maps: what each filter learns, visualize with Grad-CAM',
+            'Pooling: max pooling (position invariance), average pooling, global average pooling',
+            'Classic architectures: LeNet, AlexNet, VGG, ResNet (skip connections), EfficientNet',
+            'Why ResNet works: skip connections prevent vanishing gradient',
+            'Transfer learning: freeze backbone, train head',
+            'Fine-tuning: unfreeze later layers with low LR',
+            'Data augmentation: RandomCrop, ColorJitter, Mixup, CutMix, AugMix'
+          ],
+          'Module 4: Recurrent Networks & Sequence Modeling': [
+            'Why standard NNs fail on sequences: fixed input size, no temporal memory',
+            'Vanilla RNN: hidden state recurrence, BPTT (backprop through time)',
+            'Vanishing gradient in RNNs: why gradients die over long sequences',
+            'LSTM: cell state, forget gate, input gate, output gate — draw and understand',
+            'GRU: simplified LSTM — reset gate + update gate, fewer parameters',
+            'Bidirectional RNN: process sequence in both directions',
+            'Sequence-to-sequence: encoder encodes input, decoder generates output'
+          ],
+          'Module 5: Transformers & Attention Mechanism': [
+            'Attention intuition: focus on relevant words',
+            'Scaled dot-product attention: Q, K, V matrices, implement from scratch',
+            'Why scale by sqrt(d_k): prevents softmax saturation',
+            'Multi-head attention: parallel attention heads, concatenate, project',
+            'Positional encoding: inject sequence position since attention is permutation-invariant',
+            'Transformer encoder (BERT) and Transformer decoder (GPT)',
+            'BERT: masked language modeling, NSP, bidirectional context',
+            'GPT family: autoregressive (predict next token), causal masking, emergent abilities',
+            'Vision Transformer (ViT): transformer encoder on image patches'
+          ],
+          'Module 6: Generative Models': [
+            'Autoencoders: encoder compresses to latent space, decoder reconstructs',
+            'Variational Autoencoder (VAE): probabilistic latent space, reparameterization trick',
+            'GAN: generator fools discriminator, minimax game, Nash equilibrium',
+            'GAN training instability: mode collapse, vanishing gradients, WGAN',
+            'Diffusion models: forward process adds noise, reverse process denoises (Stable Diffusion)',
+            'Score matching and DDPM: theoretical foundation of modern generation',
+            'LLM training: pretraining (next token), SFT (instructions), RLHF (alignment)'
+          ],
+          'Module 7: PyTorch in Depth': [
+            'Tensors: creation, indexing, broadcasting, device management (.to(\'cuda\'))',
+            'Autograd: computation graph, requires_grad, .backward(), .grad',
+            'nn.Module: define layers, implement forward(), state_dict()',
+            'DataLoader: custom Dataset class, __getitem__, transforms, batching',
+            'Training loop: zero_grad(), forward, loss, backward, step() — from scratch',
+            'Evaluation loop: model.eval(), torch.no_grad(), running metrics',
+            'PyTorch Lightning: LightningModule, Trainer, callbacks, logging',
+            'Debugging: detect_anomaly, gradient checking, NaN detection'
+          ]
         },
-        projects: [{ name: 'Neural Net from Scratch', description: 'Implement NumPy-only NN', level: 'Adv', outcome: 'Trained on MNIST with 98%+ accuracy' }],
-        resources: [{ name: 'fast.ai', type: 'Course', cost: 'Free', stars: 5, url: 'https://fast.ai' }],
-        commonMistakes: ['Not doing backprop by hand', 'Ignoring learning rate tuning'],
-        selfCheck: ['Derive backprop?', 'How do transformers work?'],
-        whenStuck: 'Overfit a single batch of data first. If you can\'t, your model or data is broken.'
+        projects: [
+          { 
+            name: 'MNIST from Scratch', 
+            description: 'Digit classifier, pure PyTorch, no pretrained', 
+            level: 'Adv', 
+            outcome: 'Custom Dataset, DataLoader, training loop, 99%+ accuracy, confusion matrix, Grad-CAM' 
+          },
+          { 
+            name: 'Transfer Learning', 
+            description: 'Fine-tune ResNet50 on custom Philippine dataset', 
+            level: 'Adv', 
+            outcome: '100+ images, 90%+ accuracy, compare frozen vs fine-tuned, Grad-CAM visualization' 
+          },
+          { 
+            name: 'BERT Sentiment Analysis', 
+            description: 'Fine-tune BERT on reviews dataset', 
+            level: 'Adv', 
+            outcome: 'HuggingFace Transformers, 93%+ F1, deployed as FastAPI endpoint with rate limiting' 
+          },
+          { 
+            name: 'Kaggle Deep Learning', 
+            description: 'Enter one image or NLP competition', 
+            level: 'Expert', 
+            outcome: 'Top 30% finish, public notebook with full explanation, training curves logged to W&B' 
+          }
+        ],
+        resources: [
+          { name: 'Andrej Karpathy (YouTube)', type: 'Video', cost: 'Free', stars: 5, url: 'https://www.youtube.com/@AndrejKarpathy', notes: 'makemore, nanoGPT, micrograd — best teacher for building from scratch' },
+          { name: 'fast.ai Course', type: 'Course', cost: 'Free', stars: 5, url: 'https://course.fast.ai', notes: 'Practical Deep Learning — top-down approach, best for intuition first' },
+          { name: 'deeplearning.ai', type: 'Course', cost: 'Free', stars: 5, url: 'https://www.deeplearning.ai/courses/deep-learning-specialization/', notes: 'Andrew Ng 5-course specialization, audit free, foundational' },
+          { name: 'PyTorch Official Tutorials', type: 'Docs', cost: 'Free', stars: 4, url: 'https://pytorch.org/tutorials', notes: 'Official, comprehensive, always up to date' }
+        ],
+        commonMistakes: [
+          'Not implementing backprop from scratch at least once — using autograd blindly is a trap',
+          'Not overfitting a single batch first — verify model and data pipeline before training fully',
+          'Using the wrong loss function for the task — more common than you think',
+          'Not monitoring training curves — debug immediately if loss doesn\'t decrease smoothly',
+          'Not normalizing input data — neural networks are very sensitive to input scale'
+        ],
+        selfCheck: [
+          'Can you derive backpropagation for a 2-layer network on paper without any reference?',
+          'Can you explain why ResNet\'s skip connections solve the vanishing gradient problem?',
+          'Can you explain scaled dot-product attention intuitively, step by step?',
+          'Can you implement a complete training loop in PyTorch from scratch in under 30 minutes?',
+          'Can you explain what makes BERT different from GPT architecturally?',
+          'Can you explain how diffusion models generate images at a high level?'
+        ],
+        whenStuck: 'Loss not decreasing? Step 1: overfit a single batch (set batch_size=1). If it converges, your architecture and loss are correct. If not, your forward pass or loss has a bug.'
       },
       {
         id: 'CS403',
@@ -1212,33 +1548,213 @@ export const curriculum: Phase[] = [
         hours: 130,
         duration: '10 weeks',
         difficulty: 'Hard',
-        description: 'Productionizing ML and working with LLMs.',
-        topics: ['ML Pipelines', 'Model Serving', 'LLM Engineering (RAG)'],
+        prerequisites: ['CS301', 'CS401'],
+        description: "A model in a Jupyter notebook is not a product. MLOps is what separates data scientists from ML engineers. LLM Engineering is the hottest skill in the PH tech market in 2025-2026. This subject covers both — because they are now inseparable.",
+        topics: [
+          'ML Pipelines & Experiment Tracking',
+          'Model Deployment Patterns',
+          'Production ML Monitoring',
+          'LLM Engineering — Part 1: Foundations',
+          'LLM Engineering — Part 2: RAG & Agents',
+          'LLM Engineering — Part 3: Fine-Tuning & Production'
+        ],
         subtopics: {
-          'ML Pipelines': ['Experiment tracking (MLflow)', 'Data versioning (DVC)'],
-          'Model Serving': ['Docker for ML, Model monitoring'],
-          'LLM Engineering': ['Prompt Engineering, Vector DBs, RAG architecture']
+          'ML Pipelines & Experiment Tracking': [
+            'Data versioning with DVC: dvc push/pull, remote storage',
+            'Experiment tracking: MLflow — log params, metrics, registry',
+            'Weights & Biases: sweeps for HPO, run comparison, collaboration',
+            'Reproducibility: random seeds, Hydra configs, model hash',
+            'Feature stores: Feast basics — centralized serving',
+            'Data validation: Great Expectations, Pandera — validate data contracts'
+          ],
+          'Model Deployment Patterns': [
+            'Model as REST API: FastAPI endpoint, request batching',
+            'Model serialization: ONNX (portable), TorchScript (production)',
+            'Containerizing ML: Docker with model files, multi-stage builds',
+            'Cloud deployment: AWS SageMaker, GCP Vertex AI, HF Spaces',
+            'Batch vs real-time inference: latency vs throughput tradeoff',
+            'Model serving: BentoML, TorchServe, Triton Inference Server',
+            'Quantization: int8, float16 — reduce model size by 4x'
+          ],
+          'Production ML Monitoring': [
+            'Data drift: input distribution changes — Kolmogorov-Smirnov test, PSI',
+            'Concept drift: relationship between X and y changes',
+            'Model performance monitoring: log predictions and ground truth',
+            'Evidently AI: open source drift detection and monitoring reports',
+            'A/B testing ML models: shadow deployment, traffic split',
+            'Canary deployment: route 5% of traffic, monitor, then increase',
+            'Retraining triggers: scheduled, performance-based, drift-based'
+          ],
+          'LLM Engineering — Part 1: Foundations': [
+            'Prompt engineering: zero-shot, few-shot, chain-of-thought (CoT)',
+            'System prompts: persona, constraints, output format, tone',
+            'Prompt chaining: break complex tasks into simpler prompts',
+            'Output parsing: JSON mode, Pydantic validation of responses',
+            'Token counting: tiktoken, manage context window limits',
+            'Temperature and top-p: randomness and diversity control',
+            'LLM APIs: OpenAI, Anthropic, Google Gemini — auth, limits, costs'
+          ],
+          'LLM Engineering — Part 2: RAG & Agents': [
+            'RAG architecture: retrieve relevant context, augment, generate',
+            'Document processing: PyPDF2, python-docx, unstructured',
+            'Text chunking: fixed size, recursive, semantic chunking',
+            'Embeddings: sentence-transformers (free), OpenAI embeddings',
+            'Vector databases: FAISS, ChromaDB, Pinecone, Qdrant',
+            'Retrieval: cosine similarity, MMR for diversity, hybrid search',
+            'LangChain: chains, LCEL, retrievers, memory',
+            'LlamaIndex: nodes, indexes, query engines — alternative to LangChain',
+            'Agents and tools: ReAct pattern, tool calling, multi-step reasoning',
+            'Evaluation: RAGAS (faithfulness, relevance), LLM-as-judge, human eval'
+          ],
+          'LLM Engineering — Part 3: Fine-Tuning & Production': [
+            'When to fine-tune vs RAG: RAG for knowledge, fine-tuning for behavior',
+            'LoRA: Low-Rank Adaptation — fine-tune with 1% of parameters',
+            'QLoRA: LoRA + 4-bit quantization — fine-tune 7B models on 1 GPU',
+            'PEFT library: LoRA, QLoRA, prefix tuning — HF ecosystem',
+            'Training data preparation: instruction following format, quality > quantity',
+            'Evaluation after fine-tuning: compare against base model',
+            'Multi-agent systems: orchestrator + specialist agents, tool use',
+            'Building a production LLM app: streaming, error handling, fallbacks'
+          ]
         },
-        projects: [{ name: 'RAG Chatbot', description: 'Chat with your documents', level: 'Adv', outcome: 'Deployed chatbot using LangChain and a Vector DB' }],
-        resources: [{ name: 'Made With ML', type: 'Course', cost: 'Free', stars: 5, url: 'https://madewithml.com' }],
-        commonMistakes: ['Fine-tuning unnecessarily', 'No evaluation pipeline for LLM'],
-        selfCheck: ['What is RAG?', 'How to detect data drift?'],
-        whenStuck: 'Check your chunking strategy and retrieval quality first for RAG.'
+        projects: [
+          { 
+            name: 'ML Production API', 
+            description: 'Trained model as FastAPI endpoint with full MLOps', 
+            level: 'Adv', 
+            outcome: 'MLflow tracking, Docker, versioned endpoints, drift monitoring, auto-retraining pipeline' 
+          },
+          { 
+            name: 'RAG Document System', 
+            description: 'Q&A over your own document collection', 
+            level: 'Adv', 
+            outcome: 'Chunking comparison, retrieval metrics, citation in answers, RAGAS evaluation, deployed' 
+          },
+          { 
+            name: 'LLM Agent', 
+            description: 'Multi-step agent that completes real tasks', 
+            level: 'Adv', 
+            outcome: 'Custom tools, ReAct loop, streaming, error recovery, cost tracking, deployed as web app' 
+          },
+          { 
+            name: 'Fine-Tuned Model', 
+            description: 'QLoRA fine-tune a 7B model for a specific task', 
+            level: 'Expert', 
+            outcome: 'Training data prep, PEFT training, evaluation vs base model, pushed to HuggingFace Hub' 
+          }
+        ],
+        resources: [
+          { name: 'Made With ML (Goku)', type: 'Course', cost: 'Free', stars: 5, url: 'https://madewithml.com', notes: 'Best free end-to-end ML engineering course' },
+          { name: 'LangChain Docs', type: 'Docs', cost: 'Free', stars: 4, url: 'https://python.langchain.com', notes: 'Comprehensive but verbose, use with cookbook examples' },
+          { name: 'Designing ML Systems (Huyen)', type: 'Book', cost: 'Paid', stars: 5, notes: 'The definitive guide to production ML — read every chapter' },
+          { name: 'HuggingFace PEFT Docs', type: 'Docs', cost: 'Free', stars: 4, url: 'https://huggingface.co/docs/peft', notes: 'Official LoRA/QLoRA documentation' }
+        ],
+        commonMistakes: [
+          'Jumping to fine-tuning when RAG would solve the problem better and cheaper',
+          'Not chunking documents properly — bad chunking is the most common RAG failure mode',
+          'Not evaluating LLM outputs systematically — vibe-checking is not evaluation',
+          'Ignoring cost tracking — LLM APIs can get expensive very fast in production',
+          'Not handling LLM failures (timeouts, rate limits, hallucinations) gracefully in production'
+        ],
+        selfCheck: [
+          'Can you explain the difference between data drift and concept drift with real examples?',
+          'Can you describe the RAG architecture completely — from document to answer?',
+          'Can you explain when fine-tuning is better than RAG and when RAG is better than fine-tuning?',
+          'Can you set up MLflow experiment tracking for a training run from scratch?',
+          'Can you implement a ReAct agent with custom tools using LangChain or from scratch?',
+          'Can you explain what RAGAS measures and how to interpret the scores?'
+        ],
+        whenStuck: 'RAG not returning relevant chunks? The problem is almost always: (1) bad chunking — try smaller chunks with overlap, (2) wrong embedding model — try a domain-specific one, (3) retrieval k too small — try k=10 then rerank.'
       },
       {
         id: 'CS404',
-        name: 'ML Specialization',
+        name: 'ML Specialization (Pick One Track)',
         hours: 120,
         duration: '8 weeks',
         difficulty: 'Hard',
-        description: 'Go deep into NLP, CV, or RL.',
-        topics: ['Advanced NLP', 'Advanced CV', 'Reinforcement Learning'],
-        subtopics: {},
-        projects: [{ name: 'Specialization Project', description: 'Deep dive project', level: 'Adv', outcome: 'State-of-the-art implementation' }],
-        resources: [{ name: 'HuggingFace Course', type: 'Course', cost: 'Free', stars: 5, url: 'https://huggingface.co/learn' }],
-        commonMistakes: ['Trying to master all tracks at once'],
-        selfCheck: ['Explain PPO?', 'Fine-tune a Llama model?'],
-        whenStuck: 'Start with a pre-trained model on HuggingFace.'
+        prerequisites: ['CS402'],
+        description: "After mastering foundations, go deep in one area. For the PH market in 2025-2026, NLP/LLM has the most demand followed by Computer Vision. Choose based on what genuinely excites you — you will go further in an area you love than one you tolerate.",
+        topics: [
+          'Track A: NLP & LLM Engineering',
+          'Track B: Computer Vision',
+          'Track C: Reinforcement Learning'
+        ],
+        subtopics: {
+          'Track A: NLP & LLM Engineering': [
+            'Text preprocessing: tokenization (word, character, subword), BPE, WordPiece, SentencePiece',
+            'Classic embeddings: Word2Vec (CBOW, Skip-gram), GloVe, FastText',
+            'HuggingFace Transformers: AutoModel, AutoTokenizer, Trainer API',
+            'Text classification: fine-tune BERT/DistilBERT, multi-label, label smoothing',
+            'NER: token classification, BIO tagging scheme, evaluation with seqeval',
+            'Question Answering: extractive (SQuAD), abstractive (seq2seq)',
+            'Summarization: extractive (TextRank), abstractive (BART, T5), ROUGE',
+            'Translation: MarianMT, Helsinki-NLP models, BLEU evaluation',
+            'Building LLM applications: structured output, function calling, streaming',
+            'LLM evaluation: benchmark datasets, human eval, LLM-as-judge'
+          ],
+          'Track B: Computer Vision': [
+            'Image preprocessing pipelines: torchvision transforms, albumentations',
+            'Object detection: YOLOv8 (Ultralytics) — train on custom dataset',
+            'Object detection metrics: mAP, IoU, precision-recall curve',
+            'Image segmentation: semantic (U-Net), instance (Mask R-CNN), panoptic',
+            'Segment Anything Model (SAM): zero-shot segmentation, prompts',
+            'Facial recognition: face detection (MTCNN), embeddings (ArcFace)',
+            'Video understanding: optical flow, temporal convolutions, slow-fast networks',
+            'Deployment optimization: TensorRT, ONNX Runtime, quantization',
+            'OpenCV: image processing, geometric transforms, feature detection (SIFT, ORB)'
+          ],
+          'Track C: Reinforcement Learning': [
+            'MDP formulation: states S, actions A, rewards R, policy, value function',
+            'Bellman equations: recursive definition of value — derive and understand',
+            'Q-Learning: tabular, convergence, exploration-exploitation (epsilon-greedy)',
+            'Deep Q-Network (DQN): experience replay, target network, double/dueling DQN',
+            'Policy gradient: REINFORCE algorithm, baseline subtraction',
+            'Actor-Critic: A2C (synchronous), A3C (asynchronous), advantage function',
+            'PPO (Proximal Policy Optimization): clipped objective, trust region',
+            'SAC (Soft Actor-Critic): entropy maximization, continuous action spaces',
+            'OpenAI Gymnasium: CartPole, LunarLander, MuJoCo physics simulation',
+            'Applications: game agents, robotic control, recommendation, RLHF'
+          ]
+        },
+        projects: [
+          { 
+            name: 'NLP: Full Document QA', 
+            description: 'Multi-document Q&A with HuggingFace + RAG', 
+            level: 'Expert', 
+            outcome: 'Handles 100+ documents, cites sources, deployed with React frontend, RAGAS evaluated' 
+          },
+          { 
+            name: 'CV: YOLOv8 Detector', 
+            description: 'Train on custom Philippine dataset', 
+            level: 'Expert', 
+            outcome: '85%+ mAP, real-time demo, deployed as mobile-friendly web app, data collection documented' 
+          },
+          { 
+            name: 'RL: Multi-Task Agent', 
+            description: 'PPO agent mastering 3 Gymnasium environments', 
+            level: 'Expert', 
+            outcome: 'Training curves in W&B, video recordings, reward shaping documented, hyperparameter study' 
+          }
+        ],
+        resources: [
+          { name: 'HuggingFace Course', type: 'Course', cost: 'Free', stars: 5, url: 'https://huggingface.co/learn', notes: 'Best free NLP/LLM course, very hands-on' },
+          { name: 'Ultralytics YOLOv8', type: 'Docs', cost: 'Free', stars: 5, url: 'https://docs.ultralytics.com', notes: 'Excellent docs, train in 10 lines of code' },
+          { name: 'Spinning Up in DRL', type: 'Course', cost: 'Free', stars: 4, url: 'https://spinningup.openai.com', notes: 'OpenAI\'s RL resource, mathematical but accessible' },
+          { name: 'Papers With Code', type: 'Website', cost: 'Free', stars: 5, url: 'https://paperswithcode.com', notes: 'State-of-the-art with code, find datasets and baselines' }
+        ],
+        commonMistakes: [
+          'Trying to do all three tracks — pick one and go deep, breadth comes later',
+          'Not collecting your own dataset — a model trained on your own data is more impressive',
+          'Evaluating with the wrong metrics — don\'t use accuracy for object detection',
+          'Not publishing your project — push to HuggingFace Hub or GitHub with a live demo'
+        ],
+        selfCheck: [
+          'Can you fine-tune a HuggingFace model end-to-end on a custom dataset?',
+          'Can you explain the difference between BLEU and ROUGE and when each is appropriate?',
+          'Can you explain why PPO is more stable than vanilla policy gradient — mathematically?',
+          'Can you train a YOLOv8 model on a custom dataset and evaluate its mAP?'
+        ],
+        whenStuck: 'When fine-tuning feels overwhelming: start with the smallest model in the family (DistilBERT, YOLOv8n). Get it working first. Scale up only after you have a working baseline.'
       },
       {
         id: 'CS405',
@@ -1246,14 +1762,80 @@ export const curriculum: Phase[] = [
         hours: 40,
         duration: '3 weeks',
         difficulty: 'Intermediate',
-        description: 'Half the ML job is communicating results — SHAP, Streamlit, Plotly.',
-        topics: ['Exploratory Data Analysis', 'Interactive Dashboards', 'Storytelling with Data'],
-        subtopics: {},
-        projects: [{ name: 'ML Insights Dashboard', description: 'Streamlit app', level: 'Int', outcome: 'Deployed dashboard explaining model predictions with SHAP' }],
-        resources: [{ name: 'Storytelling with Data', type: 'Book', cost: 'Paid', stars: 5 }],
-        commonMistakes: ['Over-complicated charts', 'No context for metrics'],
-        selfCheck: ['What is a SHAP value?', 'Create a Streamlit app?'],
-        whenStuck: 'Ask: what is the one insight I want the user to take away?'
+        prerequisites: ['CS401'],
+        description: "Half the job of any ML or data role is communicating your findings to people who don't understand the math. A model that isn't understood won't be trusted. A finding that isn't visualized clearly won't be acted on. This subject makes your technical work land.",
+        topics: [
+          'Static Visualization',
+          'Interactive Visualization',
+          'Communicating ML Results'
+        ],
+        subtopics: {
+          'Static Visualization': [
+            'matplotlib: figure, axes, subplots, DPI, saving — the foundation',
+            'Plot types: line, bar, scatter, histogram, box, violin, heatmap',
+            'matplotlib styling: rcParams, stylesheets, color maps',
+            'seaborn: pairplot, FacetGrid, categorical plots',
+            'Pandas plotting: quick EDA plots directly from DataFrames',
+            'Visualization principles: data-ink ratio, lie factor, color perception',
+            'Color: accessible palettes (ColorBrewer), colorblind safety'
+          ],
+          'Interactive Visualization': [
+            'Plotly: interactive charts, hover info, animations, export to HTML',
+            'Plotly Express (high-level) vs Graph Objects (full control)',
+            'Dash: full dashboards in Python — callbacks, layout, components',
+            'Streamlit: fastest way to build ML demos for portfolio projects',
+            'Gradio: ML model demos for HuggingFace Spaces deployment',
+            'Tableau Public: learn the basics of a drag-and-drop BI tool'
+          ],
+          'Communicating ML Results': [
+            'Executive summary: one paragraph, no jargon, improvements',
+            'Model card: intended use, limitations, bias analysis',
+            'Confusion matrix: visualize and explain to stakeholders',
+            'Feature importance: SHAP values — explain individual predictions',
+            'Learning curves: communicate model progress',
+            'A/B test results: statistical significance, business impact',
+            'Presentation structure: problem, data, approach, results, next steps'
+          ]
+        },
+        projects: [
+          { 
+            name: 'EDA Dashboard', 
+            description: 'Streamlit dashboard for a Kaggle dataset', 
+            level: 'Int', 
+            outcome: 'Interactive filters, multiple chart types, summary statistics, download report' 
+          },
+          { 
+            name: 'ML Explainability Report', 
+            description: 'SHAP analysis for your CS401 house price model', 
+            level: 'Int', 
+            outcome: 'Global feature importance, individual prediction explanation, partial dependence plots' 
+          },
+          { 
+            name: 'Model Card', 
+            description: 'Complete model card for your best CS402 model', 
+            level: 'Int', 
+            outcome: 'Follows HuggingFace format, includes bias analysis and limitations' 
+          }
+        ],
+        resources: [
+          { name: 'Matplotlib Documentation', type: 'Docs', cost: 'Free', stars: 4, url: 'https://matplotlib.org', notes: 'Comprehensive, use as reference' },
+          { name: 'Streamlit Documentation', type: 'Docs', cost: 'Free', stars: 5, url: 'https://docs.streamlit.io', notes: 'Excellent docs, get an app running in 30 minutes' },
+          { name: 'SHAP Library Docs', type: 'Docs', cost: 'Free', stars: 5, url: 'https://shap.readthedocs.io', notes: 'Explainability for any ML model, critical skill' },
+          { name: 'Storytelling with Data', type: 'Book', cost: 'Paid', stars: 5, notes: 'Cole Knaflic — best book on data visualization communication' }
+        ],
+        commonMistakes: [
+          'Using 3D pie charts or any chart that distorts perception',
+          'Showing accuracy metrics to business stakeholders without explanation',
+          'Not visualizing your model\'s failures — where it goes wrong is critical',
+          'Ignoring colorblind accessibility (8% of men have deficiency)'
+        ],
+        selfCheck: [
+          'Can you explain what SHAP values represent to a non-technical stakeholder?',
+          'Can you build an interactive Streamlit dashboard in under 2 hours?',
+          'Can you identify 3 things wrong with a poorly designed chart?',
+          'Can you write a one-paragraph executive summary of model performance?'
+        ],
+        whenStuck: 'If your chart is confusing: remove half of it. Add a descriptive title that states the finding, not just the variables. Good charts have one clear message.'
       },
       {
         id: 'CS406',
@@ -1261,66 +1843,302 @@ export const curriculum: Phase[] = [
         hours: 80,
         duration: '6 weeks',
         difficulty: 'Hard',
-        description: 'Many \'ML Engineer\' PH roles are data engineering — know both.',
-        topics: ['ETL Pipelines', 'Big Data (Spark)', 'Data Warehousing'],
-        subtopics: {},
-        projects: [{ name: 'ETL Pipeline', description: 'Airflow pipeline', level: 'Int', outcome: 'Daily automated data load to BigQuery/Snowflake' }],
-        resources: [{ name: 'Data Engineering Zoomcamp', type: 'Course', cost: 'Free', stars: 5, url: 'https://github.com/DataTalksClub/data-engineering-zoomcamp' }],
-        commonMistakes: ['Using pandas for big data', 'No data quality checks'],
-        selfCheck: ['ETL vs ELT?', 'Star schema?'],
-        whenStuck: 'Optimize your shuffles and partitions in Spark.'
+        prerequisites: ['CS203', 'CS301'],
+        description: "Many 'ML Engineer' job postings in the Philippines are actually Data Engineering roles in disguise. Even pure ML roles require data engineers upstream. This subject makes you T-shaped: strong ML foundations with enough data engineering to collaborate effectively — and enough to get data engineering roles as an alternative path.",
+        topics: ['Data Pipeline Fundamentals', 'Modern Data Stack', 'Big Data Processing', 'Data Engineering in Practice'],
+        subtopics: {
+          'Data Pipeline Fundamentals': [
+            'ETL vs ELT: extract-transform-load vs extract-load-transform',
+            'Batch processing vs Stream processing (real-time dashboards)',
+            'Orchestration: Airflow (standard), Prefect, Dagster',
+            'Apache Airflow: DAGs, operators, sensors, XComs, UI',
+            'Pipeline testing: unit tests, integration tests, quality checks'
+          ],
+          'Modern Data Stack': [
+            'Data warehouses: OLAP vs OLTP, BigQuery, Snowflake',
+            'dbt (data build tool): models, tests, lineage, SQL transformations',
+            'dbt project structure: staging, intermediate, marts',
+            'Data quality: dbt tests (unique, not_null, custom)',
+            'Data catalog: metadata, column lineage, schema evolution'
+          ],
+          'Big Data Processing': [
+            'Distributed computing: when pandas fails (> RAM size)',
+            'Apache Spark: RDD, DataFrame API, SparkSQL, PySpark',
+            'Spark concepts: driver, executors, partitions, shuffles',
+            'Parquet format: columnar storage, compression, predicate pushdown',
+            'Delta Lake: ACID transactions, time travel, schema enforcement',
+            'Kafka: producers, consumers, topics, partitions'
+          ],
+          'Data Engineering in Practice': [
+            'Data modeling: star schema (fact + dimension), snowflake schema',
+            'Slowly Changing Dimensions (SCD): Type 1, 2, and 3',
+            'Data lake architecture: bronze/silver/gold layers',
+            'Data mesh concepts: domain ownership, data as a product',
+            'Data engineering interview: SQL window functions, pipeline design'
+          ]
+        },
+        projects: [
+          { 
+            name: 'Airflow ETL Pipeline', 
+            description: 'Daily pipeline: API > transform > load to BigQuery', 
+            level: 'Int', 
+            outcome: 'Retries on failure, data quality checks, email alert, Streamlit dashboard' 
+          },
+          { 
+            name: 'dbt Project', 
+            description: 'Transform raw e-commerce data into analytics-ready models', 
+            level: 'Int', 
+            outcome: 'Staging, intermediate, mart layers, all tests passing, documented' 
+          }
+        ],
+        resources: [
+          { name: 'Fundamentals of Data Eng. (Reis)', type: 'Book', cost: 'Paid', stars: 5, notes: 'The definitive data engineering book — read chapters 1-6' },
+          { name: 'dbt Documentation', type: 'Docs', cost: 'Free', stars: 5, url: 'https://docs.getdbt.com', notes: 'Excellent, with a free cloud version to practice' },
+          { name: 'BigQuery Documentation', type: 'Docs', cost: 'Free', stars: 4, url: 'https://cloud.google.com/bigquery', notes: 'Free $300 credit to experiment' },
+          { name: 'Apache Airflow Docs', type: 'Docs', cost: 'Free', stars: 4, url: 'https://airflow.apache.org', notes: 'Comprehensive, use Astronomer\'s tutorials to start' }
+        ],
+        commonMistakes: [
+          'Using pandas for data that doesn\'t fit in RAM — use Spark instead',
+          'Not testing data pipelines — silent wrong results are the worst',
+          'Not handling schema evolution — upstream changes break pipelines',
+          'Over-engineering small pipelines — a cron job is often sufficient'
+        ],
+        selfCheck: [
+          'Can you explain the difference between ETL and ELT?',
+          'Can you write a PySpark job that reads Parquet and writes to Cloud Storage?',
+          'Can you explain the star schema and why it\'s preferred for analytics?',
+          'Can you design a simple Airflow DAG for a daily pipeline?'
+        ],
+        whenStuck: 'If a Spark job is slow: look for shuffles. Shuffles move data across the network — they\'re expensive. Repartition before joins and use broadcast joins for small tables.'
       }
     ],
   },
   {
     id: 5,
-    name: 'Career & Prep',
-    duration: '3+ months',
+    name: 'Career & Interview Preparation',
+    duration: 'Ongoing — intensify 3 months before target start date',
     hours: 200,
     color: '#10b981',
-    description: 'Get hired at your target salary.',
-    mustComplete: ['CS501 Technical Interviews', 'CS502 Portfolio + Job Search'],
-    niceToHave: ['Open source contributions'],
-    interviewHabit: 'Do 3 mock interviews per week on Pramp or with friends. Record yourself.',
+    description: 'Skills mean nothing if you cannot demonstrate them under pressure. Get hired. Know your worth.',
+    mustComplete: ['CS501 Technical interviews (DSA + system design)', 'CS502 Portfolio + job search strategy'],
+    niceToHave: ['Open source contributions', 'Technical blog with 1000+ monthly readers', 'Conference talks'],
+    interviewHabit: "Note: if you've been following the interview habits from each phase, you've already done 12+ mock interviews and 40+ Codeforces contests by the time you reach Phase 5. You are already prepared. This phase is refinement, not starting from zero.",
     capstone: {
-      name: 'The Job Offer',
-      description: 'Sign your offer at or above your target salary.',
+      name: 'The Professional Candidate (You)',
+      description: 'This phase has no technical capstone — you are the capstone. By this point, you have the full evidence of your expertise ready for the market.',
       requirements: [
-        '3 production-quality portfolio pieces.',
-        'Optimized LinkedIn and GitHub.',
-        'Mastery of negotiation scripts.'
+        '4 deployed production projects (one per phase).',
+        '10+ technical blog posts documenting your journey.',
+        '20+ mock interviews completed via Pramp or peers.',
+        'NeetCode 150 solved and understood.',
+        '7 system design walkthroughs completed.',
+        'Professional GitHub profile with consistent activity.',
+        'LinkedIn profile optimized for inbound opportunities.',
+        'The only thing left: Send 5 applications today.'
       ]
     },
     subjects: [
       {
         id: 'CS501',
-        name: 'Interview Mastery',
+        name: 'Technical Interview Mastery',
         hours: 120,
-        duration: 'Ongoing',
+        duration: 'Intensify 3 months before applying',
         difficulty: 'Hard',
-        description: 'Technical and behavioral interview prep.',
-        topics: ['DSA Framework', 'System Design Framework', 'Behavioral (STAR)'],
-        subtopics: {},
-        projects: [{ name: 'Interview Log', description: 'Track 50+ mock interviews', level: 'Adv', outcome: 'Documented feedback and improvement' }],
-        resources: [{ name: 'Cracking the Coding Interview', type: 'Book', cost: 'Paid', stars: 5 }],
-        commonMistakes: ['Coding in silence', 'Not clarifying requirements'],
-        selfCheck: ['Can you solve a Medium DP in 20 mins?', 'Explain your projects clearly?'],
-        whenStuck: 'Think out loud. The interviewer wants to see your process, not just the code.'
+        prerequisites: ['CS201'],
+        description: "Technical interviews are a skill of their own. The best engineers fail them because they've never practiced the format. The goal is not to be the smartest — it is to be the most practiced. Deliberate repetition beats raw intelligence every time.",
+        topics: ['Coding Interview Framework', 'The 10 Coding Patterns (Master These)', 'System Design Interview Framework', 'Behavioral Interviews (STAR Method)'],
+        subtopics: {
+          'Coding Interview Framework': [
+            'UCTPV: Understand, Clarify, Think aloud, Plan, Verify',
+            'Clarify before coding: input constraints, edge cases, expected output',
+            'Think aloud always: narrate your thought process',
+            'Brute force first: state naive solution before optimizing',
+            'Optimize with questions: space usage, sorted input, constraints',
+            'Test manually: trace 2-3 examples including edge cases',
+            'Analyze complexity: always state time and space complexity'
+          ],
+          'The 10 Coding Patterns (Master These)': [
+            'Sliding Window: substrings/subarrays with size constraints',
+            'Two Pointers: sorted arrays, palindromes, 3-sum',
+            'Binary Search: sorted/rotated arrays, answer-range search',
+            'BFS/DFS: graphs, trees, grids (shortest path vs existence)',
+            'Dynamic Programming: overlapping subproblems + optimal substructure',
+            'Backtracking: subsets, permutations, N-queens, word search',
+            'Heap/Priority Queue: top K, median of stream, scheduling',
+            'Intervals: merge, insert, meeting rooms (sort by start first)',
+            'Linked List: fast/slow pointer, reverse in k-groups',
+            'Monotonic Stack: next greater element, largest rectangle'
+          ],
+          'System Design Interview Framework': [
+            'Total time: 45 minutes — budget it explicitly at the start',
+            'Clarify (5 min): functional and non-functional requirements',
+            'Estimate (5 min): DAU, QPS, storage, bandwidth',
+            'High-level design (10 min): component diagram, data flow',
+            'Deep dive (20 min): tradeoffs and bottlenecks in 1-2 areas',
+            'Wrap-up (5 min): bottlenecks and future improvements',
+            'Always state tradeoffs: "I chose X over Y because..." '
+          ],
+          'Behavioral Interviews (STAR Method)': [
+            'Situation: context for the interviewer',
+            'Task: YOUR specific responsibility',
+            'Action: what YOU specifically did (concrete steps)',
+            'Result: quantify impact (e.g., reduced latency by 40%)',
+            'Prepare 10 stories covering: leadership, failure, conflict, etc.',
+            'Common questions: tell me about yourself, greatest challenge',
+            'Research: read eng blogs, news, and tech stacks of companies'
+          ]
+        },
+        projects: [
+          { 
+            name: 'NeetCode 150', 
+            description: 'Complete the full organized problem set', 
+            level: 'Adv', 
+            outcome: 'All solved, pattern identified, time/space complexity documented' 
+          },
+          { 
+            name: '20 Mock Interviews', 
+            description: 'Pramp, Interviewing.io, or with peers', 
+            level: 'Adv', 
+            outcome: 'Record yourself, review communication, note areas of confusion' 
+          },
+          { 
+            name: '7 System Design Walkthroughs', 
+            description: 'Solo timed 45-min design sessions', 
+            level: 'Adv', 
+            outcome: 'Draw on paper, present tradeoffs, review against ByteByteGo' 
+          },
+          { 
+            name: 'Behavioral Stories Bank', 
+            description: 'Written STAR stories for 10 scenarios', 
+            level: 'Adv', 
+            outcome: 'Practiced out loud, timed, ready to deliver in 2 minutes each' 
+          }
+        ],
+        resources: [
+          { name: 'neetcode.io', type: 'Platform', cost: 'Free', stars: 5, url: 'https://neetcode.io', notes: 'Best organized roadmap with video solutions' },
+          { name: 'Pramp.com', type: 'Platform', cost: 'Free', stars: 5, url: 'https://www.pramp.com', notes: 'Free live mock interviews with real engineers' },
+          { name: 'Tech Interview Handbook', type: 'Website', cost: 'Free', stars: 5, url: 'https://www.techinterviewhandbook.org', notes: 'Resume, behavioral, and coding all in one' },
+          { name: 'Cracking the Coding Interview', type: 'Book', cost: 'Paid', stars: 4, notes: 'Essential mindset and problem-solving patterns' }
+        ],
+        commonMistakes: [
+          'Grinding 300 LeetCode problems instead of learning all 10 patterns',
+          'Practicing coding in silence — the interviewer needs to hear you',
+          'Not practicing system design until Phase 5 — should be monthly from Phase 3',
+          'Being too proud to ask for hints — clarifying questions are professional',
+          'Not researching the company product and engineering culture'
+        ],
+        selfCheck: [
+          'Can you solve any Medium DP problem you\'ve never seen in 35 minutes?',
+          'Can you design a URL shortener from scratch in 45 minutes?',
+          'Can you deliver your "tell me about yourself" answer in 90 seconds?',
+          'Can you name all 10 patterns and give 2 example problems for each?',
+          'Can you identify the applicable pattern for a new problem in 2 minutes?'
+        ],
+        whenStuck: 'If you freeze: say "Let me think through this step by step." Then restate the problem in your own words. Never go silent for more than 30 seconds.'
       },
       {
         id: 'CS502',
-        name: 'Portfolio & Brand',
+        name: 'Portfolio, Brand & Job Search Strategy',
         hours: 80,
-        duration: 'Ongoing',
+        duration: 'Build continuously from Phase 1',
         difficulty: 'Intermediate',
-        description: 'Personal branding and PH-specific negotiation.',
-        topics: ['Portfolio Site', 'LinkedIn/Resume Optimization', 'Salary Negotiation'],
-        subtopics: {},
-        projects: [{ name: 'Final Portfolio', description: 'The grand showcase', level: 'Adv', outcome: '3+ capstone projects with deep-dive case studies' }],
-        resources: [{ name: 'levels.fyi', type: 'Website', cost: 'Free', stars: 5, url: 'https://levels.fyi' }],
-        commonMistakes: ['Generic resume', 'Passive job search'],
-        selfCheck: ['Resume passes ATS?', 'Negotiation script ready?'],
-        whenStuck: 'Get brutal feedback from senior engineers on LinkedIn.'
+        prerequisites: ['CS301', 'CS302'],
+        description: "In the Philippines, your GitHub, LinkedIn, and portfolio website are reviewed before you get a single phone call. Your online presence is your resume before your resume. Build in public from day one — every week, every project, every learning. This is the fastest path to inbound opportunities.",
+        topics: [
+          'Building a Standout Portfolio',
+          'GitHub Profile Mastery',
+          'LinkedIn & Online Presence Strategy',
+          'Philippines Job Market Strategy',
+          'Salary Negotiation (The PH-Specific Script)'
+        ],
+        subtopics: {
+          'Building a Standout Portfolio': [
+            'Quality over quantity: 3 exceptional projects beat 10 mediocre ones',
+            'Live deployed demo (not localhost), clean code, professional README',
+            'README: what it does, why you built it, tech stack, key features',
+            'Case studies (200-400 words): problem, approach, technical decisions',
+            'The capstone projects from each phase ARE your portfolio',
+            'Deployment: Vercel, Railway/Render, Hugging Face Spaces'
+          ],
+          'GitHub Profile Mastery': [
+            'Profile README: who you are, what you build, current focus, contact',
+            'Write it like a landing page — make them want to hire in 30 seconds',
+            'Pinned repositories: only your 6 best (curate ruthlessly)',
+            'Consistent activity: daily commits signal work habit to recruiters',
+            'Meaningful commit messages — recruiters DO read them',
+            'Open source contributions: even bug fixes in docs count',
+            'GitHub Actions: green CI badges signal professional code quality'
+          ],
+          'LinkedIn & Online Presence Strategy': [
+            'Headline formula: [Role] | [Top Skills] | [What you build]',
+            'About section: your story, technical strengths, what you seek',
+            'Featured section: pin your portfolio site, best live demo, articles',
+            'Endorsements: get peers to endorse real skills (FastAPI, React, etc.)',
+            'Content strategy: one technical post per week on your learnings',
+            'PH communities: DevCon PH, Python PH, ML Philippines'
+          ],
+          'Philippines Job Market Strategy': [
+            'Entry-level targets: Exist, Pointwest, Accenture PH, ING Hubs, KMC',
+            'Product companies: GCash (Mynt), Paymaya (Voyager), Kumu, Sprout',
+            'Multinational tech: Booking.com, Amazon AWS, Google, Grab',
+            'Remote-first: Toptal, Andela, X-Team, Deel, Remote.com',
+            'FAANG+: prepare 6 months specifically, 3 mock interviews per week',
+            'Salary benchmarks 2025: Junior P40-70K, Mid P80-120K, Senior P150-250K',
+            'Remote international: $2,000-5,000/month USD (3-5x local rates)',
+            'Freelance: build reputation on Upwork before direct clients'
+          ],
+          'Salary Negotiation (The PH-Specific Script)': [
+            'Never give a number first: "I\'d like to understand the full package first"',
+            'Research: Glassdoor, levels.fyi, asking peers in the community',
+            'Range tactic: give a range based on research with target at bottom',
+            'Counter-offer: "Based on my research and experience, I was expecting X"',
+            'Never accept on spot: request 48 hours to review the full offer',
+            'Total comp: base, 13th month, HMO, stock, bonus, learning budget',
+            'Silence tactic: state your counter-offer, then stop talking',
+            'Walk away power: always have a competing offer as leverage'
+          ]
+        },
+        projects: [
+          { 
+            name: 'Portfolio Website', 
+            description: 'Custom-built site, zero templates', 
+            level: 'Adv', 
+            outcome: 'Mobile-first, dark mode, WCAG AA, Lighthouse 90+, case studies, blog' 
+          },
+          { 
+            name: '10 Technical Blog Posts', 
+            description: 'Publish on dev.to or your own site', 
+            level: 'Int', 
+            outcome: 'At least 2 posts with 500+ views — document your projects and learnings' 
+          },
+          { 
+            name: 'Job Campaign', 
+            description: 'Apply to 60 companies, track everything', 
+            level: 'Adv', 
+            outcome: '20 warm applications, follow-up emails drafted, spreadsheet with full history' 
+          }
+        ],
+        resources: [
+          { name: 'levels.fyi', type: 'Website', cost: 'Free', stars: 5, url: 'https://levels.fyi', notes: 'Tech salary data globally — know your worth' },
+          { name: 'Tech Interview Handbook', type: 'Website', cost: 'Free', stars: 5, url: 'https://www.techinterviewhandbook.org', notes: 'Job search strategy, resume templates, negotiation scripts' },
+          { name: 'Developers Connect PH', type: 'Community', cost: 'Free', stars: 5, notes: 'Active PH dev community, jobs posted, salary discussions' },
+          { name: 'LinkedIn', type: 'Platform', cost: 'Free', stars: 4, notes: 'Most important professional platform in PH' }
+        ],
+        commonMistakes: [
+          'Waiting to apply until everything feels ready — start at Phase 3',
+          'Putting your expected salary too low because you\'re afraid',
+          'Not following up after applications (5 business days is professional)',
+          'Treating the job search as passive — you need to warm up connections',
+          'Accepting the first offer immediately — always take 24-48 hours and counter'
+        ],
+        selfCheck: [
+          'Do you have 3 projects deployed live with live demo URLs right now?',
+          'Can you explain any portfolio project in 3 minutes with clear depth?',
+          'Is your GitHub showing consistent daily commits for the past 3+ months?',
+          'Have you researched and written down your target salary range?',
+          'Can you deliver your salary counter-offer without hesitating?'
+        ],
+        whenStuck: 'Getting no callbacks? 90% of the time the problem is your resume or portfolio — not the market. Send your resume to 3 senior engineers you trust for brutally honest feedback.'
       },
     ],
   },
