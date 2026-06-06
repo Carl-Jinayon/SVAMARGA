@@ -1,20 +1,48 @@
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
 import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
+  BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, LineChart, Line,
 } from 'recharts';
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
+import { BarChart3, Clock, BookOpen } from 'lucide-react';
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+};
+const containerVariants: Variants = {
+  hidden: {},
+  show:   { transition: { staggerChildren: 0.08 } },
+};
+
+// Custom recharts tooltip with glass styling
+function GlassTooltip({ active, payload, label, darkMode }: any) {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div style={{
+      background: darkMode ? 'rgba(13,21,38,0.92)' : 'rgba(255,255,255,0.92)',
+      border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
+      borderRadius: 12,
+      padding: '10px 14px',
+      backdropFilter: 'blur(20px)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+    }}>
+      {label !== undefined && (
+        <p style={{ fontSize: 10, fontWeight: 700, color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          {label}
+        </p>
+      )}
+      {payload.map((p: any, i: number) => (
+        <p key={i} style={{ fontSize: 13, fontWeight: 700, color: p.color || (darkMode ? '#E0E7FF' : '#0D1526') }}>
+          {p.value} {p.name}
+        </p>
+      ))}
+    </div>
+  );
+}
 
 export default function Analytics() {
   const { getSessions, progress, darkMode } = useTrackerStore();
@@ -71,169 +99,197 @@ export default function Analytics() {
     .slice(0, 10);
 
   const COLORS = [
-    '#3b82f6',
-    '#8b5cf6',
-    '#ec4899',
-    '#f59e0b',
-    '#10b981',
-    '#06b6d4',
-    '#ef4444',
-    '#6366f1',
+    '#00E5FF', '#7F77DD', '#1D9E75', '#F59E0B',
+    '#4FC3F7', '#9D77FF', '#26C48F', '#F97316',
   ];
 
+  const axisStyle = {
+    fontSize: 10,
+    fontWeight: 700,
+    fill: darkMode ? '#4B5E78' : '#8FA3BC',
+  };
+
+  const gridStroke = darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
+
+  const totalHours = Math.round((sessions.reduce((sum, s) => sum + s.duration, 0) / 60) * 10) / 10;
+
   return (
-    <div className="animate-slide-in-up space-y-8">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass p-6 rounded-2xl shadow-xl">
-          <p className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Sessions</p>
-          <p className="text-4xl font-black text-gray-900 dark:text-white mt-3">{sessions.length}</p>
-          <div className="mt-4 h-1 w-12 bg-blue-500 rounded-full" />
-        </div>
-        <div className="glass p-6 rounded-2xl shadow-xl">
-          <p className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Hours</p>
-          <p className="text-4xl font-black text-gray-900 dark:text-white mt-3">
-            {Math.round((sessions.reduce((sum, s) => sum + s.duration, 0) / 60) * 10) / 10}
-          </p>
-          <div className="mt-4 h-1 w-12 bg-green-500 rounded-full" />
-        </div>
-        <div className="glass p-6 rounded-2xl shadow-xl">
-          <p className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">Subjects Touched</p>
-          <p className="text-4xl font-black text-gray-900 dark:text-white mt-3">
-            {Object.keys(progress).length}
-          </p>
-          <div className="mt-4 h-1 w-12 bg-purple-500 rounded-full" />
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { label: 'Total Sessions', value: sessions.length, icon: <BarChart3 className="w-5 h-5" />, color: '#00E5FF' },
+          { label: 'Total Hours',    value: totalHours,       icon: <Clock className="w-5 h-5" />,    color: '#1D9E75' },
+          { label: 'Subjects Active', value: Object.keys(progress).length, icon: <BookOpen className="w-5 h-5" />, color: '#7F77DD' },
+        ].map((stat) => (
+          <motion.div
+            key={stat.label}
+            variants={itemVariants}
+            className="glass glass-hover rounded-2xl p-6"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{ color: 'var(--text-muted)' }}>
+                  {stat.label}
+                </p>
+                <p className="text-4xl font-black leading-none animate-count-up" style={{ color: 'var(--text-primary)' }}>
+                  {stat.value}
+                </p>
+              </div>
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center"
+                style={{ background: `${stat.color}14`, color: stat.color }}>
+                {stat.icon}
+              </div>
+            </div>
+            <div className="mt-4 h-0.5 w-10 rounded-full" style={{ background: stat.color, boxShadow: `0 0 8px ${stat.color}60` }} />
+          </motion.div>
+        ))}
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Phase Progress Pie */}
-        <div className="glass p-8 rounded-3xl shadow-xl overflow-hidden relative">
-          <h3 className="text-lg font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3">
-            <div className="w-1.5 h-6 bg-indigo-500 rounded-full" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Phase Pie */}
+        <motion.div variants={itemVariants} className="glass rounded-2xl p-6">
+          <h3 className="text-sm font-black tracking-tight mb-6 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+            <span className="w-1 h-4 rounded-full" style={{ background: '#7F77DD' }} />
             Subject Completion
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie
                 data={phaseData}
                 cx="50%"
                 cy="50%"
-                innerRadius={70}
+                innerRadius={65}
                 outerRadius={100}
-                paddingAngle={5}
+                paddingAngle={4}
                 dataKey="value"
+                strokeWidth={0}
               >
                 {phaseData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} opacity={0.9} />
                 ))}
               </Pie>
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: darkMode ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)', 
-                  borderRadius: '16px', 
-                  border: 'none',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                  color: darkMode ? '#fff' : '#000'
-                }}
-                itemStyle={{ color: darkMode ? '#fff' : '#000' }}
+              <Tooltip content={<GlassTooltip darkMode={darkMode} />} />
+              <Legend
+                verticalAlign="bottom"
+                height={36}
+                formatter={(value) => (
+                  <span style={{ fontSize: 10, fontWeight: 600, color: darkMode ? '#8FA3C8' : '#4B5E78' }}>
+                    {value}
+                  </span>
+                )}
               />
-              <Legend verticalAlign="bottom" height={36}/>
             </PieChart>
           </ResponsiveContainer>
-        </div>
+        </motion.div>
 
-        {/* Time Per Phase */}
-        <div className="glass p-8 rounded-3xl shadow-xl overflow-hidden relative">
-          <h3 className="text-lg font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3">
-            <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
+        {/* Time Per Phase Bar */}
+        <motion.div variants={itemVariants} className="glass rounded-2xl p-6">
+          <h3 className="text-sm font-black tracking-tight mb-6 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+            <span className="w-1 h-4 rounded-full" style={{ background: '#00E5FF' }} />
             Study Hours per Phase
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={timePerPhase}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-              <XAxis dataKey="phase" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
-              <Tooltip 
-                cursor={{ fill: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
-                contentStyle={{ 
-                  backgroundColor: darkMode ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)', 
-                  borderRadius: '16px', 
-                  border: 'none',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                  color: darkMode ? '#fff' : '#000'
-                }}
-                itemStyle={{ color: darkMode ? '#fff' : '#000' }}
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={timePerPhase} barSize={28}>
+              <CartesianGrid strokeDasharray="0" vertical={false} stroke={gridStroke} />
+              <XAxis dataKey="phase" axisLine={false} tickLine={false} tick={axisStyle} />
+              <YAxis axisLine={false} tickLine={false} tick={axisStyle} />
+              <Tooltip
+                content={<GlassTooltip darkMode={darkMode} />}
+                cursor={{ fill: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)', radius: 8 }}
               />
-              <Bar dataKey="hours" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="hours" radius={[6, 6, 0, 0]}>
+                {timePerPhase.map((_, idx) => (
+                  <Cell key={idx} fill={COLORS[idx % COLORS.length]} fillOpacity={0.85} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </motion.div>
       </div>
 
       {/* Sessions Trend */}
-      <div className="glass p-8 rounded-3xl shadow-xl">
-        <h3 className="text-lg font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3">
-          <div className="w-1.5 h-6 bg-green-500 rounded-full" />
-          Sessions Trend
+      <motion.div variants={itemVariants} className="glass rounded-2xl p-6">
+        <h3 className="text-sm font-black tracking-tight mb-6 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+          <span className="w-1 h-4 rounded-full" style={{ background: '#1D9E75' }} />
+          Sessions Trend — Last 30 Days
         </h3>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={220}>
           <LineChart data={last30Days}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: darkMode ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.9)', 
-                borderRadius: '16px', 
-                border: 'none',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                color: darkMode ? '#fff' : '#000'
-              }}
-              itemStyle={{ color: darkMode ? '#fff' : '#000' }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="sessions" 
-              stroke="#10b981" 
-              strokeWidth={4} 
-              dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} 
-              activeDot={{ r: 6, strokeWidth: 0 }}
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#00AACC" />
+                <stop offset="100%" stopColor="#1D9E75" />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="0" vertical={false} stroke={gridStroke} />
+            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={axisStyle} />
+            <YAxis axisLine={false} tickLine={false} tick={axisStyle} allowDecimals={false} />
+            <Tooltip content={<GlassTooltip darkMode={darkMode} />} />
+            <Line
+              type="monotone"
+              dataKey="sessions"
+              stroke="url(#lineGrad)"
+              strokeWidth={3}
+              dot={{ r: 3, fill: '#1D9E75', strokeWidth: 0 }}
+              activeDot={{ r: 5, fill: '#00E5FF', strokeWidth: 0 }}
             />
           </LineChart>
         </ResponsiveContainer>
-      </div>
+      </motion.div>
 
       {/* Top Subjects */}
       {subjectStats.length > 0 && (
-        <div className="glass p-8 rounded-3xl shadow-xl">
-          <h3 className="text-lg font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3">
-            <div className="w-1.5 h-6 bg-orange-500 rounded-full" />
+        <motion.div variants={itemVariants} className="glass rounded-2xl p-6">
+          <h3 className="text-sm font-black tracking-tight mb-5 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+            <span className="w-1 h-4 rounded-full" style={{ background: '#F59E0B' }} />
             Top Most Studied
           </h3>
-          <div className="grid gap-4">
+          <div className="space-y-2">
             {subjectStats.map((stat, idx) => (
-              <div key={stat.subject} className="flex items-center justify-between p-4 bg-white/40 dark:bg-black/20 rounded-2xl border border-white/20 dark:border-white/5">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs font-black">
+              <motion.div
+                key={stat.subject}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-center justify-between px-4 py-3 rounded-xl transition-colors"
+                style={{
+                  background: idx % 2 === 0
+                    ? darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
+                    : 'transparent',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black flex-shrink-0"
+                    style={{
+                      background: `${COLORS[idx % COLORS.length]}18`,
+                      color: COLORS[idx % COLORS.length],
+                    }}>
                     {idx + 1}
                   </div>
                   <div>
-                    <p className="font-bold text-gray-900 dark:text-white">{stat.subject}</p>
-                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mt-1">
-                      {stat.topicsCompleted} topics • {stat.projectsCompleted} projects • {stat.sessions} sessions
+                    <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      {stat.subject}
+                    </p>
+                    <p className="text-[10px] font-medium mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                      {stat.topicsCompleted} topics · {stat.projectsCompleted} projects · {stat.sessions} sessions
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-black text-blue-600 dark:text-blue-400">{stat.hours}h</p>
+                  <p className="text-lg font-black" style={{ color: '#00E5FF' }}>{stat.hours}h</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

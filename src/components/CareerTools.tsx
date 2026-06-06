@@ -3,13 +3,23 @@ import { Briefcase, Copy, Check, Star, DollarSign, PenTool, Layout, ExternalLink
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { Variants } from 'framer-motion';
+
+const containerVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+};
 
 export default function CareerTools() {
   const { user, progress, getOverallProgress, getCompletedSubjectsCount, getTotalSubjectsCount } = useTrackerStore();
   const [copied, setCopied] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState<'none' | 'negotiation' | 'proof' | 'blog'>('none');
 
-  // Local state for editable text
   const [editableScript, setEditableScript] = useState('');
   const [editableOutline, setEditableOutline] = useState('');
 
@@ -21,11 +31,10 @@ export default function CareerTools() {
 
   const completedSubjects = curriculum.flatMap(p => p.subjects).filter(s => progress[s.id]?.completed);
 
-  // Tool 1: PH-Specific Salary Negotiation Script
   const generateNegotiationScript = () => {
     const topSubject = completedSubjects[0]?.name || '[Mastered Subject]';
     const secondSubject = completedSubjects[1]?.name || '[Technical Skill]';
-    const projectCount = completedSubjects.length * 2; // Rough estimate of projects build
+    const projectCount = completedSubjects.length * 2;
 
     return `Hi [Recruiter Name],
 
@@ -41,7 +50,6 @@ Best regards,
 [Your Name]`;
   };
 
-  // Tool 2: Proof of Competence Generator
   const getProofData = () => {
     const overall = getOverallProgress();
     const mastered = getCompletedSubjectsCount();
@@ -55,7 +63,6 @@ Best regards,
     };
   };
 
-  // Tool 3: Technical Blog Outliner
   const [selectedSubject, setSelectedSubject] = useState(curriculum[0].subjects[0].id);
   const generateBlogOutline = (subjectId: string) => {
     const sub = curriculum.flatMap(p => p.subjects).find(s => s.id === subjectId);
@@ -69,7 +76,6 @@ Best regards,
       `### 5. Conclusion & Key Takeaways\nHow this knowledge fits into the broader Full-Stack to ML path.`;
   };
 
-  // Initialize editable text when tool is opened
   useEffect(() => {
     if (activeTool === 'negotiation') {
       setEditableScript(generateNegotiationScript());
@@ -83,85 +89,116 @@ Best regards,
   }, [activeTool, selectedSubject]);
 
   return (
-    <div className="animate-slide-in-up space-y-10 pb-20">
-      {/* Premium Header */}
-      <div className="glass p-12 rounded-[3rem] shadow-2xl relative overflow-hidden border-none text-center">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-8"
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants} className="glass rounded-3xl p-10 relative overflow-hidden text-center">
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%)' }} />
         <div className="relative z-10 space-y-4">
-          <div className="w-20 h-20 bg-blue-600 rounded-[2rem] flex items-center justify-center text-white mx-auto shadow-2xl shadow-blue-600/30">
-            <Briefcase className="w-10 h-10" />
+          <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center shadow-lg"
+            style={{ background: 'linear-gradient(135deg, rgba(0,229,255,0.2) 0%, rgba(127,119,221,0.2) 100%)', border: '1px solid rgba(0,229,255,0.2)' }}>
+            <Briefcase className="w-8 h-8" style={{ color: 'var(--accent-cyan)' }} />
           </div>
-          <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
-            Career <span className="text-blue-600">Accelerator</span>
+          <h2 className="text-3xl font-black tracking-tight uppercase" style={{ color: 'var(--text-primary)' }}>
+            Career <span style={{ color: 'var(--accent-cyan)' }}>Accelerator</span>
           </h2>
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.3em] max-w-lg mx-auto leading-relaxed">
+          <p className="text-xs font-bold uppercase tracking-widest max-w-lg mx-auto" style={{ color: 'var(--text-muted)' }}>
             Professional tools designed to help you land, negotiate, and master your dream role.
           </p>
         </div>
-        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-20" />
-      </div>
+      </motion.div>
 
       {/* Tool Selection Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <button 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <motion.button 
+          variants={itemVariants}
           onClick={() => setActiveTool('negotiation')}
-          className={`glass p-8 rounded-[2.5rem] text-left transition-all border-2 ${activeTool === 'negotiation' ? 'border-blue-600 scale-105 shadow-2xl' : 'border-transparent hover:bg-blue-600/5 dark:hover:bg-blue-600/10'}`}
+          className="glass glass-hover rounded-2xl p-6 text-left transition-all"
+          style={{
+            border: activeTool === 'negotiation' ? '2px solid rgba(0,229,255,0.4)' : '2px solid transparent',
+            background: activeTool === 'negotiation' ? 'rgba(0,229,255,0.03)' : undefined,
+          }}
         >
-          <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6">
-            <DollarSign className="w-7 h-7 text-blue-600" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(0,229,255,0.1)' }}>
+            <DollarSign className="w-6 h-6" style={{ color: 'var(--accent-cyan)' }} />
           </div>
-          <h3 className="font-black text-xl text-gray-900 dark:text-white uppercase tracking-tighter">Salary Negotiator</h3>
-          <p className="text-[11px] text-gray-500 mt-3 font-bold uppercase tracking-wider leading-relaxed">AI-ready scripts tailored to your specific mastery.</p>
-        </button>
+          <h3 className="font-black text-lg tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Salary Negotiator</h3>
+          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+            AI-ready scripts tailored to your specific mastery.
+          </p>
+        </motion.button>
 
-        <button 
+        <motion.button 
+          variants={itemVariants}
           onClick={() => setActiveTool('proof')}
-          className={`glass p-8 rounded-[2.5rem] text-left transition-all border-2 ${activeTool === 'proof' ? 'border-green-600 scale-105 shadow-2xl' : 'border-transparent hover:bg-green-600/5 dark:hover:bg-green-600/10'}`}
+          className="glass glass-hover rounded-2xl p-6 text-left transition-all"
+          style={{
+            border: activeTool === 'proof' ? '2px solid rgba(29,158,117,0.4)' : '2px solid transparent',
+            background: activeTool === 'proof' ? 'rgba(29,158,117,0.03)' : undefined,
+          }}
         >
-          <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mb-6">
-            <Layout className="w-7 h-7 text-green-600" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(29,158,117,0.1)' }}>
+            <Layout className="w-6 h-6" style={{ color: 'var(--accent-teal)' }} />
           </div>
-          <h3 className="font-black text-xl text-gray-900 dark:text-white uppercase tracking-tighter">Proof of Competence</h3>
-          <p className="text-[11px] text-gray-500 mt-3 font-bold uppercase tracking-wider leading-relaxed">Shareable profile that proves you're an engineer, not just a learner.</p>
-        </button>
+          <h3 className="font-black text-lg tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Proof of Competence</h3>
+          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+            Shareable profile that proves you're an engineer.
+          </p>
+        </motion.button>
 
-        <button 
+        <motion.button 
+          variants={itemVariants}
           onClick={() => setActiveTool('blog')}
-          className={`glass p-8 rounded-[2.5rem] text-left transition-all border-2 ${activeTool === 'blog' ? 'border-purple-600 scale-105 shadow-2xl' : 'border-transparent hover:bg-purple-600/5 dark:hover:bg-purple-600/10'}`}
+          className="glass glass-hover rounded-2xl p-6 text-left transition-all"
+          style={{
+            border: activeTool === 'blog' ? '2px solid rgba(127,119,221,0.4)' : '2px solid transparent',
+            background: activeTool === 'blog' ? 'rgba(127,119,221,0.03)' : undefined,
+          }}
         >
-          <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6">
-            <PenTool className="w-7 h-7 text-purple-600" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(127,119,221,0.1)' }}>
+            <PenTool className="w-6 h-6" style={{ color: 'var(--accent-violet)' }} />
           </div>
-          <h3 className="font-black text-xl text-gray-900 dark:text-white uppercase tracking-tighter">Blog Outliner</h3>
-          <p className="text-[11px] text-gray-500 mt-3 font-bold uppercase tracking-wider leading-relaxed">Generate structured guides to demonstrate expertise.</p>
-        </button>
+          <h3 className="font-black text-lg tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Blog Outliner</h3>
+          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+            Generate structured guides to demonstrate expertise.
+          </p>
+        </motion.button>
       </div>
 
       {/* Active Workspace */}
       <AnimatePresence mode="wait">
         <motion.div 
           key={activeTool}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="glass p-12 rounded-[3rem] shadow-2xl min-h-[500px] border-none"
+          exit={{ opacity: 0, y: -16 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="glass rounded-3xl p-8 min-h-[400px]"
         >
           {activeTool === 'none' && (
-            <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-30">
-              <Star className="w-20 h-20 mb-6" />
-              <h2 className="text-2xl font-black uppercase tracking-tighter italic">Select a Career Tool Above to Begin</h2>
+            <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-40">
+              <Star className="w-16 h-16 mb-4" style={{ color: 'var(--text-muted)' }} />
+              <h2 className="text-xl font-black uppercase tracking-tight" style={{ color: 'var(--text-primary)' }}>Select a Career Tool Above</h2>
             </div>
           )}
 
           {activeTool === 'negotiation' && (
-            <div className="space-y-8">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Negotiation Script</h2>
-                  <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mt-1">Personalized based on your {completedSubjects.length} mastered subjects</p>
+                  <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>Negotiation Script</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: 'var(--accent-cyan)' }}>
+                    Based on {completedSubjects.length} mastered subjects
+                  </p>
                 </div>
                 <button 
                   onClick={() => copyToClipboard(editableScript, 'neg')}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
+                  className="btn-primary flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold"
                 >
                   {copied === 'neg' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copied === 'neg' ? 'Copied!' : 'Copy Script'}
@@ -172,108 +209,113 @@ Best regards,
                 <textarea
                   value={editableScript}
                   onChange={(e) => setEditableScript(e.target.value)}
-                  className="w-full h-80 bg-black/5 dark:bg-black/40 rounded-[2rem] p-8 text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed focus:outline-none border-2 border-transparent focus:border-blue-500/30 transition-all resize-none shadow-inner"
+                  className="input-glass w-full h-80 rounded-2xl p-6 text-sm leading-relaxed resize-none"
+                  style={{ textTransform: 'none' }}
                 />
-                <div className="absolute bottom-6 right-8 flex items-center gap-2 pointer-events-none opacity-40">
-                  <DollarSign className="w-4 h-4" />
-                  <p className="text-[10px] font-black uppercase">Drafting Pro Response</p>
+                <div className="absolute bottom-4 right-6 flex items-center gap-1.5 opacity-40 pointer-events-none">
+                  <DollarSign className="w-3.5 h-3.5" style={{ color: 'var(--text-primary)' }} />
+                  <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-primary)' }}>Drafting</span>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 bg-blue-500/5 rounded-2xl border border-blue-500/20">
+              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'rgba(0,229,255,0.05)', border: '1px solid rgba(0,229,255,0.1)' }}>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-600">
-                    <Info className="w-5 h-5" />
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 italic font-medium">
-                    <b>Note:</b> Changes made here are temporary. Save your draft externally before refreshing.
+                  <Info className="w-4 h-4" style={{ color: 'var(--accent-cyan)' }} />
+                  <p className="text-[10px] font-semibold" style={{ color: 'var(--text-secondary)' }}>
+                    Changes are temporary. Save your draft externally.
                   </p>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => setEditableScript(generateNegotiationScript())} className="px-4 py-2 bg-white/50 dark:bg-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white transition-all">Reset to Default</button>
-                </div>
+                <button 
+                  onClick={() => setEditableScript(generateNegotiationScript())} 
+                  className="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg transition-colors"
+                  style={{ background: 'var(--border-subtle)', color: 'var(--text-primary)' }}
+                >
+                  Reset
+                </button>
               </div>
             </div>
           )}
 
           {activeTool === 'proof' && (
-            <div className="space-y-12">
-              <div className="flex justify-between items-center">
+            <div className="space-y-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Proof of Competence</h2>
-                  <p className="text-xs font-bold text-green-600 uppercase tracking-widest mt-1">Verified Technical Milestone Export</p>
+                  <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>Proof of Competence</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: 'var(--accent-teal)' }}>
+                    Verified Technical Milestone Export
+                  </p>
                 </div>
                 <button 
                   onClick={() => copyToClipboard(`${window.location.origin}/profile/${user?.id}`, 'public-link')}
-                  className="flex items-center gap-3 px-8 py-4 bg-green-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-green-600/20 hover:scale-105 active:scale-95 transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-white"
+                  style={{ background: 'linear-gradient(135deg, #16896B 0%, #1D9E75 100%)', boxShadow: '0 4px 16px rgba(29,158,117,0.3)' }}
                 >
                   {copied === 'public-link' ? <Check className="w-4 h-4" /> : <ExternalLink className="w-4 h-4" />}
-                  {copied === 'public-link' ? 'Link Copied!' : 'Generate Public Link'}
+                  {copied === 'public-link' ? 'Copied!' : 'Public Link'}
                 </button>
               </div>
               
-              {/* Jaw-dropping Preview */}
-              <div className="relative p-1 bg-gradient-to-br from-green-500 via-blue-500 to-purple-600 rounded-[3.5rem] shadow-2xl group overflow-hidden">
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-3xl" />
-                <div className="relative bg-white dark:bg-gray-900 rounded-[3rem] p-10 overflow-hidden">
-                  <div className="flex flex-col md:flex-row justify-between gap-10 relative z-10">
+              {/* Preview Card */}
+              <div className="relative p-[1px] rounded-[2rem] overflow-hidden group" style={{ background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-teal), var(--accent-violet))' }}>
+                <div className="relative rounded-[2rem] p-8 sm:p-10" style={{ background: 'var(--bg-glass)', backdropFilter: 'blur(30px)' }}>
+                  <div className="flex flex-col md:flex-row justify-between gap-8 relative z-10">
                     <div className="space-y-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-3xl bg-blue-600 flex items-center justify-center text-white text-2xl font-black shadow-2xl">
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg"
+                          style={{ background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 100%)' }}>
                           {user?.email?.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <h3 className="text-2xl font-black text-gray-900 dark:text-white">{user?.user_metadata.full_name || 'CS Engineer'}</h3>
-                          <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em]">Full-Stack → ML Specialization</p>
+                          <h3 className="text-xl font-black" style={{ color: 'var(--text-primary)' }}>{user?.user_metadata?.full_name || 'CS Engineer'}</h3>
+                          <p className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>Full-Stack → ML</p>
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="p-5 bg-gray-50 dark:bg-white/5 rounded-3xl border border-black/5 dark:border-white/5">
-                          <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Modules Mastered</p>
-                          <p className="text-2xl font-black text-blue-600">{getProofData().subjects}</p>
+                        <div className="p-4 rounded-xl" style={{ background: 'rgba(0,229,255,0.05)', border: '1px solid rgba(0,229,255,0.1)' }}>
+                          <p className="text-[8px] font-black uppercase mb-1" style={{ color: 'var(--text-muted)' }}>Modules Mastered</p>
+                          <p className="text-2xl font-black" style={{ color: 'var(--accent-cyan)' }}>{getProofData().subjects}</p>
                         </div>
-                        <div className="p-5 bg-gray-50 dark:bg-white/5 rounded-3xl border border-black/5 dark:border-white/5">
-                          <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Overall Rank</p>
-                          <p className="text-2xl font-black text-purple-600">Top 5%</p>
+                        <div className="p-4 rounded-xl" style={{ background: 'rgba(127,119,221,0.05)', border: '1px solid rgba(127,119,221,0.1)' }}>
+                          <p className="text-[8px] font-black uppercase mb-1" style={{ color: 'var(--text-muted)' }}>Overall Rank</p>
+                          <p className="text-2xl font-black" style={{ color: 'var(--accent-violet)' }}>Top 5%</p>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex-1 space-y-4">
                       <div className="flex justify-between items-end">
-                        <p className="text-[10px] font-black uppercase text-gray-400">Curriculum Mastery</p>
-                        <p className="text-xl font-black text-gray-900 dark:text-white">{getProofData().mastery}%</p>
+                        <p className="text-[9px] font-black uppercase" style={{ color: 'var(--text-muted)' }}>Curriculum Mastery</p>
+                        <p className="text-lg font-black" style={{ color: 'var(--text-primary)' }}>{getProofData().mastery}%</p>
                       </div>
-                      <div className="h-4 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden border border-black/5">
+                      <div className="progress-track h-2">
                         <motion.div 
                           initial={{ width: 0 }}
                           animate={{ width: `${getProofData().mastery}%` }}
-                          transition={{ duration: 1.5, ease: "easeOut" }}
-                          className="h-full bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 relative"
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="h-full rounded-full relative overflow-hidden"
+                          style={{ background: 'linear-gradient(90deg, var(--accent-cyan), var(--accent-violet))', boxShadow: '0 0 12px rgba(0,229,255,0.4)' }}
                         >
-                          <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-shimmer" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
                         </motion.div>
                       </div>
-                      <div className="flex flex-wrap gap-2 pt-4">
+                      <div className="flex flex-wrap gap-2 pt-2">
                         {getProofData().topSkills.map(skill => (
-                          <span key={skill.id} className="px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl text-[9px] font-black uppercase border border-blue-500/20">
-                            {skill.id} Mastered
+                          <span key={skill.id} className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase border"
+                            style={{ background: 'rgba(0,229,255,0.05)', color: 'var(--accent-cyan)', borderColor: 'rgba(0,229,255,0.15)' }}>
+                            {skill.id}
                           </span>
                         ))}
                       </div>
                     </div>
                   </div>
-                  {/* Decorative mesh */}
-                  <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
-                  <div className="absolute -top-20 -left-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
                 </div>
               </div>
 
-              <div className="bg-green-500/5 p-8 rounded-[2.5rem] border border-green-500/10">
-                <h4 className="text-sm font-black text-green-600 uppercase mb-4 flex items-center gap-2">
-                  <Star className="w-4 h-4" /> Employer Perspective
+              <div className="p-6 rounded-2xl" style={{ background: 'rgba(29,158,117,0.05)', border: '1px solid rgba(29,158,117,0.15)' }}>
+                <h4 className="text-[10px] font-black uppercase mb-2 flex items-center gap-2" style={{ color: 'var(--accent-teal)' }}>
+                  <Star className="w-3.5 h-3.5" /> Employer Perspective
                 </h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-medium italic">
+                <p className="text-xs font-medium leading-relaxed italic" style={{ color: 'var(--text-secondary)' }}>
                   "Most candidates just list 'Python' or 'React'. This dashboard proves you have followed a world-class curriculum with verified milestones, separating you from the masses of self-taught developers."
                 </p>
               </div>
@@ -281,19 +323,20 @@ Best regards,
           )}
 
           {activeTool === 'blog' && (
-            <div className="space-y-8">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Content Generator</h2>
-                  <div className="flex flex-wrap items-center gap-4 mt-4">
-                    <p className="text-[10px] font-black uppercase text-gray-400">Target Subject:</p>
+                  <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>Content Generator</h2>
+                  <div className="flex items-center gap-3 mt-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Target:</p>
                     <select 
                       value={selectedSubject}
                       onChange={(e) => setSelectedSubject(e.target.value)}
-                      className="bg-white/50 dark:bg-gray-800 border-2 border-purple-500/20 rounded-xl p-3 text-xs font-black focus:outline-none transition-all focus:border-purple-500/50 text-gray-900 dark:text-white"
+                      className="input-glass py-1.5 px-3 text-xs"
+                      style={{ textTransform: 'none' }}
                     >
                       {curriculum.flatMap(p => p.subjects).map(s => (
-                        <option key={s.id} value={s.id} className="bg-white dark:bg-gray-800">
+                        <option key={s.id} value={s.id}>
                           {s.id}: {s.name}
                         </option>
                       ))}
@@ -302,7 +345,8 @@ Best regards,
                 </div>
                 <button 
                   onClick={() => copyToClipboard(editableOutline, 'blog')}
-                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-purple-600/20"
+                  className="flex items-center gap-2 px-5 py-2.5 text-white rounded-xl text-xs font-bold transition-all"
+                  style={{ background: 'linear-gradient(135deg, #5C52B5 0%, #7F77DD 100%)', boxShadow: '0 4px 16px rgba(127,119,221,0.3)' }}
                 >
                   {copied === 'blog' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copied === 'blog' ? 'Copied' : 'Copy Outline'}
@@ -313,26 +357,33 @@ Best regards,
                 <textarea
                   value={editableOutline}
                   onChange={(e) => setEditableOutline(e.target.value)}
-                  className="w-full h-96 bg-black/5 dark:bg-black/40 rounded-[2rem] p-8 text-xs font-mono text-gray-700 dark:text-gray-300 leading-relaxed focus:outline-none border-2 border-transparent focus:border-purple-500/30 transition-all resize-none shadow-inner"
+                  className="input-glass w-full h-96 rounded-2xl p-6 text-xs font-mono leading-relaxed resize-none"
+                  style={{ textTransform: 'none' }}
                 />
-                <div className="absolute top-6 right-8 text-[8px] font-black uppercase text-purple-600 opacity-40 tracking-widest">Technical Draft v1.0</div>
+                <div className="absolute top-4 right-6 text-[8px] font-black uppercase tracking-widest opacity-40" style={{ color: 'var(--accent-violet)' }}>
+                  Draft v1.0
+                </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 bg-purple-500/5 rounded-2xl border border-purple-500/20">
+              <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'rgba(127,119,221,0.05)', border: '1px solid rgba(127,119,221,0.1)' }}>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-600">
-                    <PenTool className="w-5 h-5" />
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 italic font-medium">
-                    <b>Warning:</b> Content is not auto-saved. Copy it to your blogging platform before leaving.
+                  <PenTool className="w-4 h-4" style={{ color: 'var(--accent-violet)' }} />
+                  <p className="text-[10px] font-semibold" style={{ color: 'var(--text-secondary)' }}>
+                    Copy it to your blogging platform before leaving.
                   </p>
                 </div>
-                <button onClick={() => setEditableOutline(generateBlogOutline(selectedSubject))} className="px-4 py-2 bg-white/50 dark:bg-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white transition-all whitespace-nowrap">Regenerate Draft</button>
+                <button 
+                  onClick={() => setEditableOutline(generateBlogOutline(selectedSubject))} 
+                  className="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg transition-colors"
+                  style={{ background: 'var(--border-subtle)', color: 'var(--text-primary)' }}
+                >
+                  Regenerate
+                </button>
               </div>
             </div>
           )}
         </motion.div>
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

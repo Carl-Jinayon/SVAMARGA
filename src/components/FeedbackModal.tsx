@@ -1,14 +1,21 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { X } from 'lucide-react';
+import { X, Send, Bug, Sparkles, Layout } from 'lucide-react';
 import { useTrackerStore } from '../store/useTrackerStore';
 import Toast from './Toast';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const issueTypes = [
+  { value: 'Bug',     label: 'Bug Report',        icon: <Bug className="w-4 h-4" /> },
+  { value: 'Feature', label: 'Feature Request',   icon: <Sparkles className="w-4 h-4" /> },
+  { value: 'UI',      label: 'UI/UX Issue',       icon: <Layout className="w-4 h-4" /> },
+];
 
 export default function FeedbackModal({ onClose }: { onClose: () => void }) {
   const [issueType, setIssueType] = useState('Bug');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
-  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const { user } = useTrackerStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,14 +26,14 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
     const finalContent = `[Recipient: Admin]\n[Sender: ${myEmail}]\n\n${message}`;
 
     const { error } = await supabase.from('inbox').insert([
-      { 
-        user_id: user?.id, 
+      {
+        user_id: user?.id,
         sender_role: 'user',
         issue_type: issueType,
-        content: finalContent, 
+        content: finalContent,
         created_at: new Date().toISOString(),
-        is_read: false
-      }
+        is_read: false,
+      },
     ]);
 
     setSending(false);
@@ -42,45 +49,109 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
   return (
     <>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-        <div className="glass p-8 rounded-[2rem] shadow-2xl max-w-md w-full border-none">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Report a Bug</h3>
-            <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full"><X className="w-5 h-5" /></button>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-black uppercase text-gray-500 mb-1">Issue Type</label>
-              <select
-                value={issueType}
-                onChange={(e) => setIssueType(e.target.value)}
-                className="w-full p-3 bg-white/40 dark:bg-gray-800 border border-white/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-900 dark:text-white"
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-5"
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 16 }}
+            transition={{ type: 'spring', damping: 20, mass: 0.9 }}
+            className="glass-heavy rounded-2xl max-w-md w-full overflow-hidden"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+              <h3 className="text-base font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                Report a Bug
+              </h3>
+              <motion.button
+                onClick={onClose}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                style={{ background: 'var(--border-subtle)', color: 'var(--text-muted)' }}
+                aria-label="Close modal"
               >
-                <option value="Bug" className="bg-white dark:bg-gray-800">Bug</option>
-                <option value="Feature" className="bg-white dark:bg-gray-800">Feature Request</option>
-                <option value="UI" className="bg-white dark:bg-gray-800">UI/UX Issue</option>
-              </select>
+                <X className="w-3.5 h-3.5" />
+              </motion.button>
             </div>
-            <div>
-              <label className="block text-xs font-black uppercase text-gray-500 mb-1">Description</label>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="What went wrong? Tell us the details..."
-                className="w-full h-32 p-4 bg-white/40 dark:bg-black/20 border border-white/20 rounded-2xl text-sm focus:outline-none focus:ring-0 outline-none"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={sending}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-xs rounded-2xl transition-all shadow-xl active:scale-95"
-            >
-              {sending ? 'Sending...' : 'Send Report'}
-            </button>
-          </form>
-        </div>
-      </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {/* Issue Type Selector */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{ color: 'var(--text-muted)' }}>
+                  Issue Type
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {issueTypes.map(({ value, label, icon }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setIssueType(value)}
+                      className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl text-xs font-semibold transition-all"
+                      style={issueType === value ? {
+                        background: 'rgba(0,229,255,0.1)',
+                        border: '1px solid rgba(0,229,255,0.3)',
+                        color: 'var(--accent-cyan)',
+                      } : {
+                        background: 'var(--border-subtle)',
+                        border: '1px solid transparent',
+                        color: 'var(--text-muted)',
+                      }}
+                    >
+                      {icon}
+                      <span className="text-[9px] text-center leading-tight">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>
+                  Description
+                </label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="What went wrong? Tell us the details…"
+                  className="input-glass w-full h-28 px-4 py-3 text-sm resize-none"
+                  style={{ textTransform: 'none' }}
+                  required
+                />
+              </div>
+
+              {/* Submit */}
+              <motion.button
+                type="submit"
+                disabled={sending}
+                whileHover={!sending ? { scale: 1.02 } : {}}
+                whileTap={!sending ? { scale: 0.97 } : {}}
+                className="btn-primary w-full py-3 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {sending ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Sending…
+                  </span>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Report
+                  </>
+                )}
+              </motion.button>
+            </form>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
     </>
   );
 }

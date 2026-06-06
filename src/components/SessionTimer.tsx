@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
-import { Play, Pause, RotateCcw, LogOut } from 'lucide-react';
+import { Play, Pause, RotateCcw, LogOut, Timer, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SessionTimer() {
   const [isRunning, setIsRunning] = useState(false);
@@ -107,112 +108,206 @@ export default function SessionTimer() {
     }
   };
 
+  // Progress for circular ring
+  const totalSecs = sessionType === 'work' ? 25 * 60 : 5 * 60;
+  const remaining = sessionMinutes * 60 + sessionSeconds;
+  const progressPct = 1 - remaining / totalSecs;
+  const radius = 52;
+  const circumference = 2 * Math.PI * radius;
+  const strokeOffset = circumference * (1 - progressPct);
+
   return (
     <>
-      <button
+      {/* Floating Button */}
+      <motion.button
         onClick={() => setShowModal(!showModal)}
-        className="backdrop-blur-xl bg-blue-600/90 hover:bg-blue-600 text-white rounded-2xl p-5 shadow-[0_20px_50px_rgba(37,99,235,0.3)] hover:shadow-[0_20px_50px_rgba(37,99,235,0.4)] transition-all duration-300 flex items-center justify-center border border-white/20 active:scale-95 group"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        id="session-timer-toggle"
+        className="timer-float rounded-2xl p-4 flex items-center gap-3 transition-all"
         title="Open session timer"
+        aria-label="Open session timer"
       >
+        <Timer className="w-4 h-4 text-white/80" />
         <div className="text-center">
-          <div className="text-3xl font-black font-mono tracking-tighter group-hover:scale-110 transition-transform">{formatTime()}</div>
-          <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mt-1">{sessionType}</div>
-        </div>
-      </button>
-
-      {showModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="glass rounded-[3rem] shadow-2xl max-w-md w-full animate-slide-in-up border-none overflow-hidden">
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Deep Focus</h3>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 transition-all"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Timer Display */}
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-[2.5rem] p-12 text-center mb-8 relative overflow-hidden shadow-2xl shadow-blue-500/20">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-                <div className="text-7xl font-black text-white font-mono tracking-tighter">
-                  {formatTime()}
-                </div>
-                <p className="text-[10px] font-black text-blue-100 mt-6 uppercase tracking-[0.4em] bg-white/20 inline-block px-4 py-1.5 rounded-full backdrop-blur-md">
-                  {sessionType === 'work' ? '⚡ Flow State' : '☕ Recharge'}
-                </p>
-              </div>
-
-              {/* Subject Selection */}
-              {sessionType === 'work' && (
-                <div className="mb-8">
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-2">
-                    Current Mission
-                  </label>
-                  <select
-                    value={selectedSubject}
-                    onChange={(e) => setSelectedSubject(e.target.value)}
-                    className="w-full px-5 py-4 bg-white/40 dark:bg-black/20 border border-white/20 dark:border-white/5 rounded-2xl text-gray-900 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none cursor-pointer"
-                  >
-                    <option value="" className="bg-white dark:bg-gray-800">Assign Subject...</option>
-                    {allSubjects.map((subject) => (
-                      <option key={subject.id} value={subject.id} className="bg-white dark:bg-gray-800">
-                        {subject.id}: {subject.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Controls */}
-              <div className="flex gap-4 mb-4">
-                <button
-                  onClick={() => setIsRunning(!isRunning)}
-                  className={`flex-[2] py-5 px-8 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all shadow-xl active:scale-95 ${
-                    isRunning 
-                    ? 'bg-orange-500 text-white shadow-orange-500/20' 
-                    : 'bg-blue-600 text-white shadow-blue-600/20'
-                  }`}
-                >
-                  {isRunning ? (
-                    <>
-                      <Pause className="w-5 h-5 fill-current" /> Pause
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-5 h-5 fill-current" /> Ignite
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="flex-1 bg-white/40 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10 text-gray-900 dark:text-white py-5 px-4 rounded-2xl flex items-center justify-center transition-all border border-white/20 dark:border-white/5 active:scale-95"
-                >
-                  <RotateCcw className="w-5 h-5" />
-                </button>
-              </div>
-
-              {sessionType === 'work' && selectedSubject && !isRunning && (
-                <button
-                  onClick={handleSessionEnd}
-                  className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-black uppercase tracking-widest text-xs py-5 px-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-green-500/20 active:scale-95"
-                >
-                  <LogOut className="w-5 h-5" /> Harvest Session
-                </button>
-              )}
-
-              {/* Info */}
-              <p className="text-[9px] font-black text-gray-400 text-center mt-8 uppercase tracking-widest leading-relaxed">
-                {sessionType === 'work'
-                  ? 'Deep work sessions are automatically logged upon completion.'
-                  : 'Time to step away and reset your neural networks.'}
-              </p>
-            </div>
+          <div className="text-xl font-black font-mono tracking-tight text-white leading-none">
+            {formatTime()}
+          </div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-white/60 mt-0.5">
+            {sessionType}
           </div>
         </div>
-      )}
+        {isRunning && (
+          <div className="w-2 h-2 rounded-full bg-cyan-accent animate-pulse" />
+        )}
+      </motion.button>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-5"
+            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)' }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
+          >
+            <motion.div
+              initial={{ scale: 0.88, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.88, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 20, mass: 0.9 }}
+              className="glass-heavy rounded-3xl max-w-sm w-full overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-7 pt-7 pb-2">
+                <div>
+                  <h3 className="text-lg font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                    Deep Focus
+                  </h3>
+                  <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    {sessionType === 'work' ? '⚡ Flow State Active' : '☕ Recovery Mode'}
+                  </p>
+                </div>
+                <motion.button
+                  onClick={() => setShowModal(false)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ background: 'var(--border-subtle)', color: 'var(--text-muted)' }}
+                  aria-label="Close timer"
+                >
+                  <X className="w-4 h-4" />
+                </motion.button>
+              </div>
+
+              {/* Timer Ring */}
+              <div className="flex items-center justify-center py-8">
+                <div className="relative">
+                  <svg width="140" height="140" style={{ transform: 'rotate(-90deg)' }}>
+                    {/* Track */}
+                    <circle
+                      cx="70" cy="70" r={radius}
+                      fill="none"
+                      stroke={sessionType === 'work' ? 'rgba(0,229,255,0.1)' : 'rgba(29,158,117,0.1)'}
+                      strokeWidth="6"
+                    />
+                    {/* Progress */}
+                    <motion.circle
+                      cx="70" cy="70" r={radius}
+                      fill="none"
+                      stroke={sessionType === 'work' ? '#00E5FF' : '#1D9E75'}
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={strokeOffset}
+                      style={{ filter: `drop-shadow(0 0 6px ${sessionType === 'work' ? 'rgba(0,229,255,0.5)' : 'rgba(29,158,117,0.5)'})` }}
+                    />
+                  </svg>
+                  {/* Time Display */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-4xl font-black font-mono tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                      {formatTime()}
+                    </span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest mt-1" style={{ color: 'var(--text-muted)' }}>
+                      {sessionType === 'work' ? 'Focus' : 'Break'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-7 pb-7 space-y-4">
+                {/* Subject Selection */}
+                {sessionType === 'work' && (
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>
+                      Current Mission
+                    </label>
+                    <select
+                      value={selectedSubject}
+                      onChange={(e) => setSelectedSubject(e.target.value)}
+                      className="input-glass w-full px-4 py-3 text-sm"
+                      style={{ textTransform: 'none' }}
+                    >
+                      <option value="">Assign Subject…</option>
+                      {allSubjects.map((subject) => (
+                        <option key={subject.id} value={subject.id}>
+                          {subject.id}: {subject.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Controls */}
+                <div className="flex gap-3">
+                  <motion.button
+                    onClick={() => setIsRunning(!isRunning)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="flex-[2] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white flex items-center justify-center gap-2 transition-all"
+                    style={{
+                      background: isRunning
+                        ? 'linear-gradient(135deg, #C2410C, #EA580C)'
+                        : 'linear-gradient(135deg, #007AA0, #00E5FF)',
+                      boxShadow: isRunning
+                        ? '0 4px 16px rgba(234,88,12,0.3)'
+                        : '0 4px 16px rgba(0,229,255,0.3)',
+                    }}
+                  >
+                    {isRunning ? (
+                      <><Pause className="w-4 h-4 fill-current" /> Pause</>
+                    ) : (
+                      <><Play className="w-4 h-4 fill-current" /> Ignite</>
+                    )}
+                  </motion.button>
+                  <motion.button
+                    onClick={handleReset}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex-1 py-3.5 rounded-xl flex items-center justify-center transition-all"
+                    style={{
+                      background: 'var(--border-subtle)',
+                      color: 'var(--text-secondary)',
+                      border: '1px solid var(--border-subtle)',
+                    }}
+                    aria-label="Reset timer"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </motion.button>
+                </div>
+
+                {/* Harvest Session */}
+                <AnimatePresence>
+                  {sessionType === 'work' && selectedSubject && !isRunning && (
+                    <motion.button
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      onClick={handleSessionEnd}
+                      className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white flex items-center justify-center gap-2 transition-all"
+                      style={{
+                        background: 'linear-gradient(135deg, #16896B, #1D9E75)',
+                        boxShadow: '0 4px 16px rgba(29,158,117,0.3)',
+                      }}
+                    >
+                      <LogOut className="w-4 h-4" /> Harvest Session
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+
+                {/* Info */}
+                <p className="text-[9px] font-medium text-center leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                  {sessionType === 'work'
+                    ? 'Deep work sessions are automatically logged upon completion.'
+                    : 'Time to step away and reset your neural networks.'}
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

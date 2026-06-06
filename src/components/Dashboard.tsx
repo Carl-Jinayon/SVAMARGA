@@ -1,7 +1,72 @@
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
-import { TrendingUp, Target, Flame, Clock } from 'lucide-react';
+import { TrendingUp, Target, Flame, Clock, CalendarDays, ChevronRight } from 'lucide-react';
 import DailyFocus from './DailyFocus';
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
+
+const containerVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+};
+
+interface StatCardProps {
+  label: string;
+  value: React.ReactNode;
+  icon: React.ReactNode;
+  iconBg: string;
+  accentColor: string;
+  badge?: React.ReactNode;
+  progress?: number;
+  progressClass?: string;
+  colorClass?: string;
+}
+
+function StatCard({ label, value, icon, iconBg, accentColor, badge, progress, progressClass, colorClass }: StatCardProps) {
+  return (
+    <motion.div
+      variants={itemVariants}
+      className={`glass glass-hover rounded-2xl p-6 transition-all duration-300 ${colorClass || ''}`}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{ color: 'var(--text-muted)' }}>
+            {label}
+          </p>
+          <p className="text-4xl font-black leading-none" style={{ color: 'var(--text-primary)' }}>
+            {value}
+          </p>
+        </div>
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: iconBg }}>
+          <span style={{ color: accentColor }}>{icon}</span>
+        </div>
+      </div>
+      {badge && (
+        <div className="mb-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
+            style={{ background: `${accentColor}15`, color: accentColor }}>
+            {badge}
+          </span>
+        </div>
+      )}
+      {progress !== undefined && (
+        <div className="mt-4 progress-track h-2">
+          <motion.div
+            className={`h-full rounded-full ${progressClass}`}
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min(progress, 100)}%` }}
+            transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          />
+        </div>
+      )}
+    </motion.div>
+  );
+}
 
 export default function Dashboard() {
   const {
@@ -43,155 +108,179 @@ export default function Dashboard() {
     0
   );
 
+  const phaseColors = [
+    { fill: 'progress-fill-cyan',   accent: 'var(--accent-cyan)' },
+    { fill: 'progress-fill-violet', accent: 'var(--accent-violet)' },
+    { fill: 'progress-fill-teal',   accent: 'var(--accent-teal)' },
+    { fill: 'progress-fill-cyan',   accent: 'var(--accent-cyan)' },
+    { fill: 'progress-fill-violet', accent: 'var(--accent-violet)' },
+  ];
+
   return (
-    <div className="animate-slide-in-up">
-      {hasPlanToday ? (
-        <DailyFocus />
-      ) : (
-        <div className="glass p-10 rounded-[3rem] shadow-2xl mb-12 relative overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border-none group">
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-[2rem] bg-blue-600 flex items-center justify-center text-white text-2xl shadow-2xl group-hover:scale-110 transition-transform">
-                📅
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-8"
+    >
+      {/* Daily Focus or Empty State */}
+      <motion.div variants={itemVariants}>
+        {hasPlanToday ? (
+          <DailyFocus />
+        ) : (
+          <div className="glass rounded-2xl p-7 relative overflow-hidden group"
+            style={{ background: 'linear-gradient(135deg, rgba(0,229,255,0.05) 0%, rgba(127,119,221,0.05) 100%)' }}>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform"
+                  style={{ background: 'rgba(0,229,255,0.1)', border: '1px solid rgba(0,229,255,0.2)' }}>
+                  <CalendarDays className="w-5 h-5" style={{ color: 'var(--accent-cyan)' }} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                    No Mission Deployed Today
+                  </h3>
+                  <p className="text-xs font-medium mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                    Consistency is the multiplier. Head to Planner to set your goals.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">No Mission for Today</h3>
-                <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">Consistency is key. Head over to the Planner to set your daily goals.</p>
-              </div>
+              <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest flex-shrink-0 px-4 py-2 rounded-xl"
+                style={{ color: 'var(--accent-cyan)', background: 'rgba(0,229,255,0.08)', border: '1px solid rgba(0,229,255,0.2)' }}>
+                Awaiting <ChevronRight className="w-3 h-3" />
+              </span>
             </div>
-            <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] border-2 border-blue-600/20 px-6 py-3 rounded-2xl">Awaiting Deployment</p>
+            {/* Glow blob */}
+            <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%)' }} />
           </div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        </div>
-      )}
-      
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <div className="glass p-8 rounded-[2.5rem] border-l-8 border-blue-500 shadow-2xl transition-transform hover:scale-105 duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2">Overall Progress</p>
-              <p className="text-4xl font-black text-gray-900 dark:text-white">{overallProgress}%</p>
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center">
-              <TrendingUp className="w-8 h-8 text-blue-500" />
-            </div>
-          </div>
-          <div className="mt-6 bg-gray-200/30 dark:bg-gray-700/30 rounded-full h-2.5 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-              style={{ width: `${overallProgress}%` }}
-            />
-          </div>
-        </div>
+        )}
+      </motion.div>
 
-        <div className="glass p-8 rounded-[2.5rem] border-l-8 border-green-500 shadow-2xl transition-transform hover:scale-105 duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2">Subjects Done</p>
-              <p className="text-4xl font-black text-gray-900 dark:text-white">
-                {completedSubjects}<span className="text-xl text-gray-400 ml-1">/{totalSubjects}</span>
-              </p>
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center">
-              <Target className="w-8 h-8 text-green-500" />
-            </div>
-          </div>
-          <p className="text-[10px] text-green-600 dark:text-green-400 mt-4 font-black uppercase tracking-wider bg-green-500/5 inline-block px-3 py-1 rounded-full">
-            Keep crushing it
-          </p>
-        </div>
-
-        <div className="glass p-8 rounded-[2.5rem] border-l-8 border-orange-500 shadow-2xl transition-transform hover:scale-105 duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2">Daily Streak</p>
-              <p className="text-4xl font-black text-gray-900 dark:text-white">{currentStreak}</p>
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center">
-              <Flame className="w-8 h-8 text-orange-500" />
-            </div>
-          </div>
-          <p className="text-[10px] text-orange-600 dark:text-orange-400 mt-4 font-black uppercase tracking-wider bg-orange-500/5 inline-block px-3 py-1 rounded-full">
-            Day Streak
-          </p>
-        </div>
-
-        <div className="glass p-8 rounded-[2.5rem] border-l-8 border-purple-500 shadow-2xl transition-transform hover:scale-105 duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2">Study Hours</p>
-              <p className="text-4xl font-black text-gray-900 dark:text-white">{totalHours}</p>
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center">
-              <Clock className="w-8 h-8 text-purple-500" />
-            </div>
-          </div>
-          <p className="text-[10px] text-purple-600 dark:text-purple-400 mt-4 font-black uppercase tracking-wider bg-purple-500/5 inline-block px-3 py-1 rounded-full">
-            Total {totalPotentialHours}h
-          </p>
-        </div>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          label="Overall Progress"
+          value={`${overallProgress}%`}
+          icon={<TrendingUp className="w-5 h-5" />}
+          iconBg="rgba(0,229,255,0.1)"
+          accentColor="var(--accent-cyan)"
+          progress={overallProgress}
+          progressClass="progress-fill-cyan"
+          colorClass="stat-card-cyan"
+        />
+        <StatCard
+          label="Subjects Done"
+          value={
+            <span>
+              {completedSubjects}
+              <span className="text-xl font-semibold ml-1" style={{ color: 'var(--text-muted)' }}>
+                /{totalSubjects}
+              </span>
+            </span>
+          }
+          icon={<Target className="w-5 h-5" />}
+          iconBg="rgba(29,158,117,0.1)"
+          accentColor="var(--accent-teal)"
+          badge="Keep crushing it"
+          colorClass="stat-card-teal"
+        />
+        <StatCard
+          label="Daily Streak"
+          value={currentStreak}
+          icon={<Flame className="w-5 h-5" />}
+          iconBg="rgba(245,158,11,0.1)"
+          accentColor="#F59E0B"
+          badge="Day Streak"
+          colorClass="stat-card-amber"
+        />
+        <StatCard
+          label="Study Hours"
+          value={totalHours}
+          icon={<Clock className="w-5 h-5" />}
+          iconBg="rgba(127,119,221,0.1)"
+          accentColor="var(--accent-violet)"
+          badge={`of ${totalPotentialHours}h target`}
+          colorClass="stat-card-violet"
+        />
       </div>
 
       {/* Phase Progress */}
-      <div className="glass p-10 rounded-[3rem] shadow-2xl mb-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-12 flex items-center justify-between uppercase tracking-tighter">
-          <div className="flex items-center gap-4">
-            <div className="w-2.5 h-10 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)]"></div>
-            Phase Progress
-          </div>
+      <motion.div variants={itemVariants} className="glass rounded-2xl p-7 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-48 h-48 rounded-full -mr-24 -mt-24 blur-3xl pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%)' }} />
+        <h2 className="text-lg font-black tracking-tight mb-7 flex items-center gap-3" style={{ color: 'var(--text-primary)' }}>
+          <span className="w-1 h-5 rounded-full" style={{ background: 'var(--accent-cyan)', boxShadow: '0 0 8px rgba(0,229,255,0.4)' }} />
+          Phase Progress
         </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-10">
-          {phaseStats.map((stat) => (
-            <div key={stat.phaseId} className="group">
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-black text-gray-800 dark:text-gray-200 uppercase tracking-widest text-xs">
-                  {stat.phaseName}
-                </span>
-                <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-600/10 px-4 py-1.5 rounded-full uppercase">
-                  {stat.completed}/{stat.total} Subjects
-                </span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-7">
+          {phaseStats.map((stat, i) => {
+            const color = phaseColors[i % phaseColors.length];
+            return (
+              <div key={stat.phaseId} className="group">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-semibold tracking-wide" style={{ color: 'var(--text-primary)' }}>
+                    {stat.phaseName}
+                  </span>
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                    style={{ color: color.accent, background: `${color.accent}15` }}>
+                    {stat.completed}/{stat.total} done
+                  </span>
+                </div>
+                <div className="progress-track h-2">
+                  <motion.div
+                    className={`h-full rounded-full ${color.fill}`}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${stat.percentage}%` }}
+                    transition={{ duration: 0.9, delay: 0.1 + i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                  />
+                </div>
+                <div className="flex justify-between mt-2">
+                  <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                    Phase 0{stat.phaseId}
+                  </p>
+                  <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: color.accent }}>
+                    {stat.percentage}% Mastery
+                  </p>
+                </div>
               </div>
-              <div className="relative h-4 bg-gray-200/30 dark:bg-gray-700/30 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-1000 ease-out group-hover:shadow-[0_0_20px_rgba(37,99,235,0.5)]"
-                  style={{ width: `${stat.percentage}%` }}
-                />
-              </div>
-              <div className="flex justify-between mt-3">
-                <p className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Phase 0{stat.phaseId}</p>
-                <p className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">{stat.percentage}% Mastery</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Quick Tips */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-10 rounded-[3rem] border-l-8 border-blue-500 shadow-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 rounded-full -mr-20 -mt-20 blur-3xl transition-all group-hover:bg-blue-500/10" />
-          <h3 className="text-xl font-black text-blue-900 dark:text-blue-100 mb-6 flex items-center gap-4 uppercase tracking-tighter">
-            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center text-xl">💡</div> 
-            Pro Tip
+      {/* Tip Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <motion.div
+          variants={itemVariants}
+          className="glass rounded-2xl p-6 relative overflow-hidden group"
+          style={{ borderLeft: '2px solid rgba(0,229,255,0.4)' }}
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-3xl pointer-events-none transition-all group-hover:opacity-150"
+            style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%)' }} />
+          <h3 className="text-sm font-black mb-3 flex items-center gap-2.5" style={{ color: 'var(--text-primary)' }}>
+            <span className="text-base">💡</span> Pro Tip
           </h3>
-          <p className="text-sm font-medium text-blue-800/80 dark:text-blue-200/80 leading-relaxed italic">
-            "Study 4-6 hours daily with high intensity. Use the Pomodoro timer in the bottom-right to maintain your flow state. Consistency is the only multiplier for success."
+          <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text-secondary)' }}>
+            "Study 4–6 hours daily with high intensity. Use the Pomodoro timer in the bottom-right to maintain your flow state. Consistency is the only multiplier for success."
           </p>
-        </div>
+        </motion.div>
 
-        <div className="glass p-10 rounded-[3rem] border-l-8 border-green-500 shadow-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-green-500/5 rounded-full -mr-20 -mt-20 blur-3xl transition-all group-hover:bg-green-500/10" />
-          <h3 className="text-xl font-black text-green-900 dark:text-green-100 mb-6 flex items-center gap-4 uppercase tracking-tighter">
-            <div className="w-10 h-10 rounded-2xl bg-green-500/10 flex items-center justify-center text-xl">🎯</div> 
-            Next Mission
+        <motion.div
+          variants={itemVariants}
+          className="glass rounded-2xl p-6 relative overflow-hidden group"
+          style={{ borderLeft: '2px solid rgba(29,158,117,0.4)' }}
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-3xl pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(29,158,117,0.08) 0%, transparent 70%)' }} />
+          <h3 className="text-sm font-black mb-3 flex items-center gap-2.5" style={{ color: 'var(--text-primary)' }}>
+            <span className="text-base">🎯</span> Next Mission
           </h3>
-          <p className="text-sm font-medium text-green-800/80 dark:text-green-200/80 leading-relaxed italic">
+          <p className="text-sm leading-relaxed italic" style={{ color: 'var(--text-secondary)' }}>
             "Pick one subject from Phase 0{phaseStats.find(p => p.percentage < 100)?.phaseId || 1}. Master its fundamental topics first, then build the projects. Don't just learn—execute."
           </p>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

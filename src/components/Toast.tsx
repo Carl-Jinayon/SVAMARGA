@@ -1,9 +1,17 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
-export default function Toast({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) {
+export default function Toast({
+  message,
+  type,
+  onClose,
+}: {
+  message: string;
+  type: 'success' | 'error';
+  onClose: () => void;
+}) {
   useEffect(() => {
     const timer = setTimeout(onClose, 4000);
     return () => clearTimeout(timer);
@@ -12,34 +20,44 @@ export default function Toast({ message, type, onClose }: { message: string, typ
   const toastContent = (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, y: 50, scale: 0.9 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.9 }}
-        className="fixed top-24 right-10 z-[9999] glass px-8 py-6 rounded-[2rem] flex items-center gap-4 shadow-2xl border border-white/20"
+        initial={{ opacity: 0, y: -16, x: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -12, scale: 0.95 }}
+        transition={{ type: 'spring', damping: 22, mass: 0.8 }}
+        className={`fixed top-20 right-5 z-[9999] glass-heavy flex items-center gap-3.5 px-5 py-4 rounded-2xl max-w-xs
+          ${type === 'success' ? 'toast-success' : 'toast-error'}`}
+        role="alert"
+        aria-live="polite"
       >
         <motion.div
-          initial={{ rotate: -45, scale: 0 }}
-          animate={{ rotate: 0, scale: 1 }}
-          transition={{ type: 'spring', delay: 0.2 }}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', delay: 0.1, damping: 12 }}
+          className="flex-shrink-0"
         >
           {type === 'success' ? (
-            <CheckCircle className="text-green-500 w-8 h-8" />
+            <CheckCircle2 className="w-5 h-5" style={{ color: 'var(--accent-teal)' }} />
           ) : (
-            <AlertCircle className="text-red-500 w-8 h-8" />
+            <AlertCircle className="w-5 h-5 text-red-500" />
           )}
         </motion.div>
-        
-        <div className="flex flex-col">
-          <span className="font-black text-gray-900 dark:text-white text-lg tracking-tight">
-            {type === 'success' ? 'Success!' : 'Oops!'}
-          </span>
-          <span className="font-medium text-gray-600 dark:text-gray-300 text-sm">
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
+            {type === 'success' ? 'Success' : 'Oops'}
+          </p>
+          <p className="text-xs font-medium mt-0.5 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             {message}
-          </span>
+          </p>
         </div>
-        
-        <button onClick={onClose} className="ml-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-          ✕
+
+        <button
+          onClick={onClose}
+          className="flex-shrink-0 p-1 rounded-lg transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          aria-label="Dismiss notification"
+        >
+          <X className="w-3.5 h-3.5" />
         </button>
       </motion.div>
     </AnimatePresence>

@@ -28,11 +28,11 @@ export default function ResetPassword() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center p-6">
         <div className="glass p-10 rounded-[3rem] shadow-2xl max-w-md w-full text-center border-none">
-          <Check className="w-16 h-16 text-green-500 mx-auto mb-6" />
-          <h2 className="text-2xl font-black text-white mb-4 uppercase tracking-tighter">Password Updated</h2>
-          <p className="text-sm text-gray-400 font-medium leading-relaxed">
+          <Check className="w-16 h-16 mx-auto mb-6" style={{ color: 'var(--accent-teal)' }} />
+          <h2 className="text-2xl font-black mb-4 uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>Password Updated</h2>
+          <p className="text-sm font-medium leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             Your password has been changed successfully. Redirecting you to login...
           </p>
         </div>
@@ -41,27 +41,32 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gray-900">
-      <div className="glass p-10 rounded-[3rem] shadow-2xl max-w-md w-full border-none">
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-black text-white uppercase tracking-tighter italic mb-2">New Password</h2>
-          <p className="text-gray-500 text-sm font-medium">Create a secure password for your account.</p>
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="glass p-10 rounded-[3rem] shadow-2xl max-w-md w-full border-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.1) 0%, transparent 70%)' }} />
+
+        <div className="text-center mb-10 relative z-10">
+          <h2 className="text-4xl font-black uppercase tracking-tighter italic mb-2" style={{ color: 'var(--text-primary)' }}>New Password</h2>
+          <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Create a secure password for your account.</p>
         </div>
 
-        <form onSubmit={handleUpdate} className="space-y-6">
+        <form onSubmit={handleUpdate} className="space-y-6 relative z-10">
           {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-xs font-bold text-center">
+            <div className="p-4 rounded-2xl text-xs font-bold text-center" style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)' }}>
               {error}
             </div>
           )}
+          
           <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="New Password"
-              className="w-full pl-12 pr-4 py-4 bg-white/5 dark:bg-black/20 border border-white/10 rounded-2xl text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="input-glass w-full pl-12 pr-4 py-4 text-sm"
+              style={{ textTransform: 'none' }}
               required
               minLength={6}
             />
@@ -70,7 +75,8 @@ export default function ResetPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-sm rounded-2xl transition-all shadow-xl active:scale-95 disabled:opacity-50 shadow-blue-600/20"
+            className="w-full py-4 text-white font-black uppercase tracking-widest text-sm rounded-2xl transition-all shadow-xl active:scale-95 disabled:opacity-50"
+            style={{ background: 'var(--accent-cyan)' }}
           >
             {loading ? 'Updating...' : 'Update Password'}
           </button>

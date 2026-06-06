@@ -13,8 +13,9 @@ import Inbox from './components/Inbox';
 import About from './components/About';
 import PublicProfile from './components/PublicProfile';
 import ResetPassword from './components/ResetPassword';
-import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info } from 'lucide-react';
+import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info, LayoutDashboard } from 'lucide-react';
 import { supabase } from './lib/supabase';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'inbox';
 
@@ -84,7 +85,7 @@ function MainApp() {
   if (!user) {
     return (
       <div className={darkMode ? 'dark' : ''}>
-        <div className="min-h-screen bg-transparent transition-colors relative">
+        <div className="min-h-screen bg-transparent relative">
           <Auth />
         </div>
       </div>
@@ -92,72 +93,106 @@ function MainApp() {
   }
 
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'curriculum', label: 'Curriculum', icon: <BookOpen className="w-4 h-4" /> },
-    { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'planner', label: 'Planner', icon: <Calendar className="w-4 h-4" /> },
-    { id: 'career', label: 'Career', icon: <Briefcase className="w-4 h-4" /> },
-    { id: 'inbox', label: 'Inbox', icon: <MessageSquare className="w-4 h-4" /> },
-    { id: 'about', label: 'About', icon: <Info className="w-4 h-4" /> },
+    { id: 'dashboard',  label: 'Dashboard',  icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
+    { id: 'curriculum', label: 'Curriculum',  icon: <BookOpen className="w-3.5 h-3.5" /> },
+    { id: 'analytics',  label: 'Analytics',  icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { id: 'planner',    label: 'Planner',    icon: <Calendar className="w-3.5 h-3.5" /> },
+    { id: 'career',     label: 'Career',     icon: <Briefcase className="w-3.5 h-3.5" /> },
+    { id: 'inbox',      label: 'Inbox',      icon: <MessageSquare className="w-3.5 h-3.5" /> },
+    { id: 'about',      label: 'About',      icon: <Info className="w-3.5 h-3.5" /> },
   ];
 
   return (
     <div className={darkMode ? 'dark' : ''}>
-      <div className="min-h-screen bg-transparent transition-colors relative">
+      <div className="min-h-screen bg-transparent relative">
         <Header onToggleDarkMode={toggleDarkMode} />
 
-        <div className="sticky top-20 z-40 backdrop-blur-xl bg-white/30 dark:bg-gray-900/30 border-b border-white/20 dark:border-gray-800/20 shadow-xl">
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-12">
-            <div className="flex gap-2 justify-center overflow-x-auto py-3 no-scrollbar">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-2.5 text-sm font-black uppercase tracking-widest whitespace-nowrap rounded-2xl transition-all duration-300 relative ${
-                    activeTab === tab.id
-                      ? 'bg-blue-600 text-white shadow-[0_10px_20px_rgba(37,99,235,0.3)] scale-105'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/40 dark:hover:bg-gray-800/40'
-                  }`}
-                >
-                  {tab.icon}
-                  {tab.label}
-                  {tab.id === 'inbox' && hasUnread && (
-                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-gray-900 shadow-sm" />
-                  )}
-                </button>
-              ))}
+        {/* Tab Navigation */}
+        <div className="sticky top-16 z-40 glass-heavy border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+          <div className="max-w-screen-2xl mx-auto px-5 sm:px-8 lg:px-14">
+            <div className="flex gap-1 overflow-x-auto no-scrollbar py-2">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <motion.button
+                    key={tab.id}
+                    id={`tab-${tab.id}`}
+                    onClick={() => setActiveTab(tab.id)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    className={`relative flex items-center gap-2 px-4 py-2 text-xs font-semibold whitespace-nowrap rounded-xl transition-all duration-200 ${
+                      isActive
+                        ? 'text-white tab-active-glow'
+                        : 'hover:bg-black/5 dark:hover:bg-white/5'
+                    }`}
+                    style={isActive ? {
+                      background: 'linear-gradient(135deg, #007AA0 0%, #00E5FF 100%)',
+                      color: '#fff',
+                    } : {
+                      color: 'var(--text-secondary)',
+                    }}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {tab.icon}
+                    <span className="tracking-wide">{tab.label}</span>
+                    {tab.id === 'inbox' && hasUnread && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-navy-900 shadow-sm animate-pulse" />
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-12 py-10 pt-48 relative z-10">
-          <div className="animate-slide-in-up">
-            {activeTab === 'dashboard' && <Dashboard />}
-            {activeTab === 'curriculum' && <CurriculumViewer />}
-            {activeTab === 'about' && <About />}
-            {activeTab === 'analytics' && <Analytics />}
-            {activeTab === 'planner' && <Planner />}
-            {activeTab === 'career' && <CareerTools />}
-            {activeTab === 'inbox' && <Inbox />}
-          </div>
+        {/* Main Content */}
+        <main className="max-w-screen-2xl mx-auto px-5 sm:px-8 lg:px-14 py-8 relative z-10">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {activeTab === 'dashboard'  && <Dashboard />}
+              {activeTab === 'curriculum' && <CurriculumViewer />}
+              {activeTab === 'about'      && <About />}
+              {activeTab === 'analytics'  && <Analytics />}
+              {activeTab === 'planner'    && <Planner />}
+              {activeTab === 'career'     && <CareerTools />}
+              {activeTab === 'inbox'      && <Inbox />}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
-        {/* Floating Timer Button */}
-        <div className="fixed bottom-10 right-10 z-50">
+        {/* Floating Session Timer */}
+        <div className="fixed bottom-8 right-8 z-50">
           <SessionTimer />
         </div>
 
-        <footer className="backdrop-blur-md bg-white/20 dark:bg-gray-900/20 border-t border-white/10 dark:border-gray-800/10 mt-20 py-12">
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-12 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400 dark:text-gray-500">SVAMARGA OS v1.0</p>
-            <div className="mt-6 mb-8 max-w-md mx-auto p-6 bg-red-600/5 dark:bg-red-600/10 rounded-3xl border border-red-600/20">
-              <h4 className="text-lg font-black uppercase tracking-tighter text-red-600 dark:text-red-500 mb-2">Your University Sucks?</h4>
-              <p className="text-xs font-bold text-gray-600 dark:text-gray-400 leading-relaxed uppercase tracking-widest">
-                Don't wait for a degree to validate your <span className="text-blue-600 dark:text-blue-400">genius</span>. Build the future of <span className="text-indigo-600 dark:text-indigo-400">Intelligence</span> here.
+        {/* Footer */}
+        <footer className="glass-heavy border-t mt-16 py-10" style={{ borderColor: 'var(--border-subtle)' }}>
+          <div className="max-w-screen-2xl mx-auto px-5 sm:px-8 lg:px-14 text-center">
+            <p className="text-[9px] font-bold uppercase tracking-[0.5em]" style={{ color: 'var(--text-muted)' }}>
+              SVAMARGA OS v1.0
+            </p>
+            <div className="mt-5 mb-6 max-w-sm mx-auto p-5 rounded-2xl"
+              style={{
+                background: 'rgba(239, 68, 68, 0.04)',
+                border: '1px solid rgba(239, 68, 68, 0.12)'
+              }}
+            >
+              <h4 className="text-sm font-black tracking-tight text-red-500 mb-1.5">Your University Sucks?</h4>
+              <p className="text-[10px] font-medium leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Don't wait for a degree to validate your{' '}
+                <span style={{ color: 'var(--accent-cyan)' }}>genius</span>. Build the future of{' '}
+                <span style={{ color: 'var(--accent-violet)' }}>Intelligence</span> here.
               </p>
             </div>
-            <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">
-              Forging the next generation of <span className="text-blue-600 dark:text-blue-400">Master Engineers</span>
+            <p className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+              Forging the next generation of{' '}
+              <span style={{ color: 'var(--accent-cyan)' }}>Master Engineers</span>
             </p>
           </div>
         </footer>
