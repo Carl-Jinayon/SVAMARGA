@@ -161,21 +161,23 @@ export default function Inbox() {
     if (!newContent.trim() || !user?.id) return;
 
     const isBug = newType === 'Bug';
-    // Bug reports always go to Admin; messages go to the specified email
-    const recipient = isBug ? 'Admin' : newRecipientEmail.trim();
-    if (!recipient) return;
+    // Bug reports always go to Admin; messages go to the specified email (lowercased)
+    const rawRecipient = isBug ? 'Admin' : newRecipientEmail.trim().toLowerCase();
+    if (!rawRecipient) return;
 
     setSending(true);
 
     try {
-      const senderLabel = isAdmin ? 'Admin' : myEmail;
-      const finalContent = `[Recipient: ${recipient}]\n[Sender: ${senderLabel}]\n\n${isBug ? `[Bug Type: ${bugType}]\n` : ''}${newContent}`;
+      const senderLabel = isAdmin ? 'Admin' : myEmail.toLowerCase();
+      const finalContent = `[Recipient: ${rawRecipient}]\n[Sender: ${senderLabel}]\n\n${isBug ? `[Bug Type: ${bugType}]\n` : ''}${newContent}`;
       const issueType = isBug ? `Bug: ${bugType}` : 'Message';
 
-      // Check if conversation already exists with this user
+      // Check if conversation already exists with this recipient
       let replyToId = undefined;
       if (!isBug) {
-        const existingThread = threadParents.find(p => getPartnerLabel(p).toLowerCase() === recipient.toLowerCase());
+        const existingThread = threadParents.find(p =>
+          getPartnerLabel(p).toLowerCase() === rawRecipient.toLowerCase()
+        );
         if (existingThread) {
           replyToId = existingThread.id;
         }
@@ -188,7 +190,7 @@ export default function Inbox() {
         issue_type: replyToId ? undefined : issueType,
         is_read: false,
         reply_to: replyToId,
-        recipient_email: recipient === 'Admin' ? null : recipient,
+        recipient_email: isBug ? null : rawRecipient,
       }]);
 
       if (error) throw error;
@@ -212,7 +214,8 @@ export default function Inbox() {
 
     try {
       const partner = getPartnerLabel(thread);
-      const senderLabel = isAdmin ? 'Admin' : myEmail;
+      const rawPartner = partner.toLowerCase();
+      const senderLabel = isAdmin ? 'Admin' : myEmail.toLowerCase();
 
       const finalContent = `[Recipient: ${partner}]\n[Sender: ${senderLabel}]\n\n${replyText}`;
 
@@ -222,7 +225,7 @@ export default function Inbox() {
         content: finalContent,
         reply_to: thread.id,
         is_read: false,
-        recipient_email: partner === 'Admin' ? null : partner,
+        recipient_email: rawPartner === 'admin' ? null : rawPartner,
       }]);
 
       if (error) throw error;

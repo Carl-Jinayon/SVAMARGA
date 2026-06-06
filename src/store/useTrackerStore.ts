@@ -615,10 +615,10 @@ export const useTrackerStore = create<Store>((set, get) => {
       let query = supabase.from('inbox').select('*');
 
       if (!isAdmin) {
-        // Users see messages they sent (user_id = user.id) OR messages sent to them (content contains their email)
-        const userEmail = user.email || user.user_metadata?.email || '';
+        // Users see messages they sent OR messages where they are the recipient
+        const userEmail = (user.email || user.user_metadata?.email || '').toLowerCase();
         if (userEmail) {
-          query = query.or(`user_id.eq.${user.id},content.ilike.%[Recipient: ${userEmail}]%`);
+          query = query.or(`user_id.eq.${user.id},recipient_email.ilike.${userEmail}`);
         } else {
           query = query.eq('user_id', user.id);
         }
