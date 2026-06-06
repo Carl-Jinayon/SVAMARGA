@@ -41,11 +41,15 @@ export default function CurriculumViewer() {
         <div className="flex flex-wrap gap-4 justify-center items-center max-w-5xl mx-auto relative z-10">
           {curriculum.map((phase) => {
             const isActive = activePhaseId === phase.id;
+            const phaseTotal = phase.subjects.length;
+            const phaseCompleted = phase.subjects.filter((s) => progress[s.id]?.completed).length;
+            const progressPercentage = Math.round((phaseCompleted / phaseTotal) * 100);
+
             return (
               <button
                 key={phase.id}
                 onClick={() => setActivePhaseId(phase.id)}
-                className="relative group px-8 py-5 rounded-[2rem] transition-all"
+                className="relative group px-6 py-4 sm:px-8 sm:py-5 rounded-[2rem] transition-all flex flex-col items-center"
                 style={{
                   opacity: isActive ? 1 : 0.6,
                   transform: isActive ? 'scale(1.05)' : 'scale(1)',
@@ -59,13 +63,24 @@ export default function CurriculumViewer() {
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
-                <div className="relative z-10 text-center">
+                <div className="relative z-10 text-center w-full">
                   <p className="text-[8px] font-bold uppercase tracking-widest mb-1" style={{ color: isActive ? 'var(--accent-cyan)' : 'var(--text-muted)' }}>
                     Phase
                   </p>
-                  <h4 className="text-xl font-black tracking-tight" style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                  <h4 className="text-xl font-black tracking-tight mb-3" style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                     0{phase.id}
                   </h4>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-16 h-1 rounded-full overflow-hidden mx-auto" style={{ background: 'var(--border-subtle)' }}>
+                    <div 
+                      className="h-full rounded-full transition-all duration-1000" 
+                      style={{ 
+                        width: `${progressPercentage}%`, 
+                        background: isActive ? 'var(--accent-cyan)' : 'var(--text-muted)' 
+                      }} 
+                    />
+                  </div>
                 </div>
               </button>
             );

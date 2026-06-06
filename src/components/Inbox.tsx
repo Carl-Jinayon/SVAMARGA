@@ -147,7 +147,11 @@ export default function Inbox() {
     ];
 
     if (unreadIds.length > 0) {
-      await supabase.from('inbox').update({ is_read: true }).in('id', unreadIds);
+      const { error } = await supabase.from('inbox').update({ is_read: true }).in('id', unreadIds);
+      if (error) {
+        console.error('Error marking as read:', error);
+        alert('Could not mark message as read: ' + error.message);
+      }
       fetchMessages();
     }
   }, [selectedThreadId, user, focusedThreadIds, threadParents, currentReplies, isMsgFromMe, fetchMessages]);
@@ -177,7 +181,7 @@ export default function Inbox() {
         }
       }
 
-      await supabase.from('inbox').insert([{
+      const { error } = await supabase.from('inbox').insert([{
         user_id: user.id,
         sender_role: isAdmin ? 'admin' : 'user',
         content: finalContent,
@@ -187,12 +191,15 @@ export default function Inbox() {
         recipient_email: recipient === 'Admin' ? null : recipient,
       }]);
 
+      if (error) throw error;
+
       setNewContent('');
       if (newType !== 'Bug') setNewRecipientEmail('');
       setShowModal(false);
       await fetchMessages();
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error sending message:', e);
+      alert('Failed to send message: ' + e.message);
     }
     setSending(false);
   };
@@ -209,7 +216,7 @@ export default function Inbox() {
 
       const finalContent = `[Recipient: ${partner}]\n[Sender: ${senderLabel}]\n\n${replyText}`;
 
-      await supabase.from('inbox').insert([{
+      const { error } = await supabase.from('inbox').insert([{
         user_id: user.id,
         sender_role: isAdmin ? 'admin' : 'user',
         content: finalContent,
@@ -218,12 +225,15 @@ export default function Inbox() {
         recipient_email: partner === 'Admin' ? null : partner,
       }]);
 
+      if (error) throw error;
+
       setReplyText('');
       // Mark this thread as focused so the dot clears immediately
       setFocusedThreadIds(prev => new Set([...prev, thread.id]));
       await fetchMessages();
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error sending reply:', e);
+      alert('Failed to send reply: ' + e.message);
     }
     setSending(false);
   };
@@ -419,18 +429,27 @@ export default function Inbox() {
                         className={`flex gap-2 sm:gap-3 ${isMe ? 'flex-row-reverse' : ''}`}
                       >
                         {/* Avatar */}
-                        <div
-                          className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 shadow-md"
-                          style={{
-                            background: msgIsAdmin ? '#F59E0B' : 'var(--accent-cyan)',
-                            color: '#fff'
-                          }}
-                          title={msgIsAdmin ? 'Admin' : 'User'}
-                        >
-                          {msgIsAdmin
-                            ? <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                            : <UserIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                        </div>
+                        {isMe && user?.user_metadata?.avatar_url ? (
+                          <img
+                            src={user.user_metadata.avatar_url}
+                            alt="Avatar"
+                            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-cover shrink-0 shadow-md ring-1 ring-black/5 dark:ring-white/10"
+                            title="You"
+                          />
+                        ) : (
+                          <div
+                            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 shadow-md"
+                            style={{
+                              background: msgIsAdmin ? '#F59E0B' : 'var(--accent-cyan)',
+                              color: '#fff'
+                            }}
+                            title={msgIsAdmin ? 'Admin' : 'User'}
+                          >
+                            {msgIsAdmin
+                              ? <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              : <UserIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                          </div>
+                        )}
 
                         {/* Bubble */}
                         <div className={`max-w-[80%] sm:max-w-[75%] space-y-1 ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>

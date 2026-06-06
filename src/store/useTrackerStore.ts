@@ -133,11 +133,36 @@ export const useTrackerStore = create<Store>((set, get) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         set({ user: session.user });
+        
+        // Fetch latest profile from cloud before syncing
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (profile) {
+          set((state) => ({
+            ...state,
+            progress: profile.progress || state.progress,
+            sessions: profile.sessions || state.sessions,
+            weeklyPlans: profile.weekly_plans || state.weeklyPlans,
+            activeWeekPlan: profile.active_week_plan || state.activeWeekPlan,
+            achievements: profile.achievements || state.achievements,
+            totalStudyTime: profile.total_study_time || state.totalStudyTime,
+            currentStreak: profile.current_streak || state.currentStreak,
+            lastStudyDate: profile.last_study_date || state.lastStudyDate,
+            missionEndDate: profile.mission_end_date || state.missionEndDate,
+            dailyStudyHours: profile.daily_study_hours || state.dailyStudyHours,
+            dailyPlans: profile.daily_plans || state.dailyPlans,
+          }));
+        }
+
         await get().syncWithCloud();
         get().initPresence();
       }
     } catch (e) {
-      console.warn('Supabase session check skipped: No connection.');
+      console.warn('Supabase session check skipped: No connection.', e);
     }
   };
 

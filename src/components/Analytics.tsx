@@ -98,6 +98,40 @@ export default function Analytics() {
     .sort((a, b) => b.hours - a.hours)
     .slice(0, 10);
 
+  const hasData = sessions.length > 0 || Object.keys(progress).length > 0;
+
+  if (!hasData) {
+    return (
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="space-y-6 sm:space-y-8 animate-slide-in-up pb-20"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: 'var(--text-primary)' }}>
+              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: 'var(--accent-cyan)' }} />
+              Analytics & Insights
+            </h2>
+            <p className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: 'var(--text-muted)' }}>
+              Data visualization of your progress
+            </p>
+          </div>
+        </div>
+        <div className="glass rounded-[3rem] p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+          <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6" style={{ background: 'rgba(0,229,255,0.05)', color: 'var(--accent-cyan)' }}>
+            <BarChart3 className="w-12 h-12 opacity-50" />
+          </div>
+          <h3 className="text-2xl font-black uppercase tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>No Data Yet</h3>
+          <p className="text-sm font-medium mb-8 max-w-md" style={{ color: 'var(--text-secondary)' }}>
+            Start studying, complete topics, or run the session timer to generate insights and track your learning patterns over time.
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
   const COLORS = [
     '#00E5FF', '#7F77DD', '#1D9E75', '#F59E0B',
     '#4FC3F7', '#9D77FF', '#26C48F', '#F97316',

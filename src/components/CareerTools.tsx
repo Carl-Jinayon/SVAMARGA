@@ -332,7 +332,7 @@ Best regards,
                     <select 
                       value={selectedSubject}
                       onChange={(e) => setSelectedSubject(e.target.value)}
-                      className="input-glass py-1.5 px-3 text-xs"
+                      className="input-glass py-1.5 px-3 text-xs max-w-[140px] sm:max-w-xs truncate"
                       style={{ textTransform: 'none' }}
                     >
                       {curriculum.flatMap(p => p.subjects).map(s => (

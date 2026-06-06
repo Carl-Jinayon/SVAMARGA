@@ -102,8 +102,8 @@ function MainApp() {
       <div className="min-h-screen bg-transparent relative">
         <Header onToggleDarkMode={toggleDarkMode} />
 
-        {/* Tab Navigation */}
-        <div className="sticky top-16 z-40 glass-heavy border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+        {/* Top Tab Navigation (Desktop/Tablet) */}
+        <div className="hidden sm:block sticky top-16 z-40 glass-heavy border-b" style={{ borderColor: 'var(--border-subtle)' }}>
           <div className="max-w-screen-2xl mx-auto px-5 sm:px-8 lg:px-14 relative">
             <div 
               className="flex gap-1 overflow-x-auto no-scrollbar py-2"
@@ -144,7 +144,7 @@ function MainApp() {
         </div>
 
         {/* Main Content */}
-        <main className="max-w-screen-2xl mx-auto px-5 sm:px-8 lg:px-14 py-8 relative z-10">
+        <main className="max-w-screen-2xl mx-auto px-5 sm:px-8 lg:px-14 py-8 relative z-10 pb-24 sm:pb-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -164,9 +164,36 @@ function MainApp() {
           </AnimatePresence>
         </main>
 
-        {/* Floating Session Timer */}
-        <div className="fixed bottom-8 right-8 z-50">
+        {/* Floating Session Timer (Adjusted for bottom nav on mobile) */}
+        <div className="fixed bottom-24 sm:bottom-8 right-5 sm:right-8 z-50">
           <SessionTimer />
+        </div>
+
+        {/* Bottom Navigation (Mobile Only) */}
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 glass-heavy border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+          <div className="flex items-center justify-between px-2 py-2 safe-area-bottom">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={`mobile-tab-${tab.id}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="flex flex-col items-center justify-center w-full py-1.5 transition-all relative"
+                  style={{ color: isActive ? 'var(--accent-cyan)' : 'var(--text-muted)' }}
+                >
+                  <div className={`mb-1 transition-transform ${isActive ? 'scale-110' : 'scale-100'}`}>
+                    {tab.icon}
+                  </div>
+                  <span className="text-[8px] font-bold uppercase tracking-wider">
+                    {tab.label}
+                  </span>
+                  {tab.id === 'inbox' && hasUnread && (
+                    <span className="absolute top-1 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-navy-900 animate-pulse" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Footer */}
