@@ -378,7 +378,7 @@ export default function Planner() {
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowCalendar(false)}
-              className="absolute inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-xl"
+              className="fixed inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-xl"
             />
             <motion.div 
               initial={{ scale: 0.9, rotateX: 15, opacity: 0 }}
@@ -572,7 +572,7 @@ export default function Planner() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsEditingTimer(false)}
-              className="absolute inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-md"
+              className="fixed inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-xl"
             />
             <motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
@@ -797,7 +797,7 @@ export default function Planner() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowSelector(false)}
-              className="absolute inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-md"
+              className="fixed inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-xl"
             />
             <motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
@@ -960,7 +960,7 @@ export default function Planner() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowGenerator(false)}
-              className="absolute inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-md"
+              className="fixed inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-xl"
             />
             <motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
@@ -987,18 +987,25 @@ export default function Planner() {
                   <div className="space-y-4">
                     <p className="text-xs font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Daily Study Hours</p>
                     <div className="flex items-center gap-6 p-6 rounded-[2rem] border" style={{ background: 'var(--bg-glass)', borderColor: 'var(--border-subtle)' }}>
-                      <input 
-                        type="range" 
-                        min="1" 
-                        max="16" 
-                        value={dailyStudyHours}
-                        onChange={(e) => setDailyStudyHours(parseInt(e.target.value))}
-                        className="flex-1 h-2 rounded-lg appearance-none cursor-pointer"
-                        style={{ background: 'var(--border-subtle)' }}
-                      />
-                      <div className="w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-white shadow-xl shrink-0" style={{ background: 'var(--accent-cyan)' }}>
-                        <p className="text-xl font-black">{dailyStudyHours}</p>
-                        <p className="text-[7px] font-black uppercase">Hrs</p>
+                      <div className="flex-1 space-y-3">
+                        <input 
+                          type="range" 
+                          min="1" 
+                          max="16" 
+                          value={dailyStudyHours}
+                          onChange={(e) => setDailyStudyHours(parseInt(e.target.value))}
+                          className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                          style={{ background: 'var(--border-subtle)' }}
+                        />
+                        <div className="flex justify-between px-0.5">
+                          <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>1 hr</span>
+                          <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>16 hrs</span>
+                        </div>
+                      </div>
+                      <div className="w-20 h-16 rounded-2xl flex flex-col items-center justify-center text-white shadow-xl shrink-0" style={{ background: 'var(--accent-cyan)' }}>
+                        <p className="text-xl font-black leading-none">{dailyStudyHours}</p>
+                        <p className="text-[7px] font-black uppercase mt-0.5">hrs / day</p>
+                        <p className="text-[7px] font-black uppercase opacity-70">{dailyStudyHours * 60} min</p>
                       </div>
                     </div>
                   </div>

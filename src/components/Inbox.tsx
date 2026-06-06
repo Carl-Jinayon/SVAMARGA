@@ -429,6 +429,7 @@ export default function Inbox() {
           )}
         </div>
       </div>
+    </div>
 
       {/* New Message Modal */}
       <AnimatePresence>
@@ -439,7 +440,7 @@ export default function Inbox() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowModal(false)}
-              className="absolute inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-xl"
+              className="fixed inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-xl"
             />
             <motion.div
               initial={{ scale: 0.92, y: 16, opacity: 0 }}

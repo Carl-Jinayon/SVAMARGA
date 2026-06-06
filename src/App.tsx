@@ -158,7 +158,7 @@ function MainApp() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             >
-              {activeTab === 'dashboard'  && <Dashboard />}
+              {activeTab === 'dashboard'  && <Dashboard onNavigate={(tab) => setActiveTab(tab as TabType)} />}
               {activeTab === 'curriculum' && <CurriculumViewer />}
               {activeTab === 'about'      && <About />}
               {activeTab === 'analytics'  && <Analytics />}

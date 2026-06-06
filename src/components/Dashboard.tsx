@@ -1,6 +1,6 @@
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
-import { TrendingUp, Target, Flame, Clock, CalendarDays, ChevronRight } from 'lucide-react';
+import { TrendingUp, Target, Flame, Clock, CalendarDays, Rocket } from 'lucide-react';
 import DailyFocus from './DailyFocus';
 import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
@@ -68,7 +68,7 @@ function StatCard({ label, value, icon, iconBg, accentColor, badge, progress, pr
   );
 }
 
-export default function Dashboard() {
+export default function Dashboard({ onNavigate }: { onNavigate?: (tab: string) => void }) {
   const {
     getTotalMinutes,
     currentStreak,
@@ -145,10 +145,18 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest flex-shrink-0 px-4 py-2 rounded-xl"
-                style={{ color: 'var(--accent-cyan)', background: 'rgba(0,229,255,0.08)', border: '1px solid rgba(0,229,255,0.2)' }}>
-                Awaiting <ChevronRight className="w-3 h-3" />
-              </span>
+              <button
+                onClick={() => onNavigate?.('planner')}
+                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest flex-shrink-0 px-5 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95"
+                style={{
+                  color: '#fff',
+                  background: 'linear-gradient(135deg, rgba(0,180,220,0.9) 0%, rgba(0,229,255,0.9) 100%)',
+                  boxShadow: '0 4px 16px rgba(0,229,255,0.3)',
+                  border: '1px solid rgba(0,229,255,0.3)',
+                }}
+              >
+                <Rocket className="w-3.5 h-3.5" /> Plan My Day
+              </button>
             </div>
             {/* Glow blob */}
             <div className="absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none"
