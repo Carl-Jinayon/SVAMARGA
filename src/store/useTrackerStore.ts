@@ -618,11 +618,12 @@ export const useTrackerStore = create<Store>((set, get) => {
       // Admin receives bug reports (recipient_email = 'admin') and direct messages to their email.
       const userEmail = (user.email || user.user_metadata?.email || '').toLowerCase();
       if (isAdmin) {
-        // Admin sees: messages they sent + messages where recipient is 'admin' (bug reports) + messages addressed to their email
+        // Admin sees: messages they sent + messages addressed to 'admin' (bug reports)
+        // + messages addressed to their email + old pre-fix messages where recipient_email is NULL
         if (userEmail) {
-          query = query.or(`user_id.eq.${user.id},recipient_email.ilike.admin,recipient_email.ilike.${userEmail}`);
+          query = query.or(`user_id.eq.${user.id},recipient_email.ilike.admin,recipient_email.ilike.${userEmail},recipient_email.is.null`);
         } else {
-          query = query.or(`user_id.eq.${user.id},recipient_email.ilike.admin`);
+          query = query.or(`user_id.eq.${user.id},recipient_email.ilike.admin,recipient_email.is.null`);
         }
       } else {
         // Regular users see: messages they sent OR messages where they are the recipient
