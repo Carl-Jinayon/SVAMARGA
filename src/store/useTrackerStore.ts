@@ -43,6 +43,10 @@ interface Store extends TrackerState {
   addMessage: (message: Message) => void;
   fetchMessages: () => Promise<void>;
 
+  // Presence
+  onlineUsers: Set<string>;
+  initPresence: () => void;
+
   // Session actions
   addSession: (session: Omit<Session, 'id'>) => void;
   getSessions: (subjectId?: string) => Session[];
@@ -100,6 +104,7 @@ const initialState: TrackerState = {
     totalSeconds: 0,
     isRunning: false,
   },
+  onlineUsers: new Set(),
   portfolio: {
     bio: '',
     tagline: '',
@@ -130,6 +135,7 @@ export const useTrackerStore = create<Store>((set, get) => {
       if (session) {
         set({ user: session.user });
         await get().syncWithCloud();
+        get().initPresence();
       }
     } catch (e) {
       console.warn('Supabase session check skipped: No connection.');
@@ -139,6 +145,35 @@ export const useTrackerStore = create<Store>((set, get) => {
   return {
     ...initialState,
     user: null,
+
+    initPresence: () => {
+      const { user } = get();
+      if (!user) return;
+      
+      const channel = supabase.channel('online-users');
+      
+      channel
+        .on('presence', { event: 'sync' }, () => {
+          const presenceState = channel.presenceState();
+          const onlineSet = new Set<string>();
+          
+          Object.values(presenceState).forEach((presences: any) => {
+            presences.forEach((p: any) => {
+              if (p.email) onlineSet.add(p.email.toLowerCase());
+            });
+          });
+          
+          set({ onlineUsers: onlineSet });
+        })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await channel.track({
+              user_id: user.id,
+              email: user.email || user.user_metadata?.email
+            });
+          }
+        });
+    },
 
     updatePortfolio: (portfolio: Portfolio) => {
       set({ portfolio });
@@ -756,6 +791,7 @@ supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN' && session) {
     useTrackerStore.getState().setUser(session.user);
     useTrackerStore.getState().syncWithCloud();
+    useTrackerStore.getState().initPresence();
   } else if (event === 'SIGNED_OUT') {
     useTrackerStore.getState().setUser(null);
   }

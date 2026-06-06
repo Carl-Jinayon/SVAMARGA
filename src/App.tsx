@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useTrackerStore } from './store/useTrackerStore';
 import Header from './components/Header';
@@ -22,6 +22,9 @@ type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 
 function MainApp() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const { darkMode, toggleDarkMode, loadFromStorage, user, messages = [], fetchMessages } = useTrackerStore();
+  // Track whether the user has visited the inbox tab this session
+  // (used to hide the nav dot — DB marking happens per-conversation in Inbox.tsx)
+  const [inboxVisited, setInboxVisited] = useState(false);
 
   // Initialize theme synchronously before render
   useEffect(() => {
@@ -46,35 +49,34 @@ function MainApp() {
     }
   }, [user, fetchMessages]);
 
-  const hasUnread = useMemo(() => {
+  const hasUnreadInDB = useMemo(() => {
     if (!user) return false;
-
     return messages.some(m => {
       if (m.is_read) return false;
       return m.user_id !== user.id;
     });
   }, [messages, user]);
 
-  // Clear notifications when entering the Inbox tab
+  // The nav dot shows if there are unread messages AND the user hasn't visited the inbox yet
+  const hasUnread = hasUnreadInDB && !inboxVisited;
+
+  // When user visits the inbox tab, hide the nav dot (but don't mark all as read in DB)
+  // Per-conversation read marking happens inside Inbox.tsx via textarea focus
   useEffect(() => {
-    if (activeTab === 'inbox' && user && hasUnread) {
-      const markAllAsRead = async () => {
-
-        const unreadIds = messages
-          .filter(m => {
-            if (m.is_read) return false;
-            return m.user_id !== user.id;
-          })
-          .map(m => m.id);
-
-        if (unreadIds.length > 0) {
-          await supabase.from('inbox').update({ is_read: true }).in('id', unreadIds);
-          fetchMessages();
-        }
-      };
-      markAllAsRead();
+    if (activeTab === 'inbox' && hasUnreadInDB) {
+      setInboxVisited(true);
     }
-  }, [activeTab, user, hasUnread, messages, fetchMessages]);
+  }, [activeTab, hasUnreadInDB]);
+
+  // Reset inboxVisited when new messages arrive after the user last visited
+  const prevUnreadCount = useRef(0);
+  useEffect(() => {
+    const unreadCount = messages.filter(m => !m.is_read && m.user_id !== user?.id).length;
+    if (unreadCount > prevUnreadCount.current && activeTab !== 'inbox') {
+      setInboxVisited(false);
+    }
+    prevUnreadCount.current = unreadCount;
+  }, [messages, activeTab, user]);
 
   if (!user) {
     return (
