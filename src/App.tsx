@@ -109,8 +109,11 @@ function MainApp() {
 
         {/* Tab Navigation */}
         <div className="sticky top-16 z-40 glass-heavy border-b" style={{ borderColor: 'var(--border-subtle)' }}>
-          <div className="max-w-screen-2xl mx-auto px-5 sm:px-8 lg:px-14">
-            <div className="flex gap-1 overflow-x-auto no-scrollbar py-2">
+          <div className="max-w-screen-2xl mx-auto px-5 sm:px-8 lg:px-14 relative">
+            <div 
+              className="flex gap-1 overflow-x-auto no-scrollbar py-2"
+              style={{ maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent 100%)' }}
+            >
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (

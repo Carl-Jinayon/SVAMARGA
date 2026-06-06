@@ -555,11 +555,14 @@ export const useTrackerStore = create<Store>((set, get) => {
       let query = supabase.from('inbox').select('*');
 
       if (!isAdmin) {
-        // Regular users only see their own messages (stored with user_id = user.id)
-        // Admin replies are also stored with user_id = user.id so users can see them
-        query = query.eq('user_id', user.id);
+        // Users see messages they sent (user_id = user.id) OR messages sent to them (content contains their email)
+        const userEmail = user.email || user.user_metadata?.email || '';
+        if (userEmail) {
+          query = query.or(`user_id.eq.${user.id},content.ilike.%[Recipient: ${userEmail}]%`);
+        } else {
+          query = query.eq('user_id', user.id);
+        }
       }
-      // Admin sees ALL messages regardless of user_id - no filter needed
 
       const { data, error } = await query.order('created_at', { ascending: true });
 

@@ -113,6 +113,25 @@ export default function Analytics() {
 
   const totalHours = Math.round((sessions.reduce((sum, s) => sum + s.duration, 0) / 60) * 10) / 10;
 
+  if (sessions.length === 0) {
+    return (
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="glass rounded-3xl p-16 flex flex-col items-center justify-center text-center border-none shadow-xl min-h-[60vh]"
+      >
+        <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6" style={{ background: 'rgba(0,229,255,0.05)', color: 'var(--accent-cyan)' }}>
+          <BarChart3 className="w-12 h-12 opacity-80" />
+        </div>
+        <h2 className="text-2xl font-black uppercase tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>No Data Yet</h2>
+        <p className="text-sm font-medium max-w-md opacity-60 leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+          Your analytics dashboard will populate automatically once you start studying and logging your sessions in the Curriculum or Planner.
+        </p>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       variants={containerVariants}

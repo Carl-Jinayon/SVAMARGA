@@ -655,7 +655,7 @@ export default function Planner() {
         </div>
 
         <div className="relative group/timeline py-4">
-          <div className="flex gap-4 overflow-x-auto py-8 px-4 no-scrollbar scroll-smooth snap-x">
+          <div className="flex gap-4 overflow-x-auto py-8 px-4 no-scrollbar scroll-smooth snap-x snap-mandatory">
             {dates.map((date) => {
               const d = new Date(date);
               const isToday = date === new Date().toISOString().split('T')[0];
@@ -771,9 +771,18 @@ export default function Planner() {
             ))}
 
             {(!dailyPlans[selectedDate] || (dailyPlans[selectedDate].items.length === 0 && (!suggestedPlans[selectedDate] || suggestedPlans[selectedDate].items.length === 0))) && (
-              <div className="col-span-full py-20 flex flex-col items-center justify-center opacity-30 text-center space-y-4">
-                <CalendarIcon className="w-16 h-16" style={{ color: 'var(--text-primary)' }} />
-                <p className="text-sm font-black uppercase italic max-w-xs" style={{ color: 'var(--text-primary)' }}>Nothing scheduled yet. Click the + to add to your mission plan.</p>
+              <div className="col-span-full py-16 flex flex-col items-center justify-center text-center space-y-6">
+                <div className="w-20 h-20 rounded-full flex items-center justify-center mb-2" style={{ background: 'rgba(0,229,255,0.05)', color: 'var(--accent-cyan)' }}>
+                  <CalendarIcon className="w-10 h-10 opacity-50" />
+                </div>
+                <p className="text-sm font-black uppercase tracking-tight opacity-50" style={{ color: 'var(--text-primary)' }}>Nothing scheduled for this day</p>
+                <button 
+                  onClick={() => handleOpenSelector(true)}
+                  className="flex items-center gap-2 px-6 py-3 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all"
+                  style={{ background: 'linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-cyan) 100%)' }}
+                >
+                  <Sparkles className="w-4 h-4" /> Generate Plan with AI
+                </button>
               </div>
             )}
           </div>
