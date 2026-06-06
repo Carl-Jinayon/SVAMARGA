@@ -614,9 +614,18 @@ export const useTrackerStore = create<Store>((set, get) => {
 
       let query = supabase.from('inbox').select('*');
 
-      if (!isAdmin) {
-        // Users see messages they sent OR messages where they are the recipient
-        const userEmail = (user.email || user.user_metadata?.email || '').toLowerCase();
+      // Everyone — including admin — only sees messages they sent OR messages addressed to them.
+      // Admin receives bug reports (recipient_email = 'admin') and direct messages to their email.
+      const userEmail = (user.email || user.user_metadata?.email || '').toLowerCase();
+      if (isAdmin) {
+        // Admin sees: messages they sent + messages where recipient is 'admin' (bug reports) + messages addressed to their email
+        if (userEmail) {
+          query = query.or(`user_id.eq.${user.id},recipient_email.ilike.admin,recipient_email.ilike.${userEmail}`);
+        } else {
+          query = query.or(`user_id.eq.${user.id},recipient_email.ilike.admin`);
+        }
+      } else {
+        // Regular users see: messages they sent OR messages where they are the recipient
         if (userEmail) {
           query = query.or(`user_id.eq.${user.id},recipient_email.ilike.${userEmail}`);
         } else {

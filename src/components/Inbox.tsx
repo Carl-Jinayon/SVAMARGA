@@ -190,7 +190,7 @@ export default function Inbox() {
         issue_type: replyToId ? undefined : issueType,
         is_read: false,
         reply_to: replyToId,
-        recipient_email: isBug ? null : rawRecipient,
+        recipient_email: rawRecipient,
       }]);
 
       if (error) throw error;
@@ -225,7 +225,7 @@ export default function Inbox() {
         content: finalContent,
         reply_to: thread.id,
         is_read: false,
-        recipient_email: rawPartner === 'admin' ? null : rawPartner,
+        recipient_email: rawPartner,
       }]);
 
       if (error) throw error;
