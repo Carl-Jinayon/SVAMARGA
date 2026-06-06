@@ -14,7 +14,6 @@ export default function Planner() {
     dailyStudyHours,
     setDailyStudyHours,
     dailyStudyMinutes,
-    setDailyStudyMinutes,
     dailyPlans, 
     updateDailyPlan, 
     toggleDailyItem, 
@@ -47,7 +46,7 @@ export default function Planner() {
     }
   }, [dailyStudyHours, dailyStudyMinutes]);
 
-  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [toast, setToast] = useState<{id: string, message: string, type: 'success' | 'error'} | null>(null);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [isEditingTimer, setIsEditingTimer] = useState(false);
   const [timerInputs, setTimerInputs] = useState({ h: 0, m: 0, s: 0 });
@@ -64,7 +63,7 @@ export default function Planner() {
     const total = (timerInputs.h * 3600) + (timerInputs.m * 60) + timerInputs.s;
     setSessionTimer(total);
     setIsEditingTimer(false);
-    setToast({ message: 'Timer updated!', type: 'success' });
+    setToast({ id: Date.now().toString(), message: 'Timer updated!', type: 'success' });
   };
 
   const toggleItemExpansion = (id: string) => {
@@ -270,7 +269,7 @@ export default function Planner() {
       updateDailyPlan(selectedDate, tempSelection);
     }
     setShowSelector(false);
-    if (!showGenerator) setToast({ message: 'Plan updated for ' + selectedDate, type: 'success' });
+    if (!showGenerator) setToast({ id: Date.now().toString(), message: 'Plan updated for ' + selectedDate, type: 'success' });
   };
 
   const formatSeconds = (sec: number) => {
@@ -282,7 +281,7 @@ export default function Planner() {
 
   const generateIntelligentPlan = () => {
     if (!missionEndDate || goalTopics.length === 0) {
-      setToast({ message: 'Set Mission Date and Goal Topics first!', type: 'error' });
+      setToast({ id: Date.now().toString(), message: 'Set Mission Date and Goal Topics first!', type: 'error' });
       return;
     }
 
@@ -337,7 +336,7 @@ export default function Planner() {
 
     setSuggestedPlans(newSuggestedPlans);
     setShowGenerator(false);
-    setToast({ message: `Strategic roadmap deployed across ${totalDays} days!`, type: 'success' });
+    setToast({ id: Date.now().toString(), message: `Strategic roadmap deployed across ${totalDays} days!`, type: 'success' });
     
     if (sessionTimer.totalSeconds === 0) {
       setSessionTimer(dailyStudyHours * 3600);
@@ -367,12 +366,12 @@ export default function Planner() {
     const dateStr = date.toISOString().split('T')[0];
     setMissionEndDate(dateStr);
     setShowCalendar(false);
-    setToast({ message: 'Target deadline updated!', type: 'success' });
+    setToast({ id: Date.now().toString(), message: 'Target deadline updated!', type: 'success' });
   };
 
   return (
     <>
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && <Toast id={toast.id} message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       {/* Custom Premium Calendar Modal */}
       {createPortal(

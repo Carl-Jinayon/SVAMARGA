@@ -21,9 +21,6 @@ interface Store extends TrackerState {
   markProjectCompleted: (subjectId: string, project: string) => void;
 
   // Mission & Planner
-  missionEndDate: string | null;
-  dailyStudyHours: number;
-  dailyStudyMinutes: number;
   setMissionEndDate: (date: string | null) => void;
   setDailyStudyHours: (hours: number) => void;
   setDailyStudyMinutes: (minutes: number) => void;
