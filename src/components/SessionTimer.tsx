@@ -6,14 +6,15 @@ import { Play, Pause, RotateCcw, LogOut, Timer, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SessionTimer() {
+  const { addSession, dailyStudyHours } = useTrackerStore();
+  const defaultWorkMinutes = dailyStudyHours * 60;
+
   const [isRunning, setIsRunning] = useState(false);
-  const [sessionMinutes, setSessionMinutes] = useState(25);
+  const [sessionMinutes, setSessionMinutes] = useState(defaultWorkMinutes);
   const [sessionSeconds, setSessionSeconds] = useState(0);
   const [sessionType, setSessionType] = useState<'work' | 'break'>('work');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [showModal, setShowModal] = useState(false);
-
-  const { addSession } = useTrackerStore();
 
   const allSubjects = curriculum.flatMap((phase) =>
     phase.subjects.map((s) => ({ id: s.id, name: s.name, phaseName: phase.name }))
@@ -51,7 +52,7 @@ export default function SessionTimer() {
             setSessionMinutes(5);
           } else {
             setSessionType('work');
-            setSessionMinutes(25);
+            setSessionMinutes(defaultWorkMinutes);
           }
           setSessionSeconds(0);
         }
@@ -108,7 +109,7 @@ export default function SessionTimer() {
   const handleReset = () => {
     setIsRunning(false);
     if (sessionType === 'work') {
-      setSessionMinutes(25);
+      setSessionMinutes(defaultWorkMinutes);
     } else {
       setSessionMinutes(5);
     }
@@ -129,7 +130,7 @@ export default function SessionTimer() {
   };
 
   // Progress for circular ring
-  const totalSecs = sessionType === 'work' ? 25 * 60 : 5 * 60;
+  const totalSecs = sessionType === 'work' ? defaultWorkMinutes * 60 : 5 * 60;
   const remaining = sessionMinutes * 60 + sessionSeconds;
   const progressPct = 1 - remaining / totalSecs;
   const radius = 52;

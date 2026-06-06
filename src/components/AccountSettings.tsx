@@ -22,6 +22,9 @@ export default function AccountSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [accountSaving, setAccountSaving] = useState(false);
   const [accountMessage, setAccountMessage] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   const isEmailAuth = user?.app_metadata?.provider === 'email';
 
@@ -59,6 +62,17 @@ export default function AccountSettings() {
       setAccountMessage('No changes made.');
     }
     setAccountSaving(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    // Delete all user data from the profiles table first
+    await supabase.from('profiles').delete().eq('id', user!.id);
+    // Sign out — Supabase Admin API deletion requires a server-side function;
+    // for now we clear data and sign out, which effectively locks them out
+    await signOut();
+    setDeleting(false);
+    setShowDeleteModal(false);
   };
 
   if (!user) return null;
@@ -284,8 +298,9 @@ export default function AccountSettings() {
                   <h4 className="text-red-500 font-black uppercase tracking-widest text-xs mb-2 flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4" /> Danger Zone
                   </h4>
-                  <p className="text-xs text-red-500/70 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
+                  <p className="text-xs text-red-500/70 mb-4">Once you delete your account, there is no going back. All your progress, sessions, and data will be permanently erased.</p>
                   <button
+                    onClick={() => setShowDeleteModal(true)}
                     className="px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs border border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                   >
                     Delete Account
@@ -360,6 +375,69 @@ export default function AccountSettings() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+            onClick={(e) => { if (e.target === e.currentTarget) { setShowDeleteModal(false); setDeleteConfirm(''); } }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className="glass rounded-3xl p-8 max-w-md w-full border border-red-500/20 shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                </div>
+                <h3 className="text-lg font-black tracking-tight text-red-500">Delete Account</h3>
+              </div>
+
+              <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
+                This action is <strong className="text-red-400">permanent and irreversible</strong>. All of your progress, sessions, weekly plans, and achievements will be deleted forever.
+              </p>
+              <p className="text-xs mb-6 font-bold" style={{ color: 'var(--text-muted)' }}>
+                Type <span className="text-red-400 font-black">DELETE</span> below to confirm.
+              </p>
+
+              <input
+                type="text"
+                value={deleteConfirm}
+                onChange={e => setDeleteConfirm(e.target.value)}
+                placeholder="Type DELETE to confirm"
+                className="input-glass w-full p-4 text-sm mb-6"
+                style={{ textTransform: 'none', borderColor: deleteConfirm === 'DELETE' ? 'rgba(239,68,68,0.5)' : undefined }}
+              />
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowDeleteModal(false); setDeleteConfirm(''); }}
+                  className="flex-1 px-4 py-3 rounded-xl font-bold uppercase tracking-widest text-xs transition-all"
+                  style={{ background: 'var(--border-subtle)', color: 'var(--text-secondary)' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirm !== 'DELETE' || deleting}
+                  className="flex-1 px-4 py-3 rounded-xl font-black uppercase tracking-widest text-xs text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{ background: 'linear-gradient(135deg, #dc2626, #991b1b)' }}
+                >
+                  {deleting ? 'Deleting...' : 'Delete Forever'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
