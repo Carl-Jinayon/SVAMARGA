@@ -14,7 +14,6 @@ import About from './components/About';
 import PublicProfile from './components/PublicProfile';
 import ResetPassword from './components/ResetPassword';
 import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info, LayoutDashboard } from 'lucide-react';
-import { supabase } from './lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'inbox';

@@ -104,7 +104,6 @@ const initialState: TrackerState = {
     totalSeconds: 0,
     isRunning: false,
   },
-  onlineUsers: new Set(),
   portfolio: {
     bio: '',
     tagline: '',
@@ -145,6 +144,7 @@ export const useTrackerStore = create<Store>((set, get) => {
   return {
     ...initialState,
     user: null,
+    onlineUsers: new Set(),
 
     initPresence: () => {
       const { user } = get();
