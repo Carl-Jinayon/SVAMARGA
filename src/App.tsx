@@ -13,10 +13,11 @@ import Inbox from './components/Inbox';
 import About from './components/About';
 import PublicProfile from './components/PublicProfile';
 import ResetPassword from './components/ResetPassword';
-import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info, LayoutDashboard } from 'lucide-react';
+import AccountSettings from './components/AccountSettings';
+import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info, LayoutDashboard, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'inbox';
+type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'inbox' | 'settings';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -95,6 +96,7 @@ function MainApp() {
     { id: 'career',     label: 'Career',     icon: <Briefcase className="w-3.5 h-3.5" /> },
     { id: 'inbox',      label: 'Inbox',      icon: <MessageSquare className="w-3.5 h-3.5" /> },
     { id: 'about',      label: 'About',      icon: <Info className="w-3.5 h-3.5" /> },
+    { id: 'settings',   label: 'Settings',   icon: <Settings className="w-3.5 h-3.5" /> },
   ];
 
   return (
@@ -160,6 +162,7 @@ function MainApp() {
               {activeTab === 'planner'    && <Planner />}
               {activeTab === 'career'     && <CareerTools />}
               {activeTab === 'inbox'      && <Inbox />}
+              {activeTab === 'settings'   && <AccountSettings />}
             </motion.div>
           </AnimatePresence>
         </main>
