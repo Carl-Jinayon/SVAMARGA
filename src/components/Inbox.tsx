@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { Send, User as UserIcon, Shield, MessageSquare, Search, X, Bug, Plus } from 'lucide-react';
@@ -430,8 +431,9 @@ export default function Inbox() {
     </div>
 
       {/* New Message Modal */}
-      <AnimatePresence>
-        {showModal && (
+      {createPortal(
+        <AnimatePresence>
+          {showModal && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
@@ -522,7 +524,9 @@ export default function Inbox() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }

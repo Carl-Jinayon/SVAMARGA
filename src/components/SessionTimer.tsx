@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
 import { Play, Pause, RotateCcw, LogOut, Timer, X } from 'lucide-react';
@@ -143,7 +144,8 @@ export default function SessionTimer() {
       </motion.button>
 
       {/* Modal */}
-      <AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
         {showModal && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -307,7 +309,9 @@ export default function SessionTimer() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
     </>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
 import { ChevronDown, ChevronRight, Calendar as CalendarIcon, Sparkles, Plus, X, Check, BookOpen, Trash2, Clock } from 'lucide-react';
@@ -372,8 +373,9 @@ export default function Planner() {
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       {/* Custom Premium Calendar Modal */}
-      <AnimatePresence>
-        {showCalendar && (
+      {createPortal(
+        <AnimatePresence>
+          {showCalendar && (
           <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -490,7 +492,9 @@ export default function Planner() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
 
       <div className="animate-slide-in-up max-w-6xl mx-auto space-y-12 pb-32">
         {/* Mission Setup Header */}
@@ -564,8 +568,9 @@ export default function Planner() {
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full -mr-48 -mt-48 blur-3xl pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.05) 0%, transparent 70%)' }} />
       </div>
 
-      <AnimatePresence>
-        {isEditingTimer && (
+      {createPortal(
+        <AnimatePresence>
+          {isEditingTimer && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
             <motion.div 
               initial={{ opacity: 0 }}
@@ -640,7 +645,9 @@ export default function Planner() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
 
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4">
@@ -789,8 +796,9 @@ export default function Planner() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {showSelector && (
+      {createPortal(
+        <AnimatePresence>
+          {showSelector && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             <motion.div 
               initial={{ opacity: 0 }}
@@ -950,10 +958,13 @@ export default function Planner() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
 
-      <AnimatePresence>
-        {showGenerator && (
+      {createPortal(
+        <AnimatePresence>
+          {showGenerator && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6">
             <motion.div 
               initial={{ opacity: 0 }}
@@ -1202,7 +1213,9 @@ export default function Planner() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
       </div>
     </>
   );
