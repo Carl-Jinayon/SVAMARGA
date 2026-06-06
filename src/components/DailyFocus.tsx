@@ -86,27 +86,6 @@ export default function DailyFocus() {
 
   if (!plan || plan.items.length === 0) return null;
 
-  // Granular Progress Calculation: Focus on subtopics, then topics, then subjects
-  const subtopics = plan.items.filter((i: any) => i.type === 'subtopic');
-  const topics = plan.items.filter((i: any) => i.type === 'topic');
-  const subjects = plan.items.filter((i: any) => i.type === 'subject');
-
-  let completedCount = 0;
-  let totalCount = 0;
-
-  if (subtopics.length > 0) {
-    totalCount = subtopics.length;
-    completedCount = subtopics.filter((i: any) => i.completed).length;
-  } else if (topics.length > 0) {
-    totalCount = topics.length;
-    completedCount = topics.filter((i: any) => i.completed).length;
-  } else {
-    totalCount = subjects.length;
-    completedCount = subjects.filter((i: any) => i.completed).length;
-  }
-
-  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-
   // Group only items that are actually in the plan, following hierarchy
   const topLevelItems = plan.items.filter((item: any) => {
     if (item.type === 'subtopic') {
@@ -137,6 +116,24 @@ export default function DailyFocus() {
       return inPlan || cc;
     });
   };
+
+  let completedCount = 0;
+  let totalCount = 0;
+
+  const processItemForProgress = (item: any, isParentCompleted = false) => {
+    const isCompleted = item.completed || isParentCompleted;
+    const children = getChildren(item.id);
+    if (children.length === 0) {
+      totalCount++;
+      if (isCompleted) completedCount++;
+    } else {
+      children.forEach(child => processItemForProgress(child, isCompleted));
+    }
+  };
+
+  topLevelItems.forEach((item: any) => processItemForProgress(item));
+
+  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const renderTask = (item: any, depth = 0, isParentCompleted = false) => {
     const children = getChildren(item.id);

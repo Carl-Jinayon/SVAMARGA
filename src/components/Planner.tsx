@@ -129,7 +129,7 @@ export default function Planner() {
           {depth === 0 && (
             <button 
               onClick={() => {
-                const newItems = dailyPlans[selectedDate].items.filter((i: any) => i.id !== item.id);
+                const newItems = dailyPlans[selectedDate].items.filter((i: any) => i.id !== item.id && !i.id.startsWith(item.id + '::'));
                 updateDailyPlan(selectedDate, newItems);
               }}
               className="opacity-0 group-hover:opacity-100 p-2 rounded-xl transition-all"
@@ -368,7 +368,7 @@ export default function Planner() {
   };
 
   return (
-    <div className="animate-slide-in-up max-w-6xl mx-auto space-y-12 pb-32">
+    <>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       {/* Custom Premium Calendar Modal */}
@@ -378,7 +378,7 @@ export default function Planner() {
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowCalendar(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+              className="absolute inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-xl"
             />
             <motion.div 
               initial={{ scale: 0.9, rotateX: 15, opacity: 0 }}
@@ -492,10 +492,11 @@ export default function Planner() {
         )}
       </AnimatePresence>
 
-      {/* Mission Setup Header */}
-      <div className="glass p-10 rounded-[3rem] shadow-2xl relative overflow-visible border-none">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-          <div className="space-y-2">
+      <div className="animate-slide-in-up max-w-6xl mx-auto space-y-12 pb-32">
+        {/* Mission Setup Header */}
+        <div className="glass p-10 rounded-[3rem] shadow-2xl relative overflow-visible border-none">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="space-y-2">
             <h2 className="text-4xl font-black uppercase tracking-tighter italic" style={{ color: 'var(--text-primary)' }}>
               The Mission <span style={{ color: 'var(--accent-cyan)' }}>Timeline</span>
             </h2>
@@ -571,7 +572,7 @@ export default function Planner() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsEditingTimer(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-md"
             />
             <motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
@@ -787,7 +788,7 @@ export default function Planner() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowSelector(false)}
-              className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              className="absolute inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-md"
             />
             <motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
@@ -950,7 +951,7 @@ export default function Planner() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowGenerator(false)}
-              className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              className="absolute inset-0 bg-black/20 dark:bg-black/75 backdrop-blur-md"
             />
             <motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
@@ -1153,6 +1154,7 @@ export default function Planner() {
           </div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </>
   );
 }

@@ -115,6 +115,9 @@ export const useTrackerStore = create<Store>((set, get) => {
     if (saved) {
       try {
         const data = JSON.parse(saved);
+        if (data.sessionTimer && data.sessionTimer.isRunning) {
+          data.sessionTimer.isRunning = false;
+        }
         set(data);
       } catch (e) {
         console.error('Failed to load from storage', e);
@@ -275,6 +278,7 @@ export const useTrackerStore = create<Store>((set, get) => {
         last_study_date: lastStudyDate,
         mission_end_date: missionEndDate,
         daily_study_hours: dailyStudyHours,
+        daily_plans: get().dailyPlans,
         updated_at: new Date().toISOString(),
       };
 
@@ -551,15 +555,13 @@ export const useTrackerStore = create<Store>((set, get) => {
       let query = supabase.from('inbox').select('*');
 
       if (!isAdmin) {
-        // Users see threads they own (user_id) OR messages where they are mentioned in tags
-        // However, since we use user_id to scope the thread, we should ensure the user_id 
-        // is set correctly on both sides of a peer-to-peer conversation.
-        // For now, let's keep it simple: users see messages where user_id is theirs.
-        // We'll fix the user_id assignment in Inbox.tsx to ensure both parties can see it.
+        // Regular users only see their own messages (stored with user_id = user.id)
+        // Admin replies are also stored with user_id = user.id so users can see them
         query = query.eq('user_id', user.id);
       }
+      // Admin sees ALL messages regardless of user_id - no filter needed
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      const { data, error } = await query.order('created_at', { ascending: true });
 
       if (error) {
         console.error('Error fetching messages:', error);
