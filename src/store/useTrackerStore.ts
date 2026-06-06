@@ -791,7 +791,6 @@ supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN' && session) {
     useTrackerStore.getState().setUser(session.user);
     useTrackerStore.getState().syncWithCloud();
-    useTrackerStore.getState().initPresence();
   } else if (event === 'SIGNED_OUT') {
     useTrackerStore.getState().setUser(null);
   }
