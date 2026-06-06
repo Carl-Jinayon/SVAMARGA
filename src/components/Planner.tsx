@@ -13,6 +13,8 @@ export default function Planner() {
     setMissionEndDate, 
     dailyStudyHours,
     setDailyStudyHours,
+    dailyStudyMinutes,
+    setDailyStudyMinutes,
     dailyPlans, 
     updateDailyPlan, 
     toggleDailyItem, 
@@ -40,10 +42,10 @@ export default function Planner() {
   }, [sessionTimer.isRunning]);
 
   useEffect(() => {
-    if (sessionTimer.totalSeconds === 0 && dailyStudyHours > 0) {
-      setSessionTimer(dailyStudyHours * 3600);
+    if (sessionTimer.totalSeconds === 0 && (dailyStudyHours > 0 || dailyStudyMinutes > 0)) {
+      setSessionTimer((dailyStudyHours * 3600) + (dailyStudyMinutes * 60));
     }
-  }, [dailyStudyHours]);
+  }, [dailyStudyHours, dailyStudyMinutes]);
 
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);

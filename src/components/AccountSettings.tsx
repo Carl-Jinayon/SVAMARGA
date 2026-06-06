@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 type SettingsTab = 'profile' | 'account' | 'preferences';
 
 export default function AccountSettings() {
-  const { user, darkMode, toggleDarkMode, dailyStudyHours, setDailyStudyHours, signOut } = useTrackerStore();
+  const { user, darkMode, toggleDarkMode, dailyStudyHours, setDailyStudyHours, dailyStudyMinutes, setDailyStudyMinutes, signOut } = useTrackerStore();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   
   // Profile State
@@ -355,16 +355,33 @@ export default function AccountSettings() {
                   <p className="text-xs mt-1 mb-4" style={{ color: 'var(--text-secondary)' }}>Set your target study hours per day. This helps you track consistency.</p>
                   
                   <div className="flex items-center gap-4">
-                    <input
-                      type="range"
-                      min="1"
-                      max="12"
-                      value={dailyStudyHours}
-                      onChange={(e) => setDailyStudyHours(Number(e.target.value))}
-                      className="flex-1 accent-cyan-500"
-                    />
-                    <div className="w-16 h-12 rounded-xl bg-black/10 dark:bg-white/10 flex items-center justify-center text-sm font-black text-cyan-500">
-                      {dailyStudyHours}h
+                    <div className="flex-1 space-y-4">
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs font-bold w-12" style={{ color: 'var(--text-secondary)' }}>Hours</span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="12"
+                          value={dailyStudyHours}
+                          onChange={(e) => setDailyStudyHours(Number(e.target.value))}
+                          className="flex-1 accent-cyan-500"
+                        />
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs font-bold w-12" style={{ color: 'var(--text-secondary)' }}>Mins</span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="59"
+                          value={dailyStudyMinutes}
+                          onChange={(e) => setDailyStudyMinutes(Number(e.target.value))}
+                          className="flex-1 accent-cyan-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="w-20 h-16 rounded-xl bg-black/10 dark:bg-white/10 flex flex-col items-center justify-center text-sm font-black text-cyan-500 leading-none">
+                      <span>{dailyStudyHours}h</span>
+                      <span className="text-xs opacity-70 mt-1">{dailyStudyMinutes}m</span>
                     </div>
                   </div>
                 </div>

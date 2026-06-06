@@ -4,6 +4,7 @@ import { Lock, Check } from 'lucide-react';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -12,6 +13,12 @@ export default function ResetPassword() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
 
     const { error } = await supabase.auth.updateUser({ password });
 
@@ -65,6 +72,20 @@ export default function ResetPassword() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="New Password"
+              className="input-glass w-full pl-12 pr-4 py-4 text-sm"
+              style={{ textTransform: 'none' }}
+              required
+              minLength={6}
+            />
+          </div>
+
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm New Password"
               className="input-glass w-full pl-12 pr-4 py-4 text-sm"
               style={{ textTransform: 'none' }}
               required

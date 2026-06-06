@@ -14,6 +14,7 @@ import About from './components/About';
 import PublicProfile from './components/PublicProfile';
 import ResetPassword from './components/ResetPassword';
 import AccountSettings from './components/AccountSettings';
+import Toast, { ToastData } from './components/Toast';
 import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info, LayoutDashboard, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -25,6 +26,7 @@ function MainApp() {
   // Track whether the user has visited the inbox tab this session
   // (used to hide the nav dot — DB marking happens per-conversation in Inbox.tsx)
   const [inboxVisited, setInboxVisited] = useState(false);
+  const [toast, setToast] = useState<ToastData | null>(null);
 
   // Initialize theme synchronously before render
   useEffect(() => {
@@ -71,9 +73,33 @@ function MainApp() {
   // Reset inboxVisited when new messages arrive after the user last visited
   const prevUnreadCount = useRef(0);
   useEffect(() => {
-    const unreadCount = messages.filter(m => !m.is_read && m.user_id !== user?.id).length;
+    const unreadMessages = messages.filter(m => !m.is_read && m.user_id !== user?.id);
+    const unreadCount = unreadMessages.length;
+    
     if (unreadCount > prevUnreadCount.current && activeTab !== 'inbox') {
       setInboxVisited(false);
+      
+      // Trigger toast for the newest message
+      const latestMsg = unreadMessages[unreadMessages.length - 1];
+      if (latestMsg) {
+        const senderMatch = latestMsg.content.match(/\[Sender:\s*([^\]]+)\]/i);
+        const senderName = senderMatch ? senderMatch[1].trim() : 'Someone';
+        
+        let cleanContent = latestMsg.content
+          .replace(/\[Recipient:\s*[^\]\n]+\]/gi, '')
+          .replace(/\[Sender:\s*[^\]\n]+\]/gi, '')
+          .replace(/\[AdminTo:\s*[^\]\n]+\]/gi, '')
+          .replace(/\[Bug Type:\s*[^\]\n]+\]/gi, '')
+          .trim();
+          
+        setToast({
+          id: latestMsg.id,
+          type: 'inbox',
+          message: cleanContent,
+          senderName,
+          onNavigate: () => setActiveTab('inbox')
+        });
+      }
     }
     prevUnreadCount.current = unreadCount;
   }, [messages, activeTab, user]);
@@ -224,6 +250,14 @@ function MainApp() {
             </p>
           </div>
         </footer>
+
+        {/* Global Toast */}
+        {toast && (
+          <Toast
+            {...toast}
+            onClose={() => setToast(null)}
+          />
+        )}
       </div>
     </div>
   );

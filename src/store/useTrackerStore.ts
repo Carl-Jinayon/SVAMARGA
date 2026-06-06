@@ -23,8 +23,10 @@ interface Store extends TrackerState {
   // Mission & Planner
   missionEndDate: string | null;
   dailyStudyHours: number;
+  dailyStudyMinutes: number;
   setMissionEndDate: (date: string | null) => void;
   setDailyStudyHours: (hours: number) => void;
+  setDailyStudyMinutes: (minutes: number) => void;
   dailyPlans: Record<string, DailyPlan>;
   suggestedPlans: Record<string, DailyPlan>;
   updateDailyPlan: (date: string, items: DailyPlan['items']) => void;
@@ -92,6 +94,7 @@ const initialState: TrackerState = {
   currentStreak: 0,
   missionEndDate: null,
   dailyStudyHours: 4,
+  dailyStudyMinutes: 0,
   dailyPlans: {},
   suggestedPlans: {},
   messages: [],
@@ -150,6 +153,7 @@ export const useTrackerStore = create<Store>((set, get) => {
             lastStudyDate: profile.last_study_date || state.lastStudyDate,
             missionEndDate: profile.mission_end_date || state.missionEndDate,
             dailyStudyHours: profile.daily_study_hours || state.dailyStudyHours,
+            dailyStudyMinutes: profile.daily_study_minutes || state.dailyStudyMinutes,
             dailyPlans: profile.daily_plans || state.dailyPlans,
           }));
         }
@@ -185,6 +189,7 @@ export const useTrackerStore = create<Store>((set, get) => {
         lastStudyDate: state.lastStudyDate,
         missionEndDate: state.missionEndDate,
         dailyStudyHours: state.dailyStudyHours,
+        dailyStudyMinutes: state.dailyStudyMinutes,
         dailyPlans: state.dailyPlans,
         suggestedPlans: state.suggestedPlans,
         messages: state.messages,
@@ -200,6 +205,11 @@ export const useTrackerStore = create<Store>((set, get) => {
 
     setDailyStudyHours: (hours: number) => {
       set({ dailyStudyHours: hours });
+      get().saveToStorage();
+    },
+
+    setDailyStudyMinutes: (minutes: number) => {
+      set({ dailyStudyMinutes: minutes });
       get().saveToStorage();
     },
 
@@ -289,7 +299,7 @@ export const useTrackerStore = create<Store>((set, get) => {
     },
 
     syncWithCloud: async () => {
-      const { user, progress, sessions, weeklyPlans, activeWeekPlan, achievements, totalStudyTime, currentStreak, lastStudyDate, missionEndDate, dailyStudyHours } = get();
+      const { user, progress, sessions, weeklyPlans, activeWeekPlan, achievements, totalStudyTime, currentStreak, lastStudyDate, missionEndDate, dailyStudyHours, dailyStudyMinutes } = get();
       if (!user) return;
 
       const data = {
@@ -303,6 +313,7 @@ export const useTrackerStore = create<Store>((set, get) => {
         last_study_date: lastStudyDate,
         mission_end_date: missionEndDate,
         daily_study_hours: dailyStudyHours,
+        daily_study_minutes: dailyStudyMinutes,
         daily_plans: get().dailyPlans,
         updated_at: new Date().toISOString(),
       };
