@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const ADMIN_ID = '06391879-d280-472e-b253-7e0685bf1014';
 
 export default function Inbox() {
-  const { user, messages = [], fetchMessages, onlineUsers } = useTrackerStore();
+  const { user, messages = [], fetchMessages } = useTrackerStore();
   const [replyText, setReplyText] = useState('');
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -444,21 +444,6 @@ export default function Inbox() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3">
-                    {(() => {
-                      const partner = getPartnerLabel(activeThread);
-                      const isOnline = onlineUsers?.has(partner.toLowerCase());
-                      return (
-                        <span 
-                          className="hidden sm:inline px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-colors duration-300" 
-                          style={{ 
-                            background: isOnline ? 'rgba(29,158,117,0.1)' : 'rgba(143,163,188,0.1)', 
-                            color: isOnline ? 'var(--accent-teal)' : 'var(--text-muted)' 
-                          }}
-                        >
-                          {isOnline ? 'Active' : 'Offline'}
-                        </span>
-                      );
-                    })()}
                     <button onClick={() => setSelectedThreadId(null)} className="hidden lg:flex p-2 rounded-xl transition-all" style={{ background: 'var(--border-subtle)', color: 'var(--text-muted)' }}>
                       <X className="w-4 h-4" />
                     </button>
