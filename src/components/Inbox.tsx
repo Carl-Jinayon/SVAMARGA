@@ -78,10 +78,8 @@ export default function Inbox() {
 
   // Determine if a message is from me
   const isMsgFromMe = useCallback((msg: any) => {
-    const sender = extractTag(msg.content, 'Sender');
-    if (isAdmin && (sender === 'Admin' || msg.sender_role === 'admin')) return true;
-    return sender.toLowerCase() === myEmail.toLowerCase();
-  }, [myEmail, isAdmin]);
+    return msg.user_id === user?.id;
+  }, [user?.id]);
 
   // Extract clean content (strip metadata tags)
   const getCleanContent = useCallback((content: string) => {

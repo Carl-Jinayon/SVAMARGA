@@ -48,13 +48,10 @@ function MainApp() {
 
   const hasUnread = useMemo(() => {
     if (!user) return false;
-    const ADMIN_ID = '06391879-d280-472e-b253-7e0685bf1014';
-    const isAdmin = user.id === ADMIN_ID;
 
     return messages.some(m => {
       if (m.is_read) return false;
-      const isFromMe = isAdmin ? m.sender_role === 'admin' : m.sender_role === 'user';
-      return !isFromMe;
+      return m.user_id !== user.id;
     });
   }, [messages, user]);
 
@@ -62,14 +59,11 @@ function MainApp() {
   useEffect(() => {
     if (activeTab === 'inbox' && user && hasUnread) {
       const markAllAsRead = async () => {
-        const ADMIN_ID = '06391879-d280-472e-b253-7e0685bf1014';
-        const isAdmin = user.id === ADMIN_ID;
 
         const unreadIds = messages
           .filter(m => {
             if (m.is_read) return false;
-            const isFromMe = isAdmin ? m.sender_role === 'admin' : m.sender_role === 'user';
-            return !isFromMe;
+            return m.user_id !== user.id;
           })
           .map(m => m.id);
 
@@ -154,7 +148,7 @@ function MainApp() {
             <motion.div
               key={activeTab}
               initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0, transitionEnd: { transform: "none" } }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             >

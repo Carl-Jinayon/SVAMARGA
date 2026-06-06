@@ -985,27 +985,60 @@ export default function Planner() {
               <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
-                    <p className="text-xs font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Daily Study Hours</p>
+                    <p className="text-xs font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Daily Study Time</p>
                     <div className="flex items-center gap-6 p-6 rounded-[2rem] border" style={{ background: 'var(--bg-glass)', borderColor: 'var(--border-subtle)' }}>
-                      <div className="flex-1 space-y-3">
-                        <input 
-                          type="range" 
-                          min="1" 
-                          max="16" 
-                          value={dailyStudyHours}
-                          onChange={(e) => setDailyStudyHours(parseInt(e.target.value))}
-                          className="w-full h-2 rounded-lg appearance-none cursor-pointer"
-                          style={{ background: 'var(--border-subtle)' }}
-                        />
-                        <div className="flex justify-between px-0.5">
-                          <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>1 hr</span>
-                          <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>16 hrs</span>
+                      <div className="flex-1 space-y-6">
+                        {/* Hours Slider */}
+                        <div className="space-y-3">
+                          <div className="flex justify-between px-0.5">
+                            <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-primary)' }}>Hours</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--accent-cyan)' }}>{Math.floor(dailyStudyHours)} hr</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="16" 
+                            value={Math.floor(dailyStudyHours)}
+                            onChange={(e) => {
+                               const h = parseInt(e.target.value);
+                               const m = Math.round((dailyStudyHours % 1) * 60);
+                               if (h === 0 && m === 0) setDailyStudyHours(15 / 60); // 15 mins min
+                               else setDailyStudyHours(h + (m / 60));
+                            }}
+                            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                            style={{ background: 'var(--border-subtle)' }}
+                          />
+                        </div>
+                        
+                        {/* Minutes Slider */}
+                        <div className="space-y-3">
+                          <div className="flex justify-between px-0.5">
+                            <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-primary)' }}>Minutes</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--accent-cyan)' }}>{Math.round((dailyStudyHours % 1) * 60)} min</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="59" 
+                            step="5"
+                            value={Math.round((dailyStudyHours % 1) * 60)}
+                            onChange={(e) => {
+                               const h = Math.floor(dailyStudyHours);
+                               const m = parseInt(e.target.value);
+                               if (h === 0 && m === 0) setDailyStudyHours(15 / 60);
+                               else setDailyStudyHours(h + (m / 60));
+                            }}
+                            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                            style={{ background: 'var(--border-subtle)' }}
+                          />
                         </div>
                       </div>
-                      <div className="w-20 h-16 rounded-2xl flex flex-col items-center justify-center text-white shadow-xl shrink-0" style={{ background: 'var(--accent-cyan)' }}>
-                        <p className="text-xl font-black leading-none">{dailyStudyHours}</p>
-                        <p className="text-[7px] font-black uppercase mt-0.5">hrs / day</p>
-                        <p className="text-[7px] font-black uppercase opacity-70">{dailyStudyHours * 60} min</p>
+                      <div className="w-24 h-20 rounded-2xl flex flex-col items-center justify-center text-white shadow-xl shrink-0 space-y-1.5" style={{ background: 'var(--accent-cyan)' }}>
+                        <p className="text-[14px] font-black leading-none text-center px-2">
+                          {Math.floor(dailyStudyHours)}h {Math.round((dailyStudyHours % 1) * 60)}m
+                        </p>
+                        <div className="w-12 h-[1px] bg-white/30" />
+                        <p className="text-[8px] font-black uppercase opacity-90">{Math.round(dailyStudyHours * 60)} min</p>
                       </div>
                     </div>
                   </div>
