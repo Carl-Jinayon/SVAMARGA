@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useTrackerStore } from '../store/useTrackerStore';
-import { User as UserIcon, Shield, Sliders, LogOut, Camera, AlertTriangle, Moon, Sun, Clock } from 'lucide-react';
+import { User as UserIcon, Shield, Sliders, LogOut, Camera, AlertTriangle, Moon, Sun, Clock, Link as LinkIcon, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type SettingsTab = 'profile' | 'account' | 'preferences';
@@ -15,6 +15,7 @@ export default function AccountSettings() {
   const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || '');
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState('');
+  const [copied, setCopied] = useState(false);
 
   // Account State
   const [newEmail, setNewEmail] = useState(user?.email || '');
@@ -186,6 +187,33 @@ export default function AccountSettings() {
                 >
                   {profileSaving ? 'Saving...' : 'Save Profile'}
                 </button>
+
+                {/* Share Profile Section */}
+                <div className="pt-8 mt-8 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                  <h4 className="text-sm font-black tracking-tight mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                    <LinkIcon className="w-4 h-4 text-cyan-500" /> Share Public Profile
+                  </h4>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 input-glass p-3 rounded-xl text-xs font-mono truncate" style={{ color: 'var(--text-secondary)' }}>
+                      {`${window.location.origin}/profile/${user.id}`}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/profile/${user.id}`);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      className="px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2"
+                      style={{ 
+                        background: copied ? 'rgba(29, 158, 117, 0.1)' : 'rgba(0, 229, 255, 0.1)',
+                        color: copied ? '#1D9E75' : 'var(--accent-cyan)'
+                      }}
+                    >
+                      {copied ? <><Check className="w-4 h-4" /> Copied</> : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+
               </motion.div>
             )}
 
