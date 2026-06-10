@@ -32,20 +32,56 @@ This tool helps you pass **ATS (Applicant Tracking Systems)**.
 
 ## 🚀 Getting Started
 
+Follow these steps to set up and run the application locally.
+
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v18 or higher)
 - npm or yarn
 - A [Supabase](https://supabase.com) account
 
-### Setup
-1. **Clone the repo:** `git clone <your-repo-url>`
-2. **Install:** `npm install`
-3. **Configure:** Create a `.env` file in the root:
-   ```bash
-   VITE_SUPABASE_URL=your_actual_supabase_url_here
-   VITE_SUPABASE_ANON_KEY=your_actual_supabase_key_here
-   ```
-4. **Develop:** `npm run dev`
+### 1. Install Dependencies
+
+Clone the repo and install the NPM dependencies:
+
+```bash
+git clone <your-repo-url>
+cd cs-curriculum-tracker
+npm install
+```
+
+### 2. Configure Environment
+
+Create a `.env` file in the root:
+
+```bash
+VITE_SUPABASE_URL=your_actual_supabase_url_here
+VITE_SUPABASE_ANON_KEY=your_actual_supabase_key_here
+```
+
+### 3. Setup the Database
+
+We have included a `schema.sql` file in the root directory that contains the complete database structure and relationships to run this app on Supabase.
+
+1. Create a new Supabase project in your dashboard.
+2. Navigate to the **SQL Editor** in your Supabase dashboard.
+3. Open the `schema.sql` file provided in this repository, copy its contents, and paste them into the SQL Editor.
+4. Click **Run** to execute the schema. This will create all the necessary tables (`profiles`, `progress`, `sessions`, etc.) and automatically configure Row Level Security (RLS) policies so that user data is protected.
+
+### 4. Run the Application
+
+Start the local development server:
+
+```bash
+npm run dev
+```
+
+The application will be accessible at `http://localhost:5173`.
+
+---
+
+## 📖 Documentation
+
+For a comprehensive breakdown of the application architecture, data flow, and technologies used, please refer to the `PROJECT_DOCUMENTATION.md` file included in this repository.
 
 ---
 
