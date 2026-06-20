@@ -4,6 +4,7 @@ import { useTrackerStore } from './store/useTrackerStore';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import CurriculumViewer from './components/CurriculumViewer';
+import Enhancements from './components/Enhancements';
 import SessionTimer from './components/SessionTimer';
 import Analytics from './components/Analytics';
 import Planner from './components/Planner';
@@ -15,10 +16,10 @@ import PublicProfile from './components/PublicProfile';
 import ResetPassword from './components/ResetPassword';
 import AccountSettings from './components/AccountSettings';
 import Toast, { ToastData } from './components/Toast';
-import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info, LayoutDashboard, Settings } from 'lucide-react';
+import { BookOpen, BarChart3, Calendar, Briefcase, MessageSquare, Info, LayoutDashboard, Settings, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'inbox' | 'settings';
+type TabType = 'dashboard' | 'curriculum' | 'about' | 'analytics' | 'planner' | 'career' | 'inbox' | 'settings' | 'guide';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -117,6 +118,7 @@ function MainApp() {
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'dashboard',  label: 'Dashboard',  icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
     { id: 'curriculum', label: 'Curriculum',  icon: <BookOpen className="w-3.5 h-3.5" /> },
+    { id: 'guide',      label: 'Field Guide', icon: <FileText className="w-3.5 h-3.5" /> },
     { id: 'analytics',  label: 'Analytics',  icon: <BarChart3 className="w-3.5 h-3.5" /> },
     { id: 'planner',    label: 'Planner',    icon: <Calendar className="w-3.5 h-3.5" /> },
     { id: 'career',     label: 'Career',     icon: <Briefcase className="w-3.5 h-3.5" /> },
@@ -183,6 +185,7 @@ function MainApp() {
             >
               {activeTab === 'dashboard'  && <Dashboard onNavigate={(tab) => setActiveTab(tab as TabType)} />}
               {activeTab === 'curriculum' && <CurriculumViewer />}
+              {activeTab === 'guide'      && <Enhancements />}
               {activeTab === 'about'      && <About />}
               {activeTab === 'analytics'  && <Analytics />}
               {activeTab === 'planner'    && <Planner />}
