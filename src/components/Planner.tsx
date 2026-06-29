@@ -331,18 +331,22 @@ export default function Planner() {
 
     allItems = allItems.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
 
-    const itemsPerDay = Math.ceil(allItems.length / totalDays);
-    
+    let currentIndex = 0;
+    const baseItemsPerDay = Math.floor(allItems.length / totalDays);
+    const remainder = allItems.length % totalDays;
+
     for (let i = 0; i < totalDays; i++) {
       const d = new Date(start);
       d.setDate(d.getDate() + i);
       const dateStr = d.toISOString().split('T')[0];
       
-      const dayItems = allItems.slice(i * itemsPerDay, (i + 1) * itemsPerDay).map(item => ({
+      const itemsForThisDay = baseItemsPerDay + (i < remainder ? 1 : 0);
+      const dayItems = allItems.slice(currentIndex, currentIndex + itemsForThisDay).map(item => ({
         ...item,
         isSuggested: true,
         completed: false
       }));
+      currentIndex += itemsForThisDay;
 
       if (dayItems.length > 0) {
         newSuggestedPlans[dateStr] = { date: dateStr, items: dayItems };
