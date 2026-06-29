@@ -8,12 +8,34 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function SessionTimer() {
   const { addSession } = useTrackerStore();
 
-  const [isRunning, setIsRunning] = useState(false);
-  const [sessionMinutes, setSessionMinutes] = useState(25);
-  const [sessionSeconds, setSessionSeconds] = useState(0);
-  const [sessionType, setSessionType] = useState<'work' | 'break'>('work');
-  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [isRunning, setIsRunning] = useState(() => {
+    const saved = localStorage.getItem('pomo-isRunning');
+    return saved ? JSON.parse(saved) : false;
+  });
+  const [sessionMinutes, setSessionMinutes] = useState(() => {
+    const saved = localStorage.getItem('pomo-mins');
+    return saved ? JSON.parse(saved) : 25;
+  });
+  const [sessionSeconds, setSessionSeconds] = useState(() => {
+    const saved = localStorage.getItem('pomo-secs');
+    return saved ? JSON.parse(saved) : 0;
+  });
+  const [sessionType, setSessionType] = useState<'work' | 'break'>(() => {
+    return (localStorage.getItem('pomo-type') as 'work' | 'break') || 'work';
+  });
+  const [selectedSubject, setSelectedSubject] = useState<string>(() => {
+    return localStorage.getItem('pomo-subject') || '';
+  });
   const [showModal, setShowModal] = useState(false);
+
+  // Persist pomodoro state to localStorage
+  useEffect(() => {
+    localStorage.setItem('pomo-isRunning', JSON.stringify(isRunning));
+    localStorage.setItem('pomo-mins', JSON.stringify(sessionMinutes));
+    localStorage.setItem('pomo-secs', JSON.stringify(sessionSeconds));
+    localStorage.setItem('pomo-type', sessionType);
+    localStorage.setItem('pomo-subject', selectedSubject);
+  }, [isRunning, sessionMinutes, sessionSeconds, sessionType, selectedSubject]);
 
   const allSubjects = curriculum.flatMap((phase) =>
     phase.subjects.map((s) => ({ id: s.id, name: s.name, phaseName: phase.name }))

@@ -29,9 +29,15 @@ function MainApp() {
   const [inboxVisited, setInboxVisited] = useState(false);
   const [toast, setToast] = useState<ToastData | null>(null);
 
-  // Initialize theme synchronously before render
+  // Initialize theme synchronously before render and set up auto-save on refresh
   useEffect(() => {
     loadFromStorage();
+
+    const handleBeforeUnload = () => {
+      useTrackerStore.getState().saveToStorage();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [loadFromStorage]);
 
   // Sync dark mode class with state changes
