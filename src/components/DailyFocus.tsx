@@ -67,13 +67,19 @@ export default function DailyFocus() {
     setExpandedTasks((prev: string[]) => prev.includes(id) ? prev.filter((i: string) => i !== id) : [...prev, id]);
   };
 
+  // Keep a stable ref to tickSessionTimer to avoid stale closures inside setInterval
+  const tickRef = useRef(tickSessionTimer);
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (sessionTimer.isRunning) {
-      interval = setInterval(() => {
-        tickSessionTimer();
-      }, 1000);
-    }
+    tickRef.current = tickSessionTimer;
+  }, [tickSessionTimer]);
+
+  useEffect(() => {
+    if (!sessionTimer.isRunning) return;
+
+    const interval = setInterval(() => {
+      tickRef.current();
+    }, 1000);
+
     return () => clearInterval(interval);
   }, [sessionTimer.isRunning]);
 

@@ -246,10 +246,13 @@ export const useTrackerStore = create<Store>((set, get) => {
       const { sessionTimer } = get();
       if (!sessionTimer.isRunning || sessionTimer.remainingSeconds <= 0) return;
 
+      const newRemaining = Math.max(0, sessionTimer.remainingSeconds - 1);
       set((state) => ({
         sessionTimer: {
           ...state.sessionTimer,
-          remainingSeconds: Math.max(0, state.sessionTimer.remainingSeconds - 1)
+          remainingSeconds: newRemaining,
+          // Auto-stop when the countdown finishes so the alarm condition triggers
+          isRunning: newRemaining > 0 ? state.sessionTimer.isRunning : false,
         }
       }));
     },
