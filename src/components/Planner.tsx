@@ -32,6 +32,15 @@ export default function Planner() {
 
   // Keep a stable ref to tickSessionTimer to avoid stale closures inside setInterval
   const tickRef = useRef(tickSessionTimer);
+  const timelineRef = useRef<HTMLDivElement>(null);
+
+  const scrollTimeline = (direction: 'left' | 'right') => {
+    if (timelineRef.current) {
+      const scrollAmount = 300;
+      timelineRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     tickRef.current = tickSessionTimer;
   }, [tickSessionTimer]);
@@ -668,8 +677,19 @@ export default function Planner() {
           </button>
         </div>
 
-        <div className="relative group/timeline py-4">
-          <div className="flex gap-4 overflow-x-auto py-8 px-4 no-scrollbar scroll-smooth snap-x snap-mandatory">
+        <div className="relative group/timeline py-4 flex items-center">
+          <button 
+            onClick={() => scrollTimeline('left')}
+            className="hidden md:flex absolute left-0 z-20 w-10 h-10 items-center justify-center rounded-full shadow-lg hover:scale-110 transition-all opacity-0 group-hover/timeline:opacity-100"
+            style={{ background: 'var(--bg-glass)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+          </button>
+          
+          <div 
+            ref={timelineRef}
+            className="flex gap-4 overflow-x-auto py-8 px-4 no-scrollbar scroll-smooth snap-x snap-mandatory w-full"
+          >
             {dates.map((date) => {
               const d = new Date(date);
               const isToday = date === new Date().toISOString().split('T')[0];
@@ -716,6 +736,14 @@ export default function Planner() {
               );
             })}
           </div>
+
+          <button 
+            onClick={() => scrollTimeline('right')}
+            className="hidden md:flex absolute right-0 z-20 w-10 h-10 items-center justify-center rounded-full shadow-lg hover:scale-110 transition-all opacity-0 group-hover/timeline:opacity-100"
+            style={{ background: 'var(--bg-glass)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="glass p-10 rounded-[3rem] shadow-2xl min-h-[400px] relative overflow-hidden border-none">
