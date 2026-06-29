@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTrackerStore } from '../store/useTrackerStore';
 import { curriculum } from '../data/curriculum';
@@ -30,13 +30,19 @@ export default function Planner() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [goalTopics, setGoalTopics] = useState<DailyPlan['items']>([]);
 
+  // Keep a stable ref to tickSessionTimer to avoid stale closures inside setInterval
+  const tickRef = useRef(tickSessionTimer);
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (sessionTimer.isRunning) {
-      interval = setInterval(() => {
-        tickSessionTimer();
-      }, 1000);
-    }
+    tickRef.current = tickSessionTimer;
+  }, [tickSessionTimer]);
+
+  useEffect(() => {
+    if (!sessionTimer.isRunning) return;
+
+    const interval = setInterval(() => {
+      tickRef.current();
+    }, 1000);
+
     return () => clearInterval(interval);
   }, [sessionTimer.isRunning]);
 

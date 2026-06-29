@@ -111,6 +111,9 @@ const initialState: TrackerState = {
 
 export const useTrackerStore = create<Store>((set, get) => {
   const loadFromStorage = async () => {
+    // Track the local last-saved timestamp so we can compare with cloud data
+    let localUpdatedAt: string | null = null;
+
     const saved = localStorage.getItem('tracker-state');
     if (saved) {
       try {
@@ -118,6 +121,7 @@ export const useTrackerStore = create<Store>((set, get) => {
         if (data.sessionTimer && data.sessionTimer.isRunning) {
           data.sessionTimer.isRunning = false;
         }
+        localUpdatedAt = data.updatedAt || null;
         set(data);
       } catch (e) {
         console.error('Failed to load from storage', e);
@@ -130,7 +134,7 @@ export const useTrackerStore = create<Store>((set, get) => {
       if (session) {
         set({ user: session.user });
         
-        // Fetch latest profile from cloud before syncing
+        // Fetch latest profile from cloud
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -138,23 +142,36 @@ export const useTrackerStore = create<Store>((set, get) => {
           .single();
           
         if (profile) {
-          set((state) => ({
-            ...state,
-            progress: profile.progress || state.progress,
-            sessions: profile.sessions || state.sessions,
-            weeklyPlans: profile.weekly_plans || state.weeklyPlans,
-            activeWeekPlan: profile.active_week_plan || state.activeWeekPlan,
-            achievements: profile.achievements || state.achievements,
-            totalStudyTime: profile.total_study_time || state.totalStudyTime,
-            currentStreak: profile.current_streak || state.currentStreak,
-            lastStudyDate: profile.last_study_date || state.lastStudyDate,
-            missionEndDate: profile.mission_end_date || state.missionEndDate,
-            dailyStudyHours: profile.daily_study_hours || state.dailyStudyHours,
-            dailyStudyMinutes: profile.daily_study_minutes || state.dailyStudyMinutes,
-            dailyPlans: profile.daily_plans || state.dailyPlans,
-          }));
+          // Only overwrite local data with cloud data if the cloud version is
+          // strictly newer than what we already have in localStorage.
+          // This prevents a stale cloud snapshot from wiping out local changes
+          // that haven't been synced yet (e.g. after the timer fix).
+          const cloudUpdatedAt = profile.updated_at || null;
+          const cloudIsNewer =
+            cloudUpdatedAt && localUpdatedAt
+              ? new Date(cloudUpdatedAt) > new Date(localUpdatedAt)
+              : !localUpdatedAt; // if we had no local data, always accept cloud
+
+          if (cloudIsNewer) {
+            set((state) => ({
+              ...state,
+              progress: profile.progress || state.progress,
+              sessions: profile.sessions || state.sessions,
+              weeklyPlans: profile.weekly_plans || state.weeklyPlans,
+              activeWeekPlan: profile.active_week_plan || state.activeWeekPlan,
+              achievements: profile.achievements || state.achievements,
+              totalStudyTime: profile.total_study_time || state.totalStudyTime,
+              currentStreak: profile.current_streak || state.currentStreak,
+              lastStudyDate: profile.last_study_date || state.lastStudyDate,
+              missionEndDate: profile.mission_end_date || state.missionEndDate,
+              dailyStudyHours: profile.daily_study_hours || state.dailyStudyHours,
+              dailyStudyMinutes: profile.daily_study_minutes || state.dailyStudyMinutes,
+              dailyPlans: profile.daily_plans || state.dailyPlans,
+            }));
+          }
         }
 
+        // Always push current local state up to cloud on startup
         await get().syncWithCloud();
       }
     } catch (e) {
@@ -192,6 +209,8 @@ export const useTrackerStore = create<Store>((set, get) => {
         messages: state.messages,
         portfolio: state.portfolio,
         sessionTimer: state.sessionTimer,
+        // Timestamp used to compare local vs cloud data freshness on startup
+        updatedAt: new Date().toISOString(),
       };
       localStorage.setItem('tracker-state', JSON.stringify(data));
 
@@ -229,6 +248,8 @@ export const useTrackerStore = create<Store>((set, get) => {
           lastTick: new Date().toISOString()
         }
       }));
+      // Persist timer state so it survives a page refresh
+      get().saveToStorage();
     },
 
     resetSessionTimer: () => {

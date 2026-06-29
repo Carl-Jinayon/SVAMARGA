@@ -4,12 +4,43 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Users table (extends Supabase auth.users)
+-- NOTE: The following JSONB columns must exist for cloud sync to work.
+-- If upgrading an existing DB, run the ALTER TABLE statements below.
 CREATE TABLE public.profiles (
     id UUID REFERENCES auth.users(id) PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
+    progress JSONB DEFAULT '{}',
+    sessions JSONB DEFAULT '[]',
+    weekly_plans JSONB DEFAULT '{}',
+    active_week_plan INTEGER,
+    achievements JSONB DEFAULT '[]',
+    total_study_time INTEGER DEFAULT 0,
+    current_streak INTEGER DEFAULT 0,
+    last_study_date TEXT,
+    mission_end_date TEXT,
+    daily_study_hours INTEGER DEFAULT 4,
+    daily_study_minutes INTEGER DEFAULT 0,
+    daily_plans JSONB DEFAULT '{}',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- ⚠️  MIGRATION: If the profiles table already exists without these columns,
+--     run the following in the Supabase SQL Editor:
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS progress JSONB DEFAULT '{}';
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS sessions JSONB DEFAULT '[]';
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS weekly_plans JSONB DEFAULT '{}';
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS active_week_plan INTEGER;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS achievements JSONB DEFAULT '[]';
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS total_study_time INTEGER DEFAULT 0;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS current_streak INTEGER DEFAULT 0;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS last_study_date TEXT;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS mission_end_date TEXT;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS daily_study_hours INTEGER DEFAULT 4;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS daily_study_minutes INTEGER DEFAULT 0;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS daily_plans JSONB DEFAULT '{}';
+-- Also add INSERT policy so upsert works:
+-- CREATE POLICY "Users can insert own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Progress table
 CREATE TABLE public.progress (
