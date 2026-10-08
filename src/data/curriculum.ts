@@ -2,13 +2,13 @@ import { Phase } from '../types/index';
 
 // HOURS SOURCE OF TRUTH: each phase's `hours` is the exact sum of its subjects' `hours`.
 // If you change a subject's hours, recompute the parent phase's hours.
-// Current totals: P1 435 + P2 580 + P3 640 + P4 830 + P5 290 = 2775
+// Current totals: P1 430 + P2 550 + P3 700 + P4 850 + P5 310 = 2840
 export const curriculum: Phase[] = [
   {
     id: 1,
     name: 'Foundations',
     duration: '4-6 months',
-    hours: 435,
+    hours: 430,
     color: '#3b82f6',
     description: 'Build the bedrock. Every concept in this curriculum depends on what you learn here.',
     mustComplete: ['CS101 Python (all 8 weeks)', 'CS102 Math Part 1 & 3', 'CS104 Git & Tooling', 'CS105 TypeScript basics'],
@@ -192,8 +192,8 @@ export const curriculum: Phase[] = [
       {
         id: 'CS103',
         name: 'Computer Architecture & Operating Systems',
-        hours: 80,
-        duration: '6 weeks',
+        hours: 35,
+        duration: '2 weeks',
         difficulty: 'Intermediate',
         description: 'To write fast code, you must understand the machine it runs on. This answers: why is Python slow? What actually happens when you type python script.py? Why does RAM size matter?',
         topics: ['Part 1: How Computers Work', 'Part 2: OS Fundamentals', 'Part 3: Linux Mastery'],
@@ -255,8 +255,8 @@ export const curriculum: Phase[] = [
       {
         id: 'CS104',
         name: 'Version Control & Developer Tooling',
-        hours: 30,
-        duration: '2 weeks',
+        hours: 45,
+        duration: '2-3 weeks',
         difficulty: 'Beginner',
         description: 'Git is used every single day in every software job on the planet. Start using it on every project you build from this moment forward. Your GitHub commit history is part of your resume.',
         topics: ['Git Essentials', 'GitHub & Professional Workflow', 'Dev Environment Setup'],
@@ -316,8 +316,8 @@ export const curriculum: Phase[] = [
       {
         id: 'CS105',
         name: 'TypeScript & Type-Safe Development',
-        hours: 45,
-        duration: '3 weeks',
+        hours: 70,
+        duration: '3-4 weeks',
         difficulty: 'Beginner',
         description: 'TypeScript is no longer optional. Every serious frontend and backend role in 2025 expects it. Learning it now — before JavaScript habits are set — is far easier than retrofitting it later. Think of it as Python\'s type hints but for JavaScript.',
         topics: ['TypeScript Fundamentals', 'Intermediate TypeScript', 'TypeScript in Practice'],
@@ -386,7 +386,7 @@ export const curriculum: Phase[] = [
     id: 2,
     name: 'Core CS Mastery',
     duration: '7-9 months',
-    hours: 580,
+    hours: 550,
     color: '#8b5cf6',
     description: 'This is where real engineers are forged. Difficulty spikes here. Embrace the struggle.',
     mustComplete: ['CS201 DSA (all modules — no shortcuts)', 'CS203 SQL & databases', 'CS202 OOP Design Patterns', 'CS205 Application Security basics'],
@@ -527,8 +527,8 @@ export const curriculum: Phase[] = [
       {
         id: 'CS202',
         name: 'Object-Oriented Design & Design Patterns',
-        hours: 70,
-        duration: '6 weeks',
+        hours: 40,
+        duration: '2 weeks',
         difficulty: 'Intermediate',
         description: 'Knowing how to code is not enough. Knowing how to DESIGN code is what separates junior from senior engineers.',
         topics: ['SOLID Principles', 'Creational Patterns', 'Structural Patterns', 'Behavioral Patterns', 'UML & Code Modeling'],
@@ -810,7 +810,7 @@ export const curriculum: Phase[] = [
     id: 3,
     name: 'Full-Stack Engineering',
     duration: '5-7 months',
-    hours: 640,
+    hours: 700,
     color: '#ec4899',
     description: 'Build real things. Ship real products. This is your job-readiness phase.',
     mustComplete: ['CS301 Backend (FastAPI + REST + Security)', 'CS302 Frontend (JS + React + TypeScript)', 'CS305 Cloud Fundamentals (AWS/GCP)', 'CS304 CI/CD basics', 'CS306 Production Engineering & Incident Response'],
@@ -935,7 +935,7 @@ export const curriculum: Phase[] = [
       {
         id: 'CS302',
         name: 'Frontend Development',
-        hours: 140,
+        hours: 200,
         duration: '10 weeks',
         difficulty: 'Intermediate',
         prerequisites: ['CS101', 'CS105'],
@@ -1406,7 +1406,7 @@ export const curriculum: Phase[] = [
     id: 4,
     name: 'Machine Learning & AI Engineering',
     duration: '9-12 months',
-    hours: 830,
+    hours: 850,
     color: '#f59e0b',
     description: 'Your ultimate destination. Math meets code. Every phase before this was preparation.',
     mustComplete: ['CS401 ML Foundations (all modules)', 'CS402 Deep Learning (all 7 modules — PyTorch is Module 1, not the last)', 'CS403 MLOps + LLM Engineering'],
@@ -1881,7 +1881,7 @@ export const curriculum: Phase[] = [
       {
         id: 'CS405',
         name: 'Data Visualization & Communication',
-        hours: 40,
+        hours: 60,
         duration: '3 weeks',
         difficulty: 'Intermediate',
         prerequisites: ['CS401'],
@@ -2045,7 +2045,7 @@ export const curriculum: Phase[] = [
     id: 5,
     name: 'Career & Interview Preparation',
     duration: 'Ongoing — intensify 3 months before target start date',
-    hours: 290,
+    hours: 310,
     color: '#10b981',
     description: 'Skills mean nothing if you cannot demonstrate them under pressure. Get hired. Know your worth.',
     mustComplete: ['CS501 Technical interviews (DSA + system design)', 'CS502 Portfolio & Brand (continuous — starts Phase 1)', 'CS502D Job Search Execution & Negotiation (Phase 6)', 'CS502B Professional Dynamics (read before your first job)'],
@@ -2451,7 +2451,7 @@ export const curriculum: Phase[] = [
       {
         id: 'CS502C',
         name: 'Communication Mastery',
-        hours: 20,
+        hours: 40,
         duration: '2 weeks',
         difficulty: 'Intermediate',
         description: 'Writing and speaking clearly are force multipliers for your technical skills. This covers RFCs, bug reports, and presenting.',

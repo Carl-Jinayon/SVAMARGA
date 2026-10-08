@@ -3,8 +3,12 @@
 **Get hireable first. Learn ML on the job.**
 
 **Companion to:** `CURRICULUM_ASSESSMENT_AND_SEQUENCE.md` (per-subject assessment and full sequencing rationale)
-**Data source:** `src/data/curriculum.ts` as corrected — 28 subjects, 2,775 hours
+**Data source:** `src/data/curriculum.ts` — 28 subjects, 2,840 hours
 **Date:** 2026-10-08
+
+> **This document is the one to follow.** It carries the arithmetic for your actual
+> data. The assessment doc is the reasoning behind it — read it per-subject when you
+> want to know *why* something is trimmed, not cover to cover.
 
 ---
 
@@ -14,19 +18,21 @@ You split the curriculum in two at Phase 3, and you **start earning while you fi
 
 | | Track A — Pre-Employment | Track B — On the Job |
 |---|---|---|
-| **Contents** | Stage 0–4 (Setup → CS101→CS403 foundations) | Phase 4 (ML) + Phase 5 (Career) |
-| **Hours** | **1,655h** + 50h CS502 | **1,070h** |
-| **Duration @22h/wk** | ~20 months (with buffer) | ~31 months at 8h/wk alongside work |
+| **Contents** | Stage 0–4 (Setup → craft subjects) | Phase 4 (ML) + Phase 5 (Career) |
+| **Hours** | **1,690h** (incl. 10h setup) | **1,110h** |
+| **Duration @22h/wk** | ~21 months (with buffer) | ~32 months at 8h/wk alongside work |
 | **You become…** | Hireable junior/mid full-stack engineer | ML engineer |
 | **Ends at** | First job offer accepted | ML-capable, earning, certified by production |
+
+Plus **CS502 Portfolio & Brand (50h)**, which runs continuously across both tracks.
 
 ### Why this and not the alternatives
 
 | Path | Time to first offer | Risk | Verdict |
 |---|---|---|---|
-| **A — Stop after craft subjects** | ~20 months | You plateau at "full-stack dev with ML hobbies" | Rejected — leaves your actual goal unrealised |
-| **B — Full sequence first** | ~35 months | 35 months of no income; the 2nd-year dropout risk is real | Rejected — too much exposure on one bet |
-| **C — Hybrid** | ~20 months | Requires discipline to keep studying while working | ✅ **Chosen** |
+| **A — Stop after craft subjects** | ~21 months | You plateau at "full-stack dev with ML hobbies" | Rejected — leaves your actual goal unrealised |
+| **B — Full sequence first** | ~37 months | 37 months of no income; the 2nd-year dropout risk is real | Rejected — too much exposure on one bet |
+| **C — Hybrid** | ~21 months | Requires discipline to keep studying while working | ✅ **Chosen** |
 
 The deciding factor: **production ML is worth more than four more months of synthetic datasets.** Data quality problems, drift, cost ceilings, and on-call reality cannot be simulated in a Kaggle notebook — and CS403's "Production ML Monitoring" content only lands once you have actually shipped something. You will learn CS402's backpropagation better in month 2 of a job than in month 14 of a classroom, because you will know what the gradient is *for*.
 
@@ -43,33 +49,33 @@ The cost of Path C is real and you should name it: you will learn CS401–CS406 
                     │  (GitHub README, commits, blog, portfolio)   │
                     └─────────────────────────────────────────────┘
 
-TRACK A — ~1,655h, ~20 months @22h/wk
+TRACK A — 1,690h, ~21 months @22h/wk
 ─────────────────────────────────────
   Stage 0   Environment                          10h    wk 1
-  Stage 1   Foundations                           355h    wk 2–17
+  Stage 1   Foundations                           395h    wk 2–19
             CS104 → CS101 → CS105 → CS102
-  Stage 2   Core CS                               590h    wk 18–44
+  Stage 2   Core CS                               545h    wk 20–44
             CS201 → CS203 → CS103 → CS204 → CS205
-  Stage 3   Production + Frontend                 370h    wk 45–61
+  Stage 3   Production + Frontend                 430h    wk 45–64
             CS301 → CS306 → CS302
-  Stage 4   Craft                                  340h    wk 62–76
+  Stage 4   Craft                                  310h    wk 65–78
             CS202 → CS304 → CS307 → CS305 → CS303
                                                     ─────
-                                          checkpoint ~1,655h  wk 77
+                                          checkpoint 1,690h  wk 78
                                                         ↓
                                               ★ ACCEPT A JOB ★
                                                         ↓
-TRACK B — ~1,070h, on your own time
+TRACK B — 1,110h, on your own time
 ─────────────────────────────────────
-  Stage 5   ML                                    830h
+  Stage 5   ML                                    850h    ~25 mo
             CS401 → CS402 → CS403 → CS404 → CS405 → CS406
-  Stage 6   Career                                240h
+  Stage 6   Career                                260h    ~7 mo
             CS501 → CS502D → CS502B → CS502C
                                                     ─────
-                                             total  1,070h
+                                             total  1,110h  ~32 mo
 ```
 
-**The checkpoint is wk 77, not the end.** Everything after that is paid for.
+**The checkpoint is wk 78, not the end.** Everything after that is paid for.
 
 ---
 
@@ -95,23 +101,23 @@ Do this before anything else. It is the cheapest 10 hours in the entire curricul
 ---
 
 ### Stage 1 — Foundations
-**355h · Weeks 2–17 · 16 weeks**
+**395h · Weeks 2–19 · 18 weeks**
 
 | # | Subject | Hours | Weeks | Why here |
 |---|---|---:|---:|---|
-| 1 | **CS104** Git & Tooling | 30 | 2 | Everything depends on it. Do it first. |
+| 1 | **CS104** Git & Tooling | 45 | 3 | Everything depends on it. Do it first. |
 | 2 | **CS101** Python Fundamentals | 160 | 8 | The language you will use for the next 4 years. |
-| 3 | **CS105** TypeScript | 45 | 3 | Cheap. Unlocks CS302 60 weeks early. |
+| 3 | **CS105** TypeScript | 70 | 4 | Cheap. Unlocks CS302 40 weeks early. |
 | 4 | **CS102** Math for CS | 120 | 6 | Feeds CS201 and CS401. Delay Part 4 (calculus). |
 
-**Parallel thread (2h/week, starting week 2):** Linux from `linuxcommand.org`, one chapter per week. This is CS103's Part 3 — you are picking up the skill now and formally assessing it in Stage 2.
+**Parallel thread (2h/week, starting week 2):** Linux from `linuxcommand.org`, one chapter per week. CS103's Linux content is now only 35h, so picking up the skill early carries more of the weight.
 
 **Gate before Stage 2:**
 ```
 □ Can I answer all 5 CS101 selfChecks out loud, no notes?
 □ Are all 4 CS101 projects pushed with real READMEs?
 □ Can I recover a deleted commit with git reflog?
-□ Can I write a generic function that works on any array in TS?
+□ Can you write a generic function that works on any array in TS?
 □ Can I explain what an eigenvector is geometrically?
 □ Is my GitHub profile README live?
 ```
@@ -119,24 +125,26 @@ Do this before anything else. It is the cheapest 10 hours in the entire curricul
 ---
 
 ### Stage 2 — Core CS Mastery
-**590h · Weeks 18–44 · 27 weeks**
+**545h · Weeks 20–44 · 25 weeks**
 
-This is the long slog. CS201 is 320 of the 590 hours — more than half. Do not rush it; it is simultaneously your interview gate and the reason CS401 is tractable.
+This is the long slog. CS201 is 320 of the 545 hours — nearly 60%. Do not rush it; it is simultaneously your interview gate and the reason CS401 is tractable.
 
 | # | Subject | Hours | Weeks | Notes |
 |---|---|---:|---:|---|
 | 5 | **CS201** DSA | 320 | 15 | The keystone. Add bit-manipulation + a Trie/String module per the assessment. |
-| 6 | **CS203** Databases & SQL | 80 | 4 | Add a Node ORM module (~20h) per the assessment. |
-| 7 | **CS103** Arch & OS | 80 | 4 | Trim Part 1 to on-demand. Keep Linux + concurrency. |
+| 6 | **CS203** Databases & SQL | 80 | 4 | Add a Node ORM module (~20h) per the assessment if you have the time. |
+| 7 | **CS103** Arch & OS | 35 | 2 | Trimmed. Keep Linux + concurrency; Part 1 is on-demand. |
 | 8 | **CS204** Networks | 65 | 3 | Wireshark lab is the point. Mark HTTP/3 + gRPC reference-only. |
 | 9 | **CS205** App Security | 45 | 2 | Best ROI in this stage. Add passkeys/WebAuthn. |
 
-**🎯 Start CS501 practice at CS201 Module 9.** Do not wait for Stage 6. From here:
+**CS103 is now the shortest subject in the curriculum at 35h.** That is deliberate: Part 1 (binary arithmetic, von Neumann, Nand2Tetris) is on-demand reference, and the Linux/Shell skills are picked up as a Stage-1 thread above.
+
+**🎯 Start CS501 practice at CS201 Module 9.** Do not wait for Track B. From here:
 - 3 problems per pattern per week, rotating through the 10 patterns
 - 1 Codeforces contest weekly (start Div 3)
 - This costs ~5h/week and gives you 150h of interview practice by the checkpoint instead of 120h crammed at the end
 
-**Realistic attrition warning:** CS201 is where people quit. It is week 24, you will be tired, and the modules feel endless. The 15-pattern rotation is the thing keeping you sane — problems feel tractable because you recognise a pattern. **If you quit anywhere, it is here.** Plan a deliberate 1-week break at the CS201 halfway point rather than an unplanned collapse.
+**Realistic attrition warning:** CS201 is where people quit. It is week 33, you will be tired, and the modules feel endless. The 10-pattern rotation is the thing keeping you sane — problems feel tractable because you recognise a pattern. **If you quit anywhere, it is here.** Plan a deliberate 1-week break at the CS201 halfway point rather than an unplanned collapse.
 
 **Gate before Stage 3:**
 ```
@@ -151,15 +159,17 @@ This is the long slog. CS201 is 320 of the 590 hours — more than half. Do not 
 ---
 
 ### Stage 3 — Production + Frontend
-**370h · Weeks 45–61 · 17 weeks**
+**430h · Weeks 45–64 · 20 weeks**
 
 The stage that makes you employable. Note the order: CS306 immediately after CS301, because its first project is *"Instrument your CS301 API"* — instrument code you still remember.
 
 | # | Subject | Hours | Weeks | Notes |
 |---|---|---:|---:|---|
-| 10 | **CS301** Backend (FastAPI) | 150 | 7 | Move async to the back half per the assessment. |
-| 11 | **CS306** Production Engineering | 80 | 3 | The highest-value module here. Now 80h, now prerequisites declared. |
-| 12 | **CS302** Frontend (React) | 140 | 7 | Cut scope or expand to 200h — decide now, per the assessment. |
+| 10 | **CS301** Backend (FastAPI) | 150 | 8 | Move async to the back half per the assessment. |
+| 11 | **CS306** Production Engineering | 80 | 4 | The highest-value module here. |
+| 12 | **CS302** Frontend (React) | 200 | 10 | **Expanded from 140h.** 140h was not realistic for the scope. |
+
+**CS302 is now the second-largest subject in the whole curriculum.** That is correct: HTML5 semantics + CSS box model/Flexbox/Grid/custom properties + full JS deep dive + TS-in-React + 12 React topics + 10 tooling topics does not compress into 140 hours. Budget the full 10 weeks, and treat accessibility as a topic block rather than the single bullet it used to be.
 
 **Mandatory artefact:** the CS301 **Blog API deployed live** with HTTPS, CI/CD, health checks, Sentry, and structured logging. This is the single most important line on your resume for Path C. Everything in CS306 instruments *this*.
 
@@ -178,15 +188,17 @@ The stage that makes you employable. Note the order: CS306 immediately after CS3
 ---
 
 ### Stage 4 — Craft
-**340h · Weeks 62–76 · 15 weeks**
+**310h · Weeks 65–78 · 14 weeks**
 
 | # | Subject | Hours | Weeks | Notes |
 |---|---|---:|---:|---|
-| 13 | **CS202** Design Patterns | 70 | 3 | Trim to SOLID + 4 patterns per the assessment. |
-| 14 | **CS304** SWE Practices & DevOps | 50 | 2 | The most underrated module in the document. |
+| 13 | **CS202** Design Patterns | 40 | 2 | Trimmed to SOLID + 4 patterns. |
+| 14 | **CS304** SWE Practices & DevOps | 50 | 3 | The most underrated module in the document. |
 | 15 | **CS307** Legacy Code | 60 | 3 | Do the CS304 PR first, then go deeper on the same repo. |
-| 16 | **CS305** Cloud (AWS) | 70 | 3 | AWS only. GCP as a comparison table. |
+| 16 | **CS305** Cloud (AWS) | 70 | 4 | AWS only. GCP as a comparison table. |
 | 17 | **CS303** System Design | 90 | 4 | 8 case studies + 5 written design docs. Reusable interview artefacts. |
+
+**CS202 is now 40h, not 70.** Twenty-three patterns plus UML for a learner targeting ML engineering was heavy, and the subject's own `commonMistakes` warns against pattern-mania. Keep SOLID plus Observer, Strategy, Factory, and Decorator — that is ~90% of real usage.
 
 **Gate before job hunting:**
 ```
@@ -201,7 +213,7 @@ The stage that makes you employable. Note the order: CS306 immediately after CS3
 
 ---
 
-## ★ The Checkpoint — Week 77
+## ★ The Checkpoint — Week 78
 
 **You are now applying for jobs.** Here is what you actually have:
 
@@ -212,7 +224,7 @@ The stage that makes you employable. Note the order: CS306 immediately after CS3
 | NeetCode 150 + 10+ Codeforces contests + 150h pattern practice | Proof you can pass a coding screen |
 | 12 system-design sessions + 5 written design docs | Proof you can be in a senior conversation |
 | A merged open-source PR | Third-party validation of your code |
-| GitHub with 20 months of consistent activity | Work-habit signal that no resume line conveys |
+| GitHub with ~20 months of consistent activity | Work-habit signal that no resume line conveys |
 | A professional portfolio site | Where every recruiter lands first |
 | LinkedIn + 3+ published blog posts | Inbound candidates start arriving |
 
@@ -237,7 +249,7 @@ A lower offer with real mentorship beats a higher one where you are the most jun
 
 ## Track B — On the Job
 
-**1,070h · ~8h/week alongside full-time work · ~31 months**
+**1,110h · ~8h/week alongside full-time work · ~32 months**
 
 ### The priority order changed
 
@@ -249,10 +261,10 @@ On the job, two subjects jump the queue:
 
 And two defer:
 
-- **CS502C** (Communication) — you are getting this for free, daily, by writing design docs at work.
+- **CS502C** (Communication, 40h) — you are getting this for free, daily, by writing design docs at work.
 - **CS202** further patterns — you will learn them on demand from a real codebase.
 
-### Stage 5 — ML (830h)
+### Stage 5 — ML (850h)
 
 | # | Subject | Hours | Weeks @8h/wk | On-the-job angle |
 |---|---|---:|---:|---|
@@ -260,7 +272,7 @@ And two defer:
 | 19 | **CS402** Deep Learning | 230 | 29 | PyTorch is Module 1 now — you can run everything immediately. |
 | 20 | **CS403** MLOps & LLM | 160 | 20 | Ship one internal LLM tool at work. Highest leverage of all six. |
 | 21 | **CS404** Specialization (Track A: NLP/LLM) | 120 | 15 | Follow the LLM thread you started in CS403. |
-| 22 | **CS405** Data Viz & Comms | 40 | 5 | Do this for your actual manager. Immediately visible value. |
+| 22 | **CS405** Data Viz & Comms | 60 | 7 | Do this for your actual manager. Immediately visible value. |
 | 23 | **CS406** Data Engineering | 80 | 10 | Optional hedge — many PH "ML" roles are DE roles. |
 
 **The single highest-ROI move in Track B:** inside your first 6 months at the job, find a recurring manual task someone does by hand, and automate it with a script or an LLM call. It becomes:
@@ -268,14 +280,14 @@ And two defer:
 - the CS403 capstone, with actual stakes
 - a promotion conversation
 
-### Stage 6 — Career (240h)
+### Stage 6 — Career (260h)
 
 | # | Subject | Hours | When |
 |---|---|---:|---|
 | 24 | **CS501** Technical Interviews | 120 | Before your next job hop — not now |
 | 25 | **CS502D** Job Search & Negotiation | 50 | When you decide to move |
 | 26 | **CS502B** Professional Dynamics | 50 | Read the 16 scenarios in month 1 of the job. You will recognise them all. |
-| 27 | **CS502C** Communication | 20 | On the job, from real writing |
+| 27 | **CS502C** Communication | 40 | On the job, from real writing |
 
 **CS502B timing:** read it in your first 90 days. You will have lived SCENARIO 12 ("I don't belong") and SCENARIO 15 ("imposter syndrome") and SCENARIO 4 ("how much longer?") for real. Reading it *after* the experience lands far harder than reading it before.
 
@@ -322,7 +334,7 @@ This is the only subject with no finish line, and it is the one that compounds m
 
 **Track 2 (that half — Phase 6):** targeting, resumes, negotiation. See CS502D.
 
-**By the checkpoint you have 20 months of visible continuous work.** No applicant who started their GitHub when they needed a portfolio can match that. It is the single strongest differentiator in Path C, and it is the cheapest thing on this page.
+**By the checkpoint you have ~20 months of visible continuous work.** No applicant who started their GitHub when they needed a portfolio can match that. It is the single strongest differentiator in Path C, and it is the cheapest thing on this page.
 
 ---
 
@@ -331,21 +343,22 @@ This is the only subject with no finish line, and it is the one that compounds m
 | Milestone | Hours | @22h/wk | @30h/wk |
 |---|---:|---:|---:|
 | GitHub profile README live | 10 | wk 1 | wk 1 |
-| CS101 complete — first real projects | 200 | wk 10 | wk 7 |
-| CS201 complete — interview-capable | 520 | wk 24 | wk 18 |
-| Blog API live in production | 985 | wk 45 | wk 33 |
-| Blog API instrumented + postmortem written | 1,065 | wk 49 | wk 36 |
-| Portfolio site live | 1,205 | wk 55 | wk 41 |
-| **★ Job-ready checkpoint** | **1,655** | **wk 77** | **wk 56** |
-| Accepted a job | 1,655 | wk 77 | wk 56 |
-| CS401 complete | 1,855 | on the job, mo 12 | — |
-| CS403 complete — LLM capable | 2,245 | on the job, mo 22 | — |
-| Track A complete | 2,655 | wk 124 | wk 90 |
-| Full curriculum | 2,775 | wk 130 | wk 94 |
+| CS101 complete — first real projects | 205 | wk 10 | wk 7 |
+| CS201 complete — interview-capable | 725 | wk 33 | wk 25 |
+| Blog API live in production | 1,100 | wk 50 | wk 37 |
+| Blog API instrumented + postmortem written | 1,180 | wk 54 | wk 40 |
+| Portfolio site live | 1,380 | wk 63 | wk 46 |
+| **★ Job-ready checkpoint** | **1,690** | **wk 78** | **wk 56** |
+| Accepted a job | 1,690 | wk 78 | wk 56 |
+| CS401 complete | 1,890 | on the job, mo 6 | — |
+| CS402 complete | 2,120 | on the job, mo 12 | — |
+| CS403 complete — LLM capable | 2,280 | on the job, mo 17 | — |
+| Track A complete | 2,280 | wk 78 | wk 56 |
+| Full curriculum | 2,840 | wk 132 | wk 95 |
 
-**Realistic with 15% buffer:** Track A is **~20 months @22h/wk** or **~15 months @30h/wk**. The curriculum's own "~19–20 months" figure assumes 5h/day every day — not achievable in a second-year programme.
+**Realistic with 15% buffer:** Track A is **~21 months @22h/wk** or **~16 months @30h/wk**. The curriculum's own "~19–20 months" figure assumes 5h/day every day — not achievable in a second-year programme.
 
-**The number that matters: week 77.** Everything after is a bonus.
+**The number that matters: week 78.** Everything after is a bonus.
 
 ---
 
@@ -353,41 +366,65 @@ This is the only subject with no finish line, and it is the one that compounds m
 
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
-| 1 | Quit during CS201 (wk 24) | **High** | Fatal | Pattern rotation keeps it tractable. Plan a deliberate break at the halfway point. |
+| 1 | Quit during CS201 (wk 33) | **High** | Fatal | Pattern rotation keeps it tractable. Plan a deliberate break at the halfway point. |
 | 2 | Semester exams kill 3 consecutive weeks | High | Moderate | Budget 2 buffer weeks per semester now. |
-| 3 | Reach wk 77 with no deployed project | Low | Fatal | CS306's gate requires a live instrumented API. Do not skip it. |
+| 3 | Reach wk 78 with no deployed project | Low | Fatal | CS306's gate requires a live instrumented API. Do not skip it. |
 | 4 | Burn out while doing Track A + full-time job | Moderate | Fatal | 6h/week not 8h. One subject at a time. Work always wins ties. |
 | 5 | CS502 stalls at month 4 | High | Moderate | 40 min/week is not optional. This is the compounding asset. |
 | 6 | Job has no ML path at all | Moderate | High | Filter on mentorship during interviews. Automate something manual in the first 6 months. |
 | 7 | Math decay before CS401 | Moderate | Moderate | One 3h re-derivation session during CS401 M1. |
 | 8 | Interview prep never starts | Moderate | High | Start at CS201 M9. It is 150h of the difference. |
+| 9 | CS302 overruns 200h | Moderate | Moderate | It is the job-readiness gate. If it takes 220h, cut tooling depth, not accessibility or testing. |
 
 ---
 
 ## What Changed in the Curriculum Data
 
-Applied to `src/data/curriculum.ts` while building this. Typechecks clean, production build passes.
+Applied to `src/data/curriculum.ts`. Typechecks clean, production build passes.
+
+### Hour rebalancing (this change)
+
+| Subject | Before | After | Reason |
+|---|---:|---:|---|
+| **CS302** Frontend | 140 | **200** | 140h cannot cover HTML + CSS + JS deep dive + TS-in-React + 12 React topics + 10 tooling topics. It is the job-readiness gate; underfunding it is the clearest budgeting error in the document. |
+| **CS103** Arch & OS | 80 | **35** | ~45h of it (binary arithmetic, von Neumann, Nand2Tetris) has no job relevance for this goal. Linux + concurrency kept. |
+| **CS105** TypeScript | 45 | **70** | Was missing the JS runtime fundamentals that its own `commonMistakes` says you need first. |
+| **CS104** Git & Tooling | 30 | **45** | Highest ROI per hour in the curriculum, and it was the smallest subject. |
+| **CS202** Design Patterns | 70 | **40** | 23 patterns + UML for an ML-track learner is heavy; the subject itself warns against pattern-mania. |
+| **CS405** Data Viz | 40 | **60** | Half of ML work is communicating results; this was joint-smallest in the curriculum. |
+| **CS502C** Communication | 20 | **40** | 20h for a subject whose project is *"Give a 10-minute presentation"* was incoherent. |
+
+**New totals: P1 430 · P2 550 · P3 700 · P4 850 · P5 310 = 2,840**
+
+Note this lands on 2,840 — the exact figure the original phase totals claimed before any of this work. The original per-phase numbers were roughly right; the per-*subject* numbers were what drifted.
+
+### Earlier changes
 
 | Change | Detail |
 |---|---|
 | **CS306 prerequisites** | Added `['CS301']`. Was absent, despite its first project being *"Instrument your CS301 API."* |
 | **CS307 prerequisites** | Added `['CS202', 'CS304']`. Was absent. |
-| **CS306 hours** | 50 → **80**. Was the thinnest module in the document and the highest-value one in Phase 3. |
+| **CS306 hours** | 50 → **80**. Was the thinnest module and the highest-value one in Phase 3. |
 | **CS307 hours** | 40 → **60**. |
 | **CS502 split** | Was `Portfolio, Brand & Job Search Strategy` (80h) declaring `prerequisites: ['CS301','CS302']` while its own duration said *"build continuously from Phase 1"* — self-contradictory. Now: **CS502 Portfolio & Brand** (50h, no prerequisites, continuous) + **CS502D Job Search Execution & Negotiation** (50h, Phase 6). |
-| **CS502B rewritten** | The 16 workplace scenarios were stranded in a Markdown string consumed by one component. Now first-class subtopics in 7 parts, hours 40 → **50**. |
+| **CS502B rewritten** | The 16 workplace scenarios were stranded in a Markdown string consumed by one component. Now first-class subtopics in 7 parts. |
 | **CS402 reordered** | PyTorch moved from Module 7 → **Module 1**. Six modules of undeliverable hand-derivation was the biggest burnout risk in the subject. RNN compressed into Module 5 alongside an expanded Transformers section (now 17 items). New Module 7 covers GPU/performance. |
-| **CS403 de-sprawled** | 6 topics / ~14 tools → **4 topics / 1 spine** (MLflow + FastAPI serving + RAG). LlamaIndex dropped. Drift monitoring folded back into serving. Hours 130 → **160**. |
+| **CS403 de-sprawled** | 6 topics / ~14 tools → **4 topics / 1 spine** (MLflow + FastAPI serving + RAG). LlamaIndex dropped. Drift monitoring folded back into serving. 130 → 160h. |
 | **CS406 de-sprawled** | Spark/Delta/Kafka marked **REFERENCE**; Airflow + dbt + warehouse is the spine. 80h unchanged. |
-| **Hours reconciled** | `phase.hours` now equals the exact sum of its subjects, documented in a comment at the top of the file. P1 435 · P2 580 · P3 640 · P4 830 · P5 290 = **2,775**. Previously the phase total was 2,840 and the subject total 2,665. |
-| **Phase 3 mustComplete** | CS306 added. It was missing from both mustComplete and niceToHave despite being the highest-ROI module — and Path C ends at Phase 3. |
-| **Phase 5 mustComplete** | Reflects the CS502 split. CS502B promoted to mustComplete; CS502C left as nice-to-have. |
-| **Phase 4 mustComplete** | Was `"CS402 Deep Learning (Modules 1-6)"`, excluding Module 7 by accident. Now all 7 modules. |
-| **Components updated** | `CurriculumViewer.tsx` NEW-badge list includes CS502D. `CurriculumGuide.tsx` phase hours and descriptions updated. |
+| **Phase metadata** | Phase 3 `mustComplete` now includes CS306. Phase 5 reflects the CS502 split. Phase 4 no longer says "Modules 1-6" (which excluded Module 7 by accident). |
 
-**Not changed** (assessment only, deliberately left to you):
-- CS103 (80h → 35h), CS104 (30h → 45h), CS105 (45h → 70h), CS302 (140h → 200h), CS202 (70h → 40h), CS501C (20h → 40h)
-- The ~10 topics absent from all 28 subjects (Node.js data layer, time series, testing fundamentals, GPU fundamentals, accessibility depth, HuggingFace/Kaggle presence)
+### Still proposed, not implemented
+
+Four smaller changes from the assessment remain unimplemented. They net to +20 hours and are all *additive* except CS204:
+
+| Subject | Proposed | Actual | Change |
+|---|---:|---:|---|
+| CS203 Databases | 85 | 80 | +5 — add the Node ORM module (Prisma/Drizzle) |
+| CS204 Networks | 60 | 65 | −5 — mark HTTP/3 + gRPC reference-only |
+| CS205 App Security | 55 | 45 | +10 — add passkeys/WebAuthn and secure SDLC |
+| CS304 DevOps | 60 | 50 | +10 — add Terraform basics and test-writing |
+
+Also still absent from all 28 subjects: a Node.js data-access layer (the largest structural gap after Python-vs-Node), time series/forecasting, testing fundamentals in CS101, GPU fundamentals, accessibility depth, and HuggingFace/Kaggle presence. All are flagged in the assessment, none implemented.
 
 ---
 
@@ -399,9 +436,9 @@ Applied to `src/data/curriculum.ts` while building this. Typechecks clean, produ
 □ Write your GitHub profile README — 30 minutes, today
 □ Start CS104 Git & Tooling
 □ Pick your weekly hours honestly (22 or 30 — do not pick 40)
-□ Put both roadmap milestones in your calendar: week 24 (CS201 done), week 77 (apply)
+□ Put both roadmap milestones in your calendar: week 33 (CS201 done), week 78 (apply)
 ```
 
 ---
 
-*The plan optimises for one outcome: reaching wk 77 with a deployed, instrumented, documented portfolio and an interview-ready skill set — then never stopping. Stage 6 is the end of this roadmap. There is no Stage 7.*
+*The plan optimises for one outcome: reaching wk 78 with a deployed, instrumented, documented portfolio and an interview-ready skill set — then never stopping. Stage 6 is the end of this roadmap. There is no Stage 7.*

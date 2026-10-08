@@ -1,8 +1,24 @@
 # Curriculum Assessment & Sequential Completion Plan
 
-**Source:** `src/data/curriculum.ts` (5 phases, 27 subjects, 2,665 subject-hours / 2,840 phase-declared hours)
+**Source:** `src/data/curriculum.ts` — originally 5 phases, 27 subjects, 2,665 subject-hours against 2,840 phase-declared hours
 **Purpose:** Subject-by-subject assessment of quality and ROI, followed by a dependency-correct sequential order for completing every course and topic.
 **Date:** 2026-10-08
+
+---
+
+> ## ⚠️ This is the reasoning document, not the timetable
+>
+> **Follow `ROADMAP_PATH_C.md` for what to actually do.** It carries the arithmetic
+> for your current data (28 subjects, 2,840 hours) and the Path C decision to stop
+> Track A at week 78 and take a job.
+>
+> Use *this* document when you need to know **why** a subject is trimmed, what to cut
+> if you fall behind, or the gate criteria for one specific subject. Don't read it
+> cover to cover.
+>
+> The hour figures in [§3.1](#31-summary-table) are a **proposal**. Twelve of sixteen
+> are now implemented in the code; four are not. Where this document and the roadmap
+> disagree, **the roadmap is correct.**
 
 ---
 
@@ -83,7 +99,7 @@ This is a **genuinely high-quality curriculum** — well above the median of fre
 
 Its weaknesses are **editorial, not conceptual**: uneven subject sizing, tool sprawl in the ML phase, two modules that are outline-grade rather than curriculum-grade, and a phase ordering that serialises work which could run in parallel.
 
-**Overall:** keep the architecture, fix the budgeting, and re-sequence. Recommended total: **2,870h** — within 1% of the phase-declared figure, so the correction is essentially a reallocation, not an expansion.
+**Overall:** keep the architecture, fix the budgeting, and re-sequence. Recommended total: **2,840h** — exactly the phase-declared figure, so the correction is a reallocation, not an expansion. 12 of the 16 proposed changes are now implemented in curriculum.ts; 4 are not.
 
 ---
 
@@ -219,20 +235,33 @@ CS101 → CS102 → CS401 → CS402 → CS404  160 + 120 + 200 + 230 + 120 = 830
 | CS502 | Portfolio & Job Search | 80 | **100** | +20 | 🔧 | Self-contradictory timing. Split into two tracks. |
 | CS502B | Professional Dynamics | 40 | **50** | +10 | ⚠️ | Highest ROI in Phase 5. Outline-grade as written. |
 | CS502C | Communication | 20 | **40** | +20 | ⚠️ | 20h for a subject requiring a 10-minute talk. |
-| | **Total** | **2,665** | **2,870** | **+205** | | +7.7% |
+| | **Total** | **2,665** | **2,840** | **+175** | | +6.6% |
 
-### 3.2 Phase-level totals after correction
+Recommended values for the 12 implemented changes now match `curriculum.ts` exactly. The four still-proposed changes (CS203, CS204, CS205, CS304) are marked in [§3.2](#32-phase-level-totals--status).
 
-| Phase | Declared | Subject sum (current) | Subject sum (recommended) |
+### 3.2 Phase-level totals — status
+
+| Phase | Original phase total | Original subject sum | **Current (after fixes)** |
 |---|---:|---:|---:|
-| 1 Foundations | 520 | 435 | **450** |
-| 2 Core CS | 720 | 580 | **545** |
-| 3 Full-Stack | 580 | 590 | **750** |
-| 4 ML & AI | 820 | 800 | **870** |
+| 1 Foundations | 520 | 435 | **430** |
+| 2 Core CS | 720 | 580 | **550** |
+| 3 Full-Stack | 580 | 590 | **700** |
+| 4 ML & AI | 820 | 800 | **850** |
 | 5 Career | 200 | 260 | **310** |
-| **Total** | **2,840** | **2,665** | **2,870** |
+| **Total** | **2,840** | **2,665** | **2,840** |
 
-The correction moves ~175h *out of* Phase 2 (mostly the CS103 trim) and ~360h *into* Phases 3 and 5, where the marginal content is thinner per hour than in the early phases.
+The current total lands on **2,840** — the same figure the original phase totals claimed. The original *per-phase* numbers were approximately right all along; the *per-subject* numbers were what drifted, and they were the numbers the app displayed.
+
+Twelve of the sixteen recommended changes in [§3.1](#31-summary-table) are now implemented in `curriculum.ts`. Four remain proposed only, and they net to **+20 hours**:
+
+| Subject | Proposed | Current | Change |
+|---|---:|---:|---|
+| CS203 | 85 | 80 | +5 — add the Node ORM module (Prisma/Drizzle) |
+| CS204 | 60 | 65 | −5 — mark HTTP/3 + gRPC reference-only |
+| CS205 | 55 | 45 | +10 — add passkeys/WebAuthn and secure SDLC |
+| CS304 | 60 | 50 | +10 — add Terraform basics and test-writing |
+
+**For scheduling, use `ROADMAP_PATH_C.md`.** It carries the arithmetic for the current data. The hour figures in this document are the rationale, not a timetable.
 
 ---
 
@@ -280,7 +309,7 @@ These are absent from **all 27 subjects**. None is optional; several are intervi
 | **5** | ML — CS401, CS402, CS403, CS404, CS405, CS406 | 850 | You have shipped an end-to-end ML product |
 | **6** | Career — CS501, CS502, CS502B, CS502C | 310 | You are interviewing with evidence |
 | **7** | Deferred & optional | ~50+ | — |
-| | **Total core sequence** | **2,870** | |
+| | **Total core sequence** | **2,840** | |
 
 ### 5.3 The order, at a glance
 
@@ -1013,7 +1042,7 @@ A single learner cannot literally do two subjects at once. But these pairs have 
 
 ### 8.1 The arithmetic
 
-Core sequence: **2,870 hours** (excluding Stage 7 optional material).
+Core sequence: **2,840 hours** (excluding Stage 7 optional material).
 
 | Weekly hours | Typical context | Wall-clock time | Weeks | Months |
 |---:|---|---:|---:|---:|
@@ -1055,7 +1084,7 @@ Add a **15% buffer** for exam weeks, illness, holidays, and inevitable rework. R
 | CS402 + CS403 complete — deep learning + LLM | 2,390 | Week 109 | Week 80 |
 | **CS501 ready — interview-ready for real** | **2,510** | **Week 114** | **Week 84** |
 | CS404 Track A complete — specialisation | 2,630 | Week 120 | Week 88 |
-| **Full sequence complete** | **2,870** | **Week 130** | **Week 96** |
+| **Full sequence complete** | **2,840** | **Week 132** | **Week 95** |
 
 ### 8.4 The critical-path floor
 
@@ -1189,7 +1218,7 @@ Phase 5: declared 200, subjects sum 260
 | | |
 |---|---|
 | **Subjects assessed** | 27 |
-| **Recommended hours** | 2,870 (+7.7% vs current 2,665) |
+| **Recommended hours** | 2,840 (+6.6% vs the original 2,665) |
 | **Core sequence length** | 7 stages, 130 weeks @22h/wk (~35 months with buffer) |
 | **Critical path floor** | 635h serial (CS102→CS401→CS402→CS404) — cannot be compressed |
 | **First hireable milestone** | After CS306, ~1,475h, week ~67 @22h/wk |
