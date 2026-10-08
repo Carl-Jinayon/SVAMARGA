@@ -58,11 +58,11 @@ export default function CurriculumGuide() {
         
         <div className="space-y-3">
           {[
-            { phase: '1 — Foundations (~520 hrs)', bg: 'rgba(0,229,255,0.05)', border: 'rgba(0,229,255,0.2)', color: 'var(--accent-cyan)', desc: 'CS101 Python → CS105 TypeScript → CS102 Math (parallel) → CS103 OS/Linux → CS104 Git & Tooling' },
-            { phase: '2 — Core CS (~720 hrs)', bg: 'rgba(127,119,221,0.05)', border: 'rgba(127,119,221,0.2)', color: 'var(--accent-violet)', desc: 'CS201 DSA (ongoing) → CS202 OOP & Patterns → CS203 Databases → CS204 Networks → CS205 App Security' },
-            { phase: '3 — Full-Stack (~580 hrs)', bg: 'rgba(236,72,153,0.05)', border: 'rgba(236,72,153,0.2)', color: '#EC4899', desc: 'CS301 Backend (FastAPI) → CS302 Frontend (React+TS) → CS305 Cloud (AWS/GCP) → CS303 System Design → CS304 DevOps' },
-            { phase: '4 — ML & AI (~820 hrs)', bg: 'rgba(245,158,11,0.05)', border: 'rgba(245,158,11,0.2)', color: '#F59E0B', desc: 'CS401 ML Foundations → CS402 Deep Learning → CS403 MLOps+LLM → CS404 Specialization → CS405 Data Viz → CS406 Data Eng.' },
-            { phase: '5 — Career (~200 hrs)', bg: 'rgba(29,158,117,0.05)', border: 'rgba(29,158,117,0.2)', color: 'var(--accent-teal)', desc: 'CS501 Technical Interviews (DSA + System Design) → CS502 Portfolio + Brand + Job Search + Negotiation' },
+            { phase: '1 — Foundations (~435 hrs)', bg: 'rgba(0,229,255,0.05)', border: 'rgba(0,229,255,0.2)', color: 'var(--accent-cyan)', desc: 'CS101 Python → CS105 TypeScript → CS102 Math (parallel) → CS103 OS/Linux → CS104 Git & Tooling' },
+            { phase: '2 — Core CS (~580 hrs)', bg: 'rgba(127,119,221,0.05)', border: 'rgba(127,119,221,0.2)', color: 'var(--accent-violet)', desc: 'CS201 DSA (ongoing) → CS202 OOP & Patterns → CS203 Databases → CS204 Networks → CS205 App Security' },
+            { phase: '3 — Full-Stack (~640 hrs)', bg: 'rgba(236,72,153,0.05)', border: 'rgba(236,72,153,0.2)', color: '#EC4899', desc: 'CS301 Backend (FastAPI) → CS306 Production Engineering → CS302 Frontend (React+TS) → CS304 DevOps → CS305 Cloud → CS303 System Design' },
+            { phase: '4 — ML & AI (~830 hrs)', bg: 'rgba(245,158,11,0.05)', border: 'rgba(245,158,11,0.2)', color: '#F59E0B', desc: 'CS401 ML Foundations → CS402 Deep Learning → CS403 MLOps+LLM → CS404 Specialization → CS405 Data Viz → CS406 Data Eng.' },
+            { phase: '5 — Career (~290 hrs)', bg: 'rgba(29,158,117,0.05)', border: 'rgba(29,158,117,0.2)', color: 'var(--accent-teal)', desc: 'CS501 Technical Interviews → CS502D Job Search & Negotiation → CS502B Professional Dynamics → CS502C Communication. CS502 Portfolio & Brand runs continuously from Phase 1.' },
           ].map((item, i) => (
             <div key={i} className="p-4 rounded-xl transition-all" style={{ background: item.bg, border: `1px solid ${item.border}` }}>
               <h4 className="font-bold text-xs mb-1" style={{ color: item.color }}>Phase {item.phase}</h4>

@@ -201,7 +201,7 @@ export default function CurriculumViewer() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 mb-1.5">
                             <span className="text-[9px] font-bold tracking-widest" style={{ color: 'var(--accent-cyan)' }}>{subject.id}</span>
-                            {['CS306', 'CS307', 'CS502B', 'CS502C'].includes(subject.id) && (
+                            {['CS306', 'CS307', 'CS502B', 'CS502C', 'CS502D'].includes(subject.id) && (
                               <span className="px-2 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-widest" style={{ background: 'var(--accent-cyan)', color: '#000' }}>
                                 NEW
                               </span>

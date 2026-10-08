@@ -1,11 +1,14 @@
 import { Phase } from '../types/index';
 
+// HOURS SOURCE OF TRUTH: each phase's `hours` is the exact sum of its subjects' `hours`.
+// If you change a subject's hours, recompute the parent phase's hours.
+// Current totals: P1 435 + P2 580 + P3 640 + P4 830 + P5 290 = 2775
 export const curriculum: Phase[] = [
   {
     id: 1,
     name: 'Foundations',
     duration: '4-6 months',
-    hours: 520,
+    hours: 435,
     color: '#3b82f6',
     description: 'Build the bedrock. Every concept in this curriculum depends on what you learn here.',
     mustComplete: ['CS101 Python (all 8 weeks)', 'CS102 Math Part 1 & 3', 'CS104 Git & Tooling', 'CS105 TypeScript basics'],
@@ -383,7 +386,7 @@ export const curriculum: Phase[] = [
     id: 2,
     name: 'Core CS Mastery',
     duration: '7-9 months',
-    hours: 720,
+    hours: 580,
     color: '#8b5cf6',
     description: 'This is where real engineers are forged. Difficulty spikes here. Embrace the struggle.',
     mustComplete: ['CS201 DSA (all modules — no shortcuts)', 'CS203 SQL & databases', 'CS202 OOP Design Patterns', 'CS205 Application Security basics'],
@@ -807,10 +810,10 @@ export const curriculum: Phase[] = [
     id: 3,
     name: 'Full-Stack Engineering',
     duration: '5-7 months',
-    hours: 580,
+    hours: 640,
     color: '#ec4899',
     description: 'Build real things. Ship real products. This is your job-readiness phase.',
-    mustComplete: ['CS301 Backend (FastAPI + REST + Security)', 'CS302 Frontend (JS + React + TypeScript)', 'CS305 Cloud Fundamentals (AWS/GCP)', 'CS304 CI/CD basics'],
+    mustComplete: ['CS301 Backend (FastAPI + REST + Security)', 'CS302 Frontend (JS + React + TypeScript)', 'CS305 Cloud Fundamentals (AWS/GCP)', 'CS304 CI/CD basics', 'CS306 Production Engineering & Incident Response'],
     niceToHave: ['CS303 System Design (vocabulary now, mastery on the job)', 'Advanced React patterns'],
     interviewHabit: 'From Phase 3: do one full system design mock per month. Set a 45-minute timer. Draw on paper. No notes. Also: start applying to junior roles.',
     capstone: {
@@ -1284,9 +1287,10 @@ export const curriculum: Phase[] = [
       {
         id: 'CS306',
         name: 'Production Engineering & Incident Response',
-        hours: 50,
-        duration: '4 weeks',
+        hours: 80,
+        duration: '4-5 weeks',
         difficulty: 'Intermediate',
+        prerequisites: ['CS301'],
         description: 'You can build a perfect system in isolation. Production breaks it in 10 minutes. Real engineers spend 40% of their time responding to incidents, debugging, and maintaining systems. This module teaches you how.',
         topics: ['Part 1: Observability', 'Part 2: Debugging Under Pressure', 'Part 3: Incident Response & Postmortems', 'Part 4: On-Call Practices', 'Part 5: Monitoring & Alerting'],
         subtopics: {
@@ -1342,9 +1346,10 @@ export const curriculum: Phase[] = [
       {
         id: 'CS307',
         name: 'Legacy Code Mastery & Refactoring',
-        hours: 40,
+        hours: 60,
         duration: '3 weeks',
         difficulty: 'Intermediate',
+        prerequisites: ['CS202', 'CS304'],
         description: 'Real jobs consist of maintaining code you didn\'t write, that was written in a rush, by people who left 2 years ago. This module teaches you how to read, understand, and safely refactor legacy code.',
         topics: ['Part 1: Reading Legacy Code', 'Part 2: Safe Refactoring Techniques', 'Part 3: Technical Debt', 'Part 4: Patterns in Legacy Code', 'Part 5: Team Workflow'],
         subtopics: {
@@ -1401,10 +1406,10 @@ export const curriculum: Phase[] = [
     id: 4,
     name: 'Machine Learning & AI Engineering',
     duration: '9-12 months',
-    hours: 820,
+    hours: 830,
     color: '#f59e0b',
     description: 'Your ultimate destination. Math meets code. Every phase before this was preparation.',
-    mustComplete: ['CS401 ML Foundations (all modules)', 'CS402 Deep Learning (Modules 1-6)', 'CS403 MLOps + LLM Engineering'],
+    mustComplete: ['CS401 ML Foundations (all modules)', 'CS402 Deep Learning (all 7 modules — PyTorch is Module 1, not the last)', 'CS403 MLOps + LLM Engineering'],
     niceToHave: ['CS404 pick ONE specialization track', 'CS406 Data Engineering (if targeting data-heavy roles)', 'CS405 Data Visualization'],
     interviewHabit: 'From Phase 4: apply to ML roles even before Phase 4 is complete. Companies often hire ML engineers with strong Python/backend skills and train ML on the job. Your CS201-CS305 background already makes you competitive for many ML adjacent roles.',
     capstone: {
@@ -1536,21 +1541,33 @@ export const curriculum: Phase[] = [
         duration: '14 weeks',
         difficulty: 'Very Hard',
         prerequisites: ['CS401', 'CS102'],
-        description: "Deep learning is the hardest subject in this curriculum. The math is real, the debugging is painful, and the rewards are extraordinary. Every expert in this field struggled at backpropagation once. Be patient. The breakthrough moments are worth the struggle.",
-        topics: ['Module 1: Neural Network Foundations', 'Module 2: Regularization & Training Tricks', 'Module 3: Convolutional Neural Networks', 'Module 4: Recurrent Networks & Sequence Modeling', 'Module 5: Transformers & Attention Mechanism', 'Module 6: Generative Models', 'Module 7: PyTorch in Depth'],
+        description: "Deep learning is the hardest subject in this curriculum. The math is real, the debugging is painful, and the rewards are extraordinary. Every expert in this field struggled at backpropagation once. Be patient. The breakthrough moments are worth the struggle. MODULE ORDER MATTERS: PyTorch comes first, not last. Previous versions of this curriculum placed the framework in Module 7, which meant six modules of hand-derivation with no way to run any of it — the single largest burnout risk in this subject. You now learn the tooling in Module 1, overfit a single batch to validate your toolchain, and then derive the mathematics in Module 2 with a gradient check to verify it against autograd. Every later module has runnable code from the first day.",
+        topics: ['Module 1: PyTorch Fundamentals & The Training Loop', 'Module 2: Neural Network Foundations', 'Module 3: Regularization & Training Tricks', 'Module 4: Convolutional Neural Networks', 'Module 5: RNNs, Transformers & Sequence Modeling', 'Module 6: Generative Models', 'Module 7: GPU, Performance & Scaling'],
         subtopics: {
-          'Module 1: Neural Network Foundations': [
+          'Module 1: PyTorch Fundamentals & The Training Loop': [
+            'Tensors: creation, indexing, broadcasting, device management (.to("cuda"))',
+            'Autograd: computation graph, requires_grad, .backward(), .grad',
+            'nn.Module: define layers, implement forward(), state_dict()',
+            'DataLoader: custom Dataset class, __getitem__, transforms, batching',
+            'The training loop from scratch: zero_grad(), forward, loss, backward, step()',
+            'The evaluation loop: model.eval(), torch.no_grad(), running metrics',
+            'Overfit a single batch FIRST (batch_size=1) — if it will not overfit, your forward pass or loss has a bug',
+            'Verify your gradient: autograd vs numerical gradient check on one parameter',
+            'PyTorch Lightning: LightningModule, Trainer, callbacks, logging — use it once the manual loop works',
+            'Debugging: detect_anomaly, NaN detection, tensor shape assertions'
+          ],
+          'Module 2: Neural Network Foundations': [
             'Perceptron: linear classifier, XOR problem, limitations',
             'Multilayer Perceptron: hidden layers, universal approximation theorem',
-            'Forward pass: matrix multiplications + activation functions — implement in numpy first',
+            'Forward pass: matrix multiplications + activation functions — implement in numpy first, then in PyTorch',
             'Activation functions: Sigmoid, Tanh, ReLU, Leaky ReLU, GELU, Swish',
             'Loss functions: MSE, Binary CrossEntropy, Categorical CrossEntropy',
-            'Backpropagation: chain rule applied to computation graphs — DERIVE THIS ON PAPER',
+            'Backpropagation: chain rule applied to computation graphs — DERIVE THIS ON PAPER, then verify with the Module 1 gradient check',
             'Weight initialization: Xavier/Glorot (sigmoid/tanh), He (ReLU)',
             'Gradient descent: batch, mini-batch, stochastic (SGD)',
             'Optimizers: SGD (momentum), RMSProp, Adam, AdamW (weight decay)'
           ],
-          'Module 2: Regularization & Training Tricks': [
+          'Module 3: Regularization & Training Tricks': [
             'Dropout: randomly zero activations — ensembling effect',
             'Batch normalization: normalize layer inputs, accelerates training',
             'Layer normalization: used in Transformers and RNNs',
@@ -1560,7 +1577,7 @@ export const curriculum: Phase[] = [
             'Weight decay: L2 regularization in optimizer (AdamW)',
             'Mixed precision training: float16 for speed, float32 for stability'
           ],
-          'Module 3: Convolutional Neural Networks': [
+          'Module 4: Convolutional Neural Networks': [
             'Convolution operation: filter, stride, padding, output size formula',
             'Feature maps: what each filter learns, visualize with Grad-CAM',
             'Pooling: max pooling (position invariance), average pooling, global average pooling',
@@ -1570,25 +1587,24 @@ export const curriculum: Phase[] = [
             'Fine-tuning: unfreeze later layers with low LR',
             'Data augmentation: RandomCrop, ColorJitter, Mixup, CutMix, AugMix'
           ],
-          'Module 4: Recurrent Networks & Sequence Modeling': [
+          'Module 5: RNNs, Transformers & Sequence Modeling': [
             'Why standard NNs fail on sequences: fixed input size, no temporal memory',
             'Vanilla RNN: hidden state recurrence, BPTT (backprop through time)',
             'Vanishing gradient in RNNs: why gradients die over long sequences',
             'LSTM: cell state, forget gate, input gate, output gate — draw and understand',
             'GRU: simplified LSTM — reset gate + update gate, fewer parameters',
-            'Bidirectional RNN: process sequence in both directions',
-            'Sequence-to-sequence: encoder encodes input, decoder generates output'
-          ],
-          'Module 5: Transformers & Attention Mechanism': [
+            'Seq2seq and attention: encoder encodes, decoder generates — the bridge from RNNs to Transformers',
             'Attention intuition: focus on relevant words',
-            'Scaled dot-product attention: Q, K, V matrices, implement from scratch',
+            'Scaled dot-product attention: Q, K, V matrices, implement from scratch in PyTorch',
             'Why scale by sqrt(d_k): prevents softmax saturation',
             'Multi-head attention: parallel attention heads, concatenate, project',
             'Positional encoding: inject sequence position since attention is permutation-invariant',
             'Transformer encoder (BERT) and Transformer decoder (GPT)',
-            'BERT: masked language modeling, NSP, bidirectional context',
-            'GPT family: autoregressive (predict next token), causal masking, emergent abilities',
-            'Vision Transformer (ViT): transformer encoder on image patches'
+            'BERT: masked language modeling, bidirectional context',
+            'GPT family: autoregressive next-token prediction, causal masking, emergent abilities',
+            'KV-cache and FlashAttention: why inference is a different problem from training',
+            'Vision Transformer (ViT): transformer encoder over image patches',
+            'RNNs in one sentence: they matter for compact, streaming, low-latency systems; Transformers won everywhere else'
           ],
           'Module 6: Generative Models': [
             'Autoencoders: encoder compresses to latent space, decoder reconstructs',
@@ -1599,15 +1615,14 @@ export const curriculum: Phase[] = [
             'Score matching and DDPM: theoretical foundation of modern generation',
             'LLM training: pretraining (next token), SFT (instructions), RLHF (alignment)'
           ],
-          'Module 7: PyTorch in Depth': [
-            'Tensors: creation, indexing, broadcasting, device management (.to(\'cuda\'))',
-            'Autograd: computation graph, requires_grad, .backward(), .grad',
-            'nn.Module: define layers, implement forward(), state_dict()',
-            'DataLoader: custom Dataset class, __getitem__, transforms, batching',
-            'Training loop: zero_grad(), forward, loss, backward, step() — from scratch',
-            'Evaluation loop: model.eval(), torch.no_grad(), running metrics',
-            'PyTorch Lightning: LightningModule, Trainer, callbacks, logging',
-            'Debugging: detect_anomaly, gradient checking, NaN detection'
+          'Module 7: GPU, Performance & Scaling': [
+            'Where the time actually goes: GPU vs CPU vs data loading vs augmentation',
+            'Batch size and VRAM: the tradeoff, and why bigger batches need higher LR',
+            'Mixed precision, gradient accumulation, gradient checkpointing',
+            'DataLoader workers, pin_memory, persistent_workers',
+            'Profiling: torch.profiler, PyTorch Lightning profiler, identifying the real bottleneck',
+            'When to stop scaling and start regularizing',
+            'Training cost reality check: estimate GPU-hours before you start a training run'
           ]
         },
         projects: [
@@ -1657,81 +1672,71 @@ export const curriculum: Phase[] = [
           'Can you explain what makes BERT different from GPT architecturally?',
           'Can you explain how diffusion models generate images at a high level?'
         ],
-        whenStuck: 'Loss not decreasing? Step 1: overfit a single batch (set batch_size=1). If it converges, your architecture and loss are correct. If not, your forward pass or loss has a bug.'
+        whenStuck: 'Loss not decreasing? Step 1: overfit a single batch (set batch_size=1). If it converges, your architecture and loss are correct. If not, your forward pass or loss has a bug. Step 2: if a single batch converges but the full set does not, the bug is in your DataLoader or your transforms. Step 3: if the loss goes to NaN, check your loss function choice, your input normalization, and your learning rate before touching the architecture.'
       },
       {
         id: 'CS403',
         name: 'MLOps & LLM Engineering',
-        hours: 130,
-        duration: '10 weeks',
+        hours: 160,
+        duration: '10-12 weeks',
         difficulty: 'Hard',
         prerequisites: ['CS301', 'CS401'],
-        description: "A model in a Jupyter notebook is not a product. MLOps is what separates data scientists from ML engineers. LLM Engineering is the hottest skill in the PH tech market in 2025-2026. This subject covers both — because they are now inseparable.",
+        description: "A model in a Jupyter notebook is not a product. MLOps is what separates data scientists from ML engineers. LLM Engineering is the hottest skill in the PH tech market. This subject covers both because they are now inseparable. SCOPE NOTE: this subject previously listed roughly fourteen tools across six topics, which is not a curriculum — it is a glossary. It is now four topics with one chosen spine. Go deep on MLflow, FastAPI serving, and RAG. Read the rest on demand when a problem demands it.",
         topics: [
-          'ML Pipelines & Experiment Tracking',
-          'Model Deployment Patterns',
-          'Production ML Monitoring',
-          'LLM Engineering — Part 1: Foundations',
-          'LLM Engineering — Part 2: RAG & Agents',
-          'LLM Engineering — Part 3: Fine-Tuning & Production'
+          'Experiment Tracking & Reproducibility',
+          'Model Serving & Deployment',
+          'RAG & LLM Applications',
+          'Fine-Tuning & Production Hardening'
         ],
         subtopics: {
-          'ML Pipelines & Experiment Tracking': [
-            'Data versioning with DVC: dvc push/pull, remote storage',
-            'Experiment tracking: MLflow — log params, metrics, registry',
-            'Weights & Biases: sweeps for HPO, run comparison, collaboration',
-            'Reproducibility: random seeds, Hydra configs, model hash',
-            'Feature stores: Feast basics — centralized serving',
-            'Data validation: Great Expectations, Pandera — validate data contracts'
+          'Experiment Tracking & Reproducibility': [
+            'The one rule: every training run is reproducible from a single command',
+            'MLflow (PRIMARY): log params, metrics, tags, artifacts; the model registry',
+            'Weights & Biases: sweeps for HPO, run comparison, collaboration — pick ONE tracker, not both',
+            'Reproducibility: random seeds, Hydra configs, model hash, pinned data versions',
+            'DVC: read only when your data stops fitting in git LFS — version data with git until then',
+            'Data contracts and validation (Pydantic or Pandera): catch schema drift before it reaches training'
           ],
-          'Model Deployment Patterns': [
-            'Model as REST API: FastAPI endpoint, request batching',
-            'Model serialization: ONNX (portable), TorchScript (production)',
-            'Containerizing ML: Docker with model files, multi-stage builds',
-            'Cloud deployment: AWS SageMaker, GCP Vertex AI, HF Spaces',
-            'Batch vs real-time inference: latency vs throughput tradeoff',
-            'Model serving: BentoML, TorchServe, Triton Inference Server',
-            'Quantization: int8, float16 — reduce model size by 4x'
+          'Model Serving & Deployment': [
+            'Model as a REST API: FastAPI endpoint, request batching, model warm-up on startup',
+            'Serving patterns: eager loading vs lazy loading, singleton model instance',
+            'Batch vs real-time inference: the latency vs throughput tradeoff, and how to pick',
+            'ONNX: portable serialization that decouples training from serving',
+            'Containerizing ML: Docker with model files, multi-stage builds, model baked into the image',
+            'Cloud deployment: SageMaker, Vertex AI, HF Spaces — pick one, deploy it once',
+            'When you need a dedicated server (Triton, BentoML, TorchServe): only after FastAPI is genuinely the bottleneck',
+            'Data drift: input distribution changes — track PSI or a KS test against your training distribution',
+            'Concept drift: the relationship between X and y changes — only detectable once ground truth arrives, so log every prediction',
+            'Monitor with Evidently AI: open-source drift reports you can schedule in CI',
+            'A/B testing models: shadow deployment and traffic split; canary at 5% before full rollout',
+            'Retraining triggers: scheduled, performance-based, or drift-based — decide which one before you need it'
           ],
-          'Production ML Monitoring': [
-            'Data drift: input distribution changes — Kolmogorov-Smirnov test, PSI',
-            'Concept drift: relationship between X and y changes',
-            'Model performance monitoring: log predictions and ground truth',
-            'Evidently AI: open source drift detection and monitoring reports',
-            'A/B testing ML models: shadow deployment, traffic split',
-            'Canary deployment: route 5% of traffic, monitor, then increase',
-            'Retraining triggers: scheduled, performance-based, drift-based'
-          ],
-          'LLM Engineering — Part 1: Foundations': [
-            'Prompt engineering: zero-shot, few-shot, chain-of-thought (CoT)',
-            'System prompts: persona, constraints, output format, tone',
-            'Prompt chaining: break complex tasks into simpler prompts',
-            'Output parsing: JSON mode, Pydantic validation of responses',
-            'Token counting: tiktoken, manage context window limits',
-            'Temperature and top-p: randomness and diversity control',
-            'LLM APIs: OpenAI, Anthropic, Google Gemini — auth, limits, costs'
-          ],
-          'LLM Engineering — Part 2: RAG & Agents': [
+          'RAG & LLM Applications': [
             'RAG architecture: retrieve relevant context, augment, generate',
+            'Prompt engineering: zero-shot, few-shot, chain-of-thought; system prompts with persona and output format',
+            'Output parsing: JSON mode, Pydantic validation of responses, retries on parse failure',
             'Document processing: PyPDF2, python-docx, unstructured',
-            'Text chunking: fixed size, recursive, semantic chunking',
+            'Text chunking: fixed size, recursive, semantic — bad chunking is the #1 RAG failure mode',
             'Embeddings: sentence-transformers (free), OpenAI embeddings',
-            'Vector databases: FAISS, ChromaDB, Pinecone, Qdrant',
-            'Retrieval: cosine similarity, MMR for diversity, hybrid search',
-            'LangChain: chains, LCEL, retrievers, memory',
-            'LlamaIndex: nodes, indexes, query engines — alternative to LangChain',
+            'Vector databases: FAISS and ChromaDB (local) before Pinecone or Qdrant (hosted)',
+            'Retrieval: cosine similarity, MMR for diversity, hybrid search (BM25 + dense)',
+            'Reranking: cross-encoders over the top-k results — the cheapest large accuracy win in RAG',
+            'Semantic caching: cache embeddings, not just exact queries — cuts cost and latency dramatically',
+            'LangChain (ONLY ONE framework): chains, LCEL, retrievers, memory. Skip LlamaIndex entirely',
             'Agents and tools: ReAct pattern, tool calling, multi-step reasoning',
-            'Evaluation: RAGAS (faithfulness, relevance), LLM-as-judge, human eval'
+            'Evaluation: RAGAS (faithfulness, relevance), LLM-as-judge, human eval — vibe-checking is not evaluation'
           ],
-          'LLM Engineering — Part 3: Fine-Tuning & Production': [
-            'When to fine-tune vs RAG: RAG for knowledge, fine-tuning for behavior',
-            'LoRA: Low-Rank Adaptation — fine-tune with 1% of parameters',
-            'QLoRA: LoRA + 4-bit quantization — fine-tune 7B models on 1 GPU',
+          'Fine-Tuning & Production Hardening': [
+            'When to fine-tune vs RAG: RAG for knowledge, fine-tuning for behavior and format',
+            'LoRA: Low-Rank Adaptation — fine-tune with roughly 1% of parameters',
+            'QLoRA: LoRA + 4-bit quantization — fine-tune 7B models on one consumer GPU',
             'PEFT library: LoRA, QLoRA, prefix tuning — HF ecosystem',
-            'Training data preparation: instruction following format, quality > quantity',
-            'Evaluation after fine-tuning: compare against base model',
-            'Multi-agent systems: orchestrator + specialist agents, tool use',
-            'Building a production LLM app: streaming, error handling, fallbacks'
+            'Training data preparation: instruction-following format, quality over quantity',
+            'Evaluation after fine-tuning: compare honestly against the base model on your own test set',
+            'Cost engineering: track tokens per request, cost per user, cache hit rate — LLM bills grow silently',
+            'Latency engineering: p50/p95, streaming, timeouts, graceful degradation',
+            'Failure handling: timeouts, rate limits, refusals, hallucination fallbacks — plan for these before launch',
+            'Multi-agent systems: orchestrator plus specialist agents, and why you probably do not need one yet'
           ]
         },
         projects: [
@@ -1962,36 +1967,42 @@ export const curriculum: Phase[] = [
         difficulty: 'Hard',
         prerequisites: ['CS203', 'CS301'],
         description: "Many 'ML Engineer' job postings in the Philippines are actually Data Engineering roles in disguise. Even pure ML roles require data engineers upstream. This subject makes you T-shaped: strong ML foundations with enough data engineering to collaborate effectively — and enough to get data engineering roles as an alternative path.",
-        topics: ['Data Pipeline Fundamentals', 'Modern Data Stack', 'Big Data Processing', 'Data Engineering in Practice'],
+        topics: ['Orchestration & Pipeline Fundamentals', 'Warehouse Stack: dbt & BigQuery', 'Big Data Processing (Reference Depth)', 'Data Engineering in Practice'],
         subtopics: {
-          'Data Pipeline Fundamentals': [
-            'ETL vs ELT: extract-transform-load vs extract-load-transform',
-            'Batch processing vs Stream processing (real-time dashboards)',
-            'Orchestration: Airflow (standard), Prefect, Dagster',
-            'Apache Airflow: DAGs, operators, sensors, XComs, UI',
-            'Pipeline testing: unit tests, integration tests, quality checks'
+          'Orchestration & Pipeline Fundamentals': [
+            'ETL vs ELT: extract-transform-load vs extract-load-transform, and why ELT won',
+            'Batch processing vs stream processing — pick batch unless you have a proven reason not to',
+            'Apache Airflow (PRIMARY): DAGs, operators, sensors, XComs, the UI, scheduling',
+            'Idempotency and backfills: how to re-run yesterday safely',
+            'Pipeline testing: unit tests on transforms, integration tests on loads, data quality checks as assertions',
+            'Prefect and Dagster: read only if you need something Airflow does not do'
           ],
-          'Modern Data Stack': [
-            'Data warehouses: OLAP vs OLTP, BigQuery, Snowflake',
-            'dbt (data build tool): models, tests, lineage, SQL transformations',
-            'dbt project structure: staging, intermediate, marts',
-            'Data quality: dbt tests (unique, not_null, custom)',
+          'Warehouse Stack: dbt & BigQuery': [
+            'Data warehouses: OLAP vs OLTP, columnar storage, why BigQuery and Snowflake exist',
+            'dbt (PRIMARY): models, tests, lineage, SQL transformations, Jinja macros',
+            'dbt project structure: staging, intermediate, marts — one responsibility per layer',
+            'Data quality as code: dbt tests (unique, not_null, accepted_values) plus custom singular tests',
+            'dbt Cloud or the free tier: get a real project running in an afternoon',
+            'Warehouse cost reality check: partition and cluster tables, query slot-hours add up fast',
             'Data catalog: metadata, column lineage, schema evolution'
           ],
-          'Big Data Processing': [
-            'Distributed computing: when pandas fails (> RAM size)',
-            'Apache Spark: RDD, DataFrame API, SparkSQL, PySpark',
-            'Spark concepts: driver, executors, partitions, shuffles',
+          'Big Data Processing (Reference Depth)': [
+            'When pandas fails: the moment your data no longer fits comfortably in memory',
+            'Apache Spark (REFERENCE): understand RDD, DataFrame, partition, shuffle — do not try to learn it in 2 weeks',
+            'Why shuffles are the expensive part: they move data across the network',
             'Parquet format: columnar storage, compression, predicate pushdown',
-            'Delta Lake: ACID transactions, time travel, schema enforcement',
-            'Kafka: producers, consumers, topics, partitions'
+            'Delta Lake (REFERENCE): ACID transactions and time travel — know the concepts',
+            'Kafka (REFERENCE): producers, consumers, topics, partitions — you already understand the shape of this from CS303',
+            'The honest guidance: a cron job is often sufficient. Over-engineering small pipelines is the most common beginner mistake here'
           ],
           'Data Engineering in Practice': [
-            'Data modeling: star schema (fact + dimension), snowflake schema',
-            'Slowly Changing Dimensions (SCD): Type 1, 2, and 3',
+            'Data modeling: star schema (fact + dimension), snowflake schema, when each is correct',
+            'Slowly Changing Dimensions (SCD): Type 1, 2, and 3 — Type 2 is the one interviews ask about',
             'Data lake architecture: bronze/silver/gold layers',
-            'Data mesh concepts: domain ownership, data as a product',
-            'Data engineering interview: SQL window functions, pipeline design'
+            'Schema evolution: additive vs breaking changes, and how to not break downstream consumers',
+            'Data contracts: agree the schema before you build, not after it breaks',
+            'Data mesh concepts: domain ownership, data as a product — understand the idea, do not build it',
+            'Data engineering interview: SQL window functions, pipeline design, and why your join dropped rows'
           ]
         },
         projects: [
@@ -2034,11 +2045,11 @@ export const curriculum: Phase[] = [
     id: 5,
     name: 'Career & Interview Preparation',
     duration: 'Ongoing — intensify 3 months before target start date',
-    hours: 200,
+    hours: 290,
     color: '#10b981',
     description: 'Skills mean nothing if you cannot demonstrate them under pressure. Get hired. Know your worth.',
-    mustComplete: ['CS501 Technical interviews (DSA + system design)', 'CS502 Portfolio + job search strategy'],
-    niceToHave: ['Open source contributions', 'Technical blog with 1000+ monthly readers', 'Conference talks'],
+    mustComplete: ['CS501 Technical interviews (DSA + system design)', 'CS502 Portfolio & Brand (continuous — starts Phase 1)', 'CS502D Job Search Execution & Negotiation (Phase 6)', 'CS502B Professional Dynamics (read before your first job)'],
+    niceToHave: ['CS502C Communication Mastery', 'Open source contributions', 'Technical blog with 1000+ monthly readers', 'Conference talks'],
     interviewHabit: "Note: if you've been following the interview habits from each phase, you've already done 12+ mock interviews and 40+ Codeforces contests by the time you reach Phase 5. You are already prepared. This phase is refinement, not starting from zero.",
     capstone: {
       name: 'The Professional Candidate (You)',
@@ -2155,21 +2166,19 @@ export const curriculum: Phase[] = [
       },
       {
         id: 'CS502',
-        name: 'Portfolio, Brand & Job Search Strategy',
-        hours: 80,
-        duration: 'Build continuously from Phase 1',
+        name: 'Portfolio, Brand & Online Presence',
+        hours: 50,
+        duration: 'Continuous from Phase 1 — ~2h/week alongside any subject',
         difficulty: 'Intermediate',
-        prerequisites: ['CS301', 'CS302'],
-        description: "In the Philippines, your GitHub, LinkedIn, and portfolio website are reviewed before you get a single phone call. Your online presence is your resume before your resume. Build in public from day one — every week, every project, every learning. This is the fastest path to inbound opportunities.",
+        description: "TRACK 1 of 2 — the continuous half. In the Philippines, your GitHub, LinkedIn, and portfolio website are reviewed before you get a single phone call. Your online presence is your resume before your resume. This track starts in Phase 1 and never stops, because these assets compound: a profile README written in month 1 and maintained for 30 months signals something no resume can. The execution half — where to apply, how to negotiate — is CS502D, which runs in Phase 6 once you have evidence to point at. This subject deliberately has no prerequisites: you build your brand in public from day one, alongside whatever subject you happen to be studying.",
         topics: [
-          'Building a Standout Portfolio',
+          'Portfolio Site & Case Studies',
           'GitHub Profile Mastery',
-          'LinkedIn & Online Presence Strategy',
-          'Philippines Job Market Strategy',
-          'Salary Negotiation (The PH-Specific Script)'
+          'LinkedIn & ML Platform Presence',
+          'Technical Blog & Build in Public'
         ],
         subtopics: {
-          'Building a Standout Portfolio': [
+          'Portfolio Site & Case Studies': [
             'Quality over quantity: 3 exceptional projects beat 10 mediocre ones',
             'Live deployed demo (not localhost), clean code, professional README',
             'README: what it does, why you built it, tech stack, key features',
@@ -2186,33 +2195,23 @@ export const curriculum: Phase[] = [
             'Open source contributions: even bug fixes in docs count',
             'GitHub Actions: green CI badges signal professional code quality'
           ],
-          'LinkedIn & Online Presence Strategy': [
+          'LinkedIn & ML Platform Presence': [
             'Headline formula: [Role] | [Top Skills] | [What you build]',
             'About section: your story, technical strengths, what you seek',
             'Featured section: pin your portfolio site, best live demo, articles',
             'Endorsements: get peers to endorse real skills (FastAPI, React, etc.)',
             'Content strategy: one technical post per week on your learnings',
+            'HuggingFace profile: publish your fine-tuned models with real model cards from CS405',
+            'Kaggle profile: your competition history is the ML equivalent of a GitHub contribution graph',
             'PH communities: DevCon PH, Python PH, ML Philippines'
           ],
-          'Philippines Job Market Strategy': [
-            'Entry-level targets: Exist, Pointwest, Accenture PH, ING Hubs, KMC',
-            'Product companies: GCash (Mynt), Paymaya (Voyager), Kumu, Sprout',
-            'Multinational tech: Booking.com, Amazon AWS, Google, Grab',
-            'Remote-first: Toptal, Andela, X-Team, Deel, Remote.com',
-            'FAANG+: prepare 6 months specifically, 3 mock interviews per week',
-            'Salary benchmarks 2025: Junior P40-70K, Mid P80-120K, Senior P150-250K',
-            'Remote international: $2,000-5,000/month USD (3-5x local rates)',
-            'Freelance: build reputation on Upwork before direct clients'
-          ],
-          'Salary Negotiation (The PH-Specific Script)': [
-            'Never give a number first: "I\'d like to understand the full package first"',
-            'Research: Glassdoor, levels.fyi, asking peers in the community',
-            'Range tactic: give a range based on research with target at bottom',
-            'Counter-offer: "Based on my research and experience, I was expecting X"',
-            'Never accept on spot: request 48 hours to review the full offer',
-            'Total comp: base, 13th month, HMO, stock, bonus, learning budget',
-            'Silence tactic: state your counter-offer, then stop talking',
-            'Walk away power: always have a competing offer as leverage'
+          'Technical Blog & Build in Public': [
+            'Consistency beats quality in the early months — weekly is the target, not daily',
+            'Document the project, not the tutorial: what you tried, what broke, what you learned',
+            'Write the post the day you finish the project, not a week later when you have forgotten it',
+            'Repurpose one project into three formats: blog post, README, LinkedIn post',
+            'Answer questions on Stack Overflow or dev.to — visible expertise compounds',
+            'Archive everything to your own portfolio site so you own the audience'
           ]
         },
         projects: [
@@ -2228,94 +2227,226 @@ export const curriculum: Phase[] = [
             level: 'Int', 
             outcome: 'At least 2 posts with 500+ views — document your projects and learnings' 
           },
-          { 
-            name: 'Job Campaign', 
-            description: 'Apply to 60 companies, track everything', 
-            level: 'Adv', 
-            outcome: '20 warm applications, follow-up emails drafted, spreadsheet with full history' 
-          }
-        ],
+                ],
         resources: [
-          { name: 'levels.fyi', type: 'Website', cost: 'Free', stars: 5, url: 'https://levels.fyi', notes: 'Tech salary data globally — know your worth' },
-          { name: 'Tech Interview Handbook', type: 'Website', cost: 'Free', stars: 5, url: 'https://www.techinterviewhandbook.org', notes: 'Job search strategy, resume templates, negotiation scripts' },
-          { name: 'Developers Connect PH', type: 'Community', cost: 'Free', stars: 5, notes: 'Active PH dev community, jobs posted, salary discussions' },
-          { name: 'LinkedIn', type: 'Platform', cost: 'Free', stars: 4, notes: 'Most important professional platform in PH' }
+          { name: 'GitHub', type: 'Platform', cost: 'Free', stars: 4, url: 'https://github.com', notes: 'Your profile README, pinned repos, and green CI badges are reviewed before your resume ever is' },
+          { name: 'Tech Interview Handbook', type: 'Website', cost: 'Free', stars: 5, url: 'https://www.techinterviewhandbook.org', notes: 'The resume and portfolio half belongs here; the interview half belongs in CS501' },
+          { name: 'Developers Connect PH', type: 'Community', cost: 'Free', stars: 5, notes: 'Active PH dev community — post your work, find people who will review it' },
+          { name: 'LinkedIn', type: 'Platform', cost: 'Free', stars: 4, notes: 'Most recruiters in PH find you here first — keep the headline and About current' }
         ],
         commonMistakes: [
-          'Waiting to apply until everything feels ready — start at Phase 3',
-          'Putting your expected salary too low because you\'re afraid',
-          'Not following up after applications (5 business days is professional)',
-          'Treating the job search as passive — you need to warm up connections',
-          'Accepting the first offer immediately — always take 24-48 hours and counter'
+          'Building your brand only in Phase 5 — these assets compound, so start in week 1',
+          'Treating the profile README as a one-time task — it must reflect what you are building right now',
+          'Committing only large features — recruiters read commit history as evidence of work habits',
+          'Writing blog posts about tutorials you watched instead of projects you built',
+          'Waiting for the perfect portfolio site before sharing anything',
+          'Posting and disappearing — one post a week for 30 weeks beats one great post'
         ],
         selfCheck: [
-          'Do you have 3 projects deployed live with live demo URLs right now?',
-          'Can you explain any portfolio project in 3 minutes with clear depth?',
-          'Is your GitHub showing consistent daily commits for the past 3+ months?',
-          'Have you researched and written down your target salary range?',
-          'Can you deliver your salary counter-offer without hesitating?'
+          'Does your GitHub profile README exist, and does it say what you are building right now?',
+          'Is there a live, deployed portfolio project with a URL someone else can open?',
+          'Can you explain any portfolio project in 3 minutes with real technical depth?',
+          'Is your GitHub showing consistent activity over the last 4 weeks, not just one big day?',
+          'Have you published at least one post about a project you actually finished?',
+          'Do your pinned repositories (max 6) represent your best work, curated on purpose?'
         ],
-        whenStuck: 'Getting no callbacks? 90% of the time the problem is your resume or portfolio — not the market. Send your resume to 3 senior engineers you trust for brutally honest feedback.'
+        whenStuck: "No idea what to write about? Open your last commit and answer one question: 'what did I have to learn to make this work?' That is a blog post, and you already have five minutes of material. Publishing badly today beats publishing perfectly never."
+      },
+      {
+        id: 'CS502D',
+        name: 'Job Search Execution & Salary Negotiation',
+        hours: 50,
+        duration: 'Phase 6 — intensify 3 months before your target start date',
+        difficulty: 'Intermediate',
+        prerequisites: ['CS301', 'CS302', 'CS501'],
+        description: "TRACK 2 of 2 — the execution half. This subject used to be half of CS502, which contradicted itself: it declared prerequisites on Phase 3 subjects while its own description and duration both said to build continuously from Phase 1. The split resolves it. The brand half (CS502) runs continuously from week 1; this half runs in Phase 6, once you have deployed projects and interview reps to point at. Applying before you have evidence wastes your one-shot credibility — and the PH market is small and connected enough that recruiters remember who applied early and unprepared.",
+        topics: [
+          'Application Strategy & Targeting',
+          'Resume & ATS Optimization',
+          'Philippines Job Market Strategy',
+          'Salary Negotiation (The PH-Specific Script)',
+          'Follow-up & Offer Handling'
+        ],
+        subtopics: {
+          'Application Strategy & Targeting': [
+            'Warm applications beat cold applications — network before you apply, every time',
+            'Track everything: company, role, date, stage, contact, follow-up date',
+            'Tier your list: 10 dream, 20 target, 30 safe — apply to all three tiers',
+            'Ask specifically, not vaguely: "do you know anyone on the backend team?"',
+            'Inbound vs outbound — your CS502 brand should be generating applications for you',
+            'Follow up at 5 business days. Once, professionally, then move on'
+          ],
+          'Resume & ATS Optimization': [
+            'ATS: single column, standard fonts, no tables, no graphics, no headers-as-images',
+            'Mirror the exact keywords from the posting — ATS matching is keyword matching, not prose',
+            'Quantify everything: requests served, latency reduced, accuracy gained, users reached',
+            'One page for junior roles, two maximum — cut anything you cannot defend live',
+            'Name your stack plainly: FastAPI, PostgreSQL, React, TypeScript, PyTorch, Docker',
+            'Your CS502 portfolio and GitHub are the proof behind every claim on this page'
+          ],
+          'Philippines Job Market Strategy': [
+            'Entry-level targets: Exist, Pointwest, Accenture PH, ING Hubs, KMC',
+            'Product companies: GCash (Mynt), Paymaya (Voyager), Kumu, Sprout',
+            'Multinational tech: Booking.com, Amazon AWS, Google, Grab',
+            'Remote-first: Toptal, Andela, X-Team, Deel, Remote.com',
+            'FAANG+: prepare 6 months specifically, 3 mock interviews per week',
+            'Salary benchmarks 2025 (VERIFY before use — these go stale): Junior P40-70K, Mid P80-120K, Senior P150-250K',
+            'Remote international: $2,000-5,000/month USD (3-5x local rates)',
+            'Freelance: build reputation on Upwork before direct clients'
+          ],
+          'Salary Negotiation (The PH-Specific Script)': [
+            'Never give a number first: "I\'d like to understand the full package first"',
+            'Research: Glassdoor, levels.fyi, asking peers in the community',
+            'Range tactic: give a range based on research, with your target at the bottom',
+            'Counter-offer: "Based on my research and experience, I was expecting X"',
+            'Never accept on spot: request 48 hours to review the full offer',
+            'Total comp: base, 13th month, HMO, stock, bonus, learning budget',
+            'Silence tactic: state your counter-offer, then stop talking',
+            'Walk away power: always have a competing offer as leverage'
+          ],
+          'Follow-up & Offer Handling': [
+            'The 48-hour rule: never accept or decline on the day you are offered',
+            'Ask for the offer in writing before you negotiate anything',
+            'Compare total compensation, not base salary — PH 13th month and HMO are large',
+            'Ask explicitly about leave policy, probation length, and notice period',
+            'If you have two offers, say so — that is legitimate leverage, not bluffing',
+            'Declining gracefully: keep the door open, ask for a referral, stay in touch'
+          ]
+        },
+        projects: [
+          { name: 'Job Campaign', description: 'Apply to 60 companies, track everything', level: 'Adv', outcome: '20 warm applications, follow-up emails drafted, spreadsheet with full history' },
+          { name: 'ATS Resume Variants', description: '3 tailored resume versions', level: 'Int', outcome: 'Each version mirrors one posting\'s keywords; track which version actually gets callbacks' },
+          { name: 'Salary Research Dossier', description: 'Written target-comp breakdown', level: 'Int', outcome: 'Base + 13th month + HMO + bonuses for 10 target roles, sourced and dated' }
+        ],
+        resources: [
+          { name: 'levels.fyi', type: 'Website', cost: 'Free', stars: 5, url: 'https://levels.fyi', notes: 'Tech salary data globally — know your worth before you speak' },
+          { name: 'Tech Interview Handbook', type: 'Website', cost: 'Free', stars: 5, url: 'https://www.techinterviewhandbook.org', notes: 'Job search strategy, resume templates, negotiation scripts' },
+          { name: 'Developers Connect PH', type: 'Community', cost: 'Free', stars: 5, notes: 'Active PH dev community, jobs posted, salary discussions' },
+          { name: 'Blind', type: 'Website', cost: 'Free', stars: 4, url: 'https://www.teamblind.com', notes: 'Anonymous comp and culture data — treat as a signal, verify anything you rely on' }
+        ],
+        commonMistakes: [
+          'Applying cold to 60 companies with one generic resume',
+          'Putting your expected salary too low because you are afraid',
+          'Not following up after applications (5 business days is professional)',
+          'Treating the job search as passive — you have to warm up connections',
+          'Accepting the first offer immediately — always take 24-48 hours and counter',
+          'Comparing offers on base salary alone and ignoring 13th month and HMO'
+        ],
+        selfCheck: [
+          'Have you researched and written down your target salary range with sources?',
+          'Can you deliver your counter-offer out loud without hesitating?',
+          'Do you have 3 projects deployed live with URLs you can put on a resume?',
+          'Is your application tracker complete enough to tell me my callback rate?',
+          'Have you asked specifically for referrals, rather than "any opportunities"?',
+          'Can you explain your resume line by line — is every claim defensible live?'
+        ],
+        whenStuck: "Getting no callbacks? 90% of the time it is your resume or portfolio, not the market. Send your resume to 3 senior engineers you trust and ask specifically for brutal honesty. Do not send it to 30 strangers and change nothing."
       },
       {
         id: 'CS502B',
         name: 'Professional Dynamics & Working in Teams',
-        hours: 40,
+        hours: 50,
         duration: '3 weeks',
         difficulty: 'Intermediate',
-        description: 'The top 0.1% engineers get things done through people. They navigate teams, resolve conflicts, communicate uncertainty, manage up, and build trust.',
-        topics: ['Part 1: Your First 30 Days', 'Part 2: Receiving Critical Feedback', 'Part 3: Asking for Help', 'Part 4: Managing Up', 'Part 5: Conflict Resolution', 'Part 6: Saying No'],
+        description: 'The top 0.1% engineers get things done through people. They navigate teams, resolve conflicts, communicate uncertainty, manage up, and build trust. The 16 numbered SCENARIO entries below were previously stranded in a Markdown string rendered by a single component; they are now first-class curriculum. Each one is a situation you will actually hit in your first job, paired with the response that keeps the situation small. Read them as scripts, not theory — say the response out loud until it feels natural, because under real pressure you will not have time to compose it.',
+        topics: ['Part 1: Your First 30 Days', 'Part 2: Production Pressure & Being Paged', 'Part 3: Receiving Feedback & Owning Failure', 'Part 4: Asking for Help & Being Stuck', 'Part 5: Disagreement, Conflict & Managing Up', 'Part 6: Scope, Dead Features & Saying No', 'Part 7: Team Boundaries & Knowing When to Leave'],
         subtopics: {
           'Part 1: Your First 30 Days': [
-            'Unwritten rules: Speak up early, assume best intent',
-            'Build relationships before you need them',
+            'Unwritten rules: speak up early, assume best intent',
+            'Build relationships before you need them — ask people what they own, not just what you need',
             'Listen more than you talk in the first month',
-            'Document what you learn'
+            'Keep a personal notes file; nobody else will teach you the unwritten rules',
+            'SCENARIO 12 — You feel like you do not belong: this is normal, everyone feels it on day 1, and productivity ramps in month 3-4, not week 1',
+            'SCENARIO 12 — contribute incrementally: small bug fix (3h), small feature (1wk), then compound upward',
+            'Never quit in week 2 over this feeling — quitting is the one irreversible mistake available to you'
           ],
-          'Part 2: Receiving Critical Feedback': [
-            'Receive -> Pause -> Respond framework',
-            'Separate yourself from your code',
-            'What NOT to say (excuses, defensiveness)'
+          'Part 2: Production Pressure & Being Paged': [
+            'SCENARIO 1 — Production is down, SEV 1: acknowledge in Slack first, then check three things — service running, last 5 minutes of ERROR logs, metrics spike',
+            'SCENARIO 1 — recent deploy in the last 5 minutes? Try rollback before debugging anything',
+            'SCENARIO 1 — say "investigating, initial status is X, ETA is Y minutes", never "I do not know, I will figure it out"',
+            'SCENARIO 10 — Paged at 2am, error rate spiked: 3 breaths first, then ask what spiked, which endpoint, how many users affected',
+            'SCENARIO 10 — escalate early and without shame: "I found X, this is beyond my current scope, can you look at it?"',
+            'SCENARIO 10 — post the all-clear when fixed, then write it down today for tomorrow\'s postmortem',
+            'SCENARIO 7 — works locally, broken in production, cryptic error: scope it (always or intermittent? which users?), check service, logs, last 5 commits',
+            'SCENARIO 7 — Reproduce, Understand, Fix, Verify. If you cannot reproduce, that inability IS your finding'
           ],
-          'Part 3: Asking for Help': [
-            'The 30-minute rule',
+          'Part 3: Receiving Feedback & Owning Failure': [
+            'Receive, Pause, Respond: never respond in the first 10 seconds',
+            'Separate yourself from your code — the code being wrong is not you being wrong',
+            'What NOT to say: excuses, "but I tested it", "that does not make sense"',
+            'If you still disagree after 10 seconds: "I see your point, can we talk through the alternative? I tried X but hit Y"',
+            'SCENARIO 2 — critical feedback in code review: getting defensive once measurably reduces how carefully your future PRs are reviewed',
+            'SCENARIO 3 — a bug reaches production and it is your fault: acknowledge immediately, fix, then write what went wrong and how you prevent it',
+            'SCENARIO 3 — at the postmortem own it: "I wrote this code, I should have caught that edge case"',
+            'SCENARIO 15 — imposter syndrome: build an evidence file of what you did well, saved positive feedback, shipped projects; re-read it when the feeling hits',
+            'SCENARIO 15 — everyone feels fraudulent; seniors feel it too, and will say so if you ask in a 1-on-1'
+          ],
+          'Part 4: Asking for Help & Being Stuck': [
+            'The 30-minute rule: spend 30 minutes yourself before asking anyone',
             'How to ask: Context, What you tried, The exact error, Your hypothesis',
-            'Public vs private asking'
+            'Script: "I am implementing X. I have looked at Y, but I am unsure about Z. Here is the code."',
+            'Ask one specific person, not the whole channel',
+            'SCENARIO 5 — you do not know how to do something: reading, googling, and trying a similar codebase come first, then ask',
+            'SCENARIO 5 — after they help, implement it yourself; do not ask them to write it for you',
+            'Public vs private asking: public is better when the answer helps everyone and you are not stuck on something basic'
           ],
-          'Part 4: Managing Up': [
-            '1-on-1s: You own the agenda',
-            'Communicating status and uncertainty',
-            'Proposing solutions, not just pointing out problems'
+          'Part 5: Disagreement, Conflict & Managing Up': [
+            'SCENARIO 6 — disagreement with a teammate: understand their concern first (maintainability? performance? risk?), state yours once, then compromise or defer to seniority',
+            'SCENARIO 6 — let them be right: "good call, here is why it worked" beats "I told you so"',
+            'Technical disagreements: data wins. Run the benchmark, show the number',
+            '"Disagree and commit": raise it once with evidence, then fully support the decision',
+            'SCENARIO 8 — you disagree with your manager\'s decision: four options, escalating only when it is a values issue',
+            '1-on-1s: you own the agenda — status, blockers, career',
+            'Proposing solutions, not just pointing out problems',
+            'SCENARIO 13 — a toxic team member: is it you or them? ask a teammate first, document interactions, talk to your manager, then request a move',
+            'When you disagree with your manager: "I am concerned about X, can we mitigate with Y?"'
           ],
-          'Part 5: Conflict Resolution': [
-            'Technical disagreements (data wins)',
-            'The "disagree and commit" philosophy',
-            'Addressing toxic behavior properly'
+          'Part 6: Scope, Dead Features & Saying No': [
+            'SCENARIO 9 — the feature you built is not used: understand why, extract the learning, then let it go; code is not precious, shipping is',
+            'SCENARIO 9 — do not defend a feature emotionally; "I spent 2 weeks on it" is not an argument',
+            'SCENARIO 14 — asked to cut corners for ship speed: minor corners (docs, logging) can be cut if the deadline is real, with a commitment to pay them back',
+            'SCENARIO 14 — never cut: security, data privacy, critical reliability, error handling',
+            'SCENARIO 14 — the counter that works: "tests take 1 day, not testing means 3 days of production bugs. Better to ship Thursday tested than Tuesday broken"',
+            'How to say no: the "Yes, and" approach — "Yes, and it is 2 weeks, can we cut scope or move the deadline?"',
+            'Negotiating scope instead of rejecting tasks',
+            'SCENARIO 11 — you found someone else\'s bug in your code: "I found an issue in service X, here is the reproduction, want me to send a PR?" Never "this service is broken"'
           ],
-          'Part 6: Saying No': [
-            'How to say no respectfully (the "Yes, and" approach)',
-            'Negotiating scope instead of rejecting tasks'
+          'Part 7: Team Boundaries & Knowing When to Leave': [
+            'SCENARIO 4 — your manager asks how much longer: tell them today, not tomorrow; be specific; ask "does the deadline move, or do we cut scope?"',
+            'SCENARIO 4 — estimate 30% longer than your first instinct, then you look good when you finish early',
+            'Bad news travels fast: surface blockers immediately, never the day before a deadline',
+            'SCENARIO 8 — the four escalation options, from "okay, I understand the tradeoffs" to requesting removal from the project on values grounds',
+            'The meta decision — red flags: 6+ months of no learning, sustained 60+ hour weeks, ethical violations, unescapable hostility, suffering mental health',
+            'The meta decision — green flags: monthly learning, hard problems, people you respect, 40-50 hour weeks, aligned culture',
+            'When to jump: when upside is capped, learning stops, or red flags outweigh green — NOT after one bad week, NOT because it is hard, NOT for more money at a worse job'
           ]
         },
         projects: [
+          { name: 'Scenario Drill', description: 'Write out loud your response to all 16 scenarios', level: 'Adv', outcome: 'Every scenario answered in under 60 seconds, timed by a peer, no notes' },
           { name: '1-on-1 Agenda', description: 'Create an agenda for a 1-on-1 with a manager/mentor', level: 'Beg', outcome: 'Status update, blockers, career discussion' },
-          { name: 'Feedback Response Practice', description: 'Write scripts for how to respond to harsh feedback', level: 'Int', outcome: 'Receive -> Pause -> Respond applied to real scenarios' }
+          { name: 'Feedback Response Practice', description: 'Write scripts for how to respond to harsh feedback', level: 'Int', outcome: 'Receive, Pause, Respond applied to real scenarios including SCENARIO 2 and SCENARIO 3' }
         ],
         resources: [
-          { name: 'Staff Engineer', type: 'Book', cost: 'Paid', stars: 5, notes: 'By Will Larson, great for understanding high-level team dynamics' },
-          { name: 'Crucial Conversations', type: 'Book', cost: 'Paid', stars: 4, notes: 'Handling high-stakes disagreements' }
+          { name: 'Staff Engineer', type: 'Book', cost: 'Paid', stars: 5, notes: 'By Will Larson — great for understanding high-level team dynamics and why senior engineers spend their time the way they do' },
+          { name: 'Crucial Conversations', type: 'Book', cost: 'Paid', stars: 4, notes: 'Handling high-stakes disagreements — directly maps to SCENARIO 6 and SCENARIO 8' },
+          { name: 'The Manager\'s Path', type: 'Book', cost: 'Paid', stars: 5, notes: 'For when you are managing up and want to know what your manager is actually optimizing for' }
         ],
         commonMistakes: [
-          'Getting defensive during code reviews',
-          'Suffering in silence instead of asking for help',
-          'Surprising your manager with bad news at the last minute'
+          'Getting defensive during code reviews — SCENARIO 2 is the most expensive habit on this page',
+          'Suffering in silence instead of asking for help after the 30-minute rule',
+          'Surprising your manager with bad news at the last minute — SCENARIO 4',
+          'Escalating to your manager before talking to the person directly',
+          'Confusing loudness with correctness in a technical disagreement'
         ],
         selfCheck: [
-          'How do you properly ask a senior engineer for help?',
-          'A teammate gives you harsh feedback on a PR. How do you respond?',
-          'Your manager asks you to do a task that takes 2 weeks, but you only have 3 days. What do you say?'
+          'How do you properly ask a senior engineer for help? Say the actual words.',
+          'A teammate gives you harsh feedback on a PR. What is your first sentence?',
+          'Your manager asks for a 2-week task with 3 days left. What do you say?',
+          'Production is down and you do not know why. Walk me through your first 15 minutes.',
+          'You disagree with your manager on a technical decision. Walk me through your options in order.',
+          'How do you decide whether to stay or leave a team? What are the specific signals?'
         ],
-        whenStuck: 'When dealing with people problems, always assume best intent first. Talk to people directly before escalating.'
+        whenStuck: 'When dealing with people problems, always assume best intent first and talk to the person directly before escalating. If you find yourself rehearsing an argument for more than ten minutes, the problem is that you have not yet tried the boring option: saying what you actually mean, plainly, to the person involved.'
       },
       {
         id: 'CS502C',
